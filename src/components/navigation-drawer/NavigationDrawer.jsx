@@ -9,7 +9,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -25,7 +24,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 
-const drawerWidth = 285;
+const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -181,9 +180,7 @@ export const NavigationDrawer = () => {
     >
       <MenuItem>
         <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <MailIcon />
-          </Badge>
+          <MailIcon />
         </IconButton>
         <p>Messages</p>
       </MenuItem>
@@ -193,9 +190,7 @@ export const NavigationDrawer = () => {
           aria-label="show 17 new notifications"
           color="inherit"
         >
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
-          </Badge>
+          <NotificationsIcon />
         </IconButton>
         <p>Notifications</p>
       </MenuItem>
@@ -217,7 +212,7 @@ export const NavigationDrawer = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
+      <AppBar position="fixed" open={open} sx={{ bgcolor: '#f5f5f5', color: '#000000' }}>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -239,18 +234,14 @@ export const NavigationDrawer = () => {
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="error">
-                <MailIcon />
-              </Badge>
+              <MailIcon />
             </IconButton>
             <IconButton
               size="large"
               aria-label="show 17 new notifications"
               color="inherit"
             >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
+              <NotificationsIcon />
             </IconButton>
             <IconButton
               size="large"
@@ -280,11 +271,21 @@ export const NavigationDrawer = () => {
       </AppBar>
       {renderMobileMenu}
       {renderPrimaryMenu}
-      <MiniVariantDrawer variant="permanent" open={open}>
+      <MiniVariantDrawer 
+        variant="permanent" 
+        open={open} 
+        PaperProps={{
+          sx: {
+            backgroundColor: "#f5f5f5",
+          }
+        }}
+      >
         <DrawerHeader>
-          <a href="https://tremol.bg/en">
-            <img src="/assets/images/tremol-full-logo.jpg" alt="Tremol Logo" style={{ width: '100%', height: '55px' }} />
-          </a>
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <a href="https://tremol.bg/en">
+              <img src="/assets/images/tremol-full-text-logo.png" alt="Tremol Logo" style={{ width: '100%', height: '1.5rem' }} />
+            </a>
+          </Box>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
