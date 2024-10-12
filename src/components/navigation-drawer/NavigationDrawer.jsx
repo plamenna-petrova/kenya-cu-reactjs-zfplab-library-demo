@@ -212,7 +212,7 @@ export const NavigationDrawer = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open} sx={{ bgcolor: '#f5f5f5', color: '#000000' }}>
+      <AppBar position="fixed" elevation={0} open={open} sx={{ bgcolor: '#f5f5f5', color: '#000000' }}>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -268,6 +268,7 @@ export const NavigationDrawer = () => {
             </IconButton>
           </Box>
         </Toolbar>
+        <Divider />
       </AppBar>
       {renderMobileMenu}
       {renderPrimaryMenu}
