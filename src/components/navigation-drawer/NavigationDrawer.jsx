@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
+import { FISCAL_DEVICE_CONNECTION, FISCAL_RECEIPTS, REPORTS } from '../../utils/constants';
+import { useSelector, useDispatch } from 'react-redux';
+import { setActiveSection } from '../../store/slices/appNavigationSlice';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -23,6 +26,9 @@ import ListItemText from '@mui/material/ListItemText';
 import SensorsIcon from '@mui/icons-material/Sensors';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import FiscalDeviceConnection from '../fiscal-device-connection/FiscalDeviceConnection';
+import FiscalReceipts from '../fiscal-receipts/FiscalReceipts';
+import Reports from '../reports/Reports';
 
 const drawerWidth = 240;
 
@@ -105,7 +111,24 @@ const MiniVariantDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop 
 
 export const NavigationDrawer = () => {
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const activeSection = useSelector((state) => state.appNavigation.activeSection);
   const [open, setOpen] = useState(true);
+
+  const sidebarMenuItems = [
+    {
+      title: FISCAL_DEVICE_CONNECTION,
+      icon: <SensorsIcon />
+    },
+    {
+      title: FISCAL_RECEIPTS,
+      icon: <ReceiptIcon />
+    },
+    {
+      title: REPORTS,
+      icon: <ReceiptLongIcon />
+    }
+  ];
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -115,20 +138,9 @@ export const NavigationDrawer = () => {
     setOpen(false);
   };
 
-  const sidebarMenuItems = [
-    {
-      title: 'Connection',
-      icon: <SensorsIcon />
-    },
-    {
-      title: 'Receipts',
-      icon: <ReceiptIcon />
-    },
-    {
-      title: 'Reports',
-      icon: <ReceiptLongIcon />
-    }
-  ]
+  const showSection = (sectionIdentifier) => {
+    dispatch(setActiveSection(sectionIdentifier));
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -175,7 +187,13 @@ export const NavigationDrawer = () => {
                 }
               }}
             >
-              <IconButton size="small" aria-label="fiscal device connection" color="inherit" sx={{ borderRadius: 0, py: 1, px: 2 }}>
+              <IconButton 
+                size="small" 
+                aria-label="Fiscal Device Connection" 
+                color="inherit" 
+                sx={{ borderRadius: 0, py: 1, px: 2 }}
+                onClick={() => showSection(FISCAL_DEVICE_CONNECTION)}
+              >
                 <Avatar variant="square" src="/assets/images/tremol-s21-removebg-preview.png" sx={{ p: '1px' }}></Avatar>
               </IconButton>
             </Tooltip>
@@ -196,7 +214,7 @@ export const NavigationDrawer = () => {
                 }
               }}
             >
-              <IconButton size="small" aria-label="fiscal device connection" color="inherit" sx={{ borderRadius: 0, py: 1, px: 2 }}>
+              <IconButton size="small" aria-label="ZFPLabServer Connection" color="inherit" sx={{ borderRadius: 0, py: 1, px: 2 }}>
                 <Avatar variant="square" src="/assets/images/zfplabserver.5309b59b.png" sx={{ bgcolor: red[600] }}></Avatar>
               </IconButton>
             </Tooltip>
@@ -242,6 +260,7 @@ export const NavigationDrawer = () => {
                       justifyContent: 'center',
                     },
                 ]}
+                onClick={() => showSection(sidebarMenuItem.title)}
               >
                 <ListItemIcon
                   sx={[
@@ -279,6 +298,9 @@ export const NavigationDrawer = () => {
       </MiniVariantDrawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
+        {activeSection === FISCAL_DEVICE_CONNECTION && <FiscalDeviceConnection />}
+        {activeSection === FISCAL_RECEIPTS && <FiscalReceipts />}
+        {activeSection === REPORTS && <Reports />}
       </Box>
     </Box>
   );
