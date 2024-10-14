@@ -20,8 +20,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import SensorsIcon from '@mui/icons-material/Sensors';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
 const drawerWidth = 240;
 
@@ -104,7 +105,7 @@ const MiniVariantDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop 
 
 export const NavigationDrawer = () => {
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -113,6 +114,21 @@ export const NavigationDrawer = () => {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const sidebarMenuItems = [
+    {
+      title: 'Connection',
+      icon: <SensorsIcon />
+    },
+    {
+      title: 'Receipts',
+      icon: <ReceiptIcon />
+    },
+    {
+      title: 'Reports',
+      icon: <ReceiptLongIcon />
+    }
+  ]
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -160,8 +176,7 @@ export const NavigationDrawer = () => {
               }}
             >
               <IconButton size="small" aria-label="fiscal device connection" color="inherit" sx={{ borderRadius: 0, py: 1, px: 2 }}>
-                <Avatar sx={{ p: '1px' }} variant="square" src="/assets/images/tremol-s21-removebg-preview.png">
-                </Avatar>
+                <Avatar variant="square" src="/assets/images/tremol-s21-removebg-preview.png" sx={{ p: '1px' }}></Avatar>
               </IconButton>
             </Tooltip>
             <Divider orientation="vertical" flexItem />
@@ -182,8 +197,7 @@ export const NavigationDrawer = () => {
               }}
             >
               <IconButton size="small" aria-label="fiscal device connection" color="inherit" sx={{ borderRadius: 0, py: 1, px: 2 }}>
-                <Avatar sx={{ bgcolor: red[600] }} variant="square" src="/assets/images/zfplabserver.5309b59b.png">
-                </Avatar>
+                <Avatar variant="square" src="/assets/images/zfplabserver.5309b59b.png" sx={{ bgcolor: red[600] }}></Avatar>
               </IconButton>
             </Tooltip>
             <Divider orientation="vertical" flexItem />
@@ -212,8 +226,8 @@ export const NavigationDrawer = () => {
         </DrawerHeader>
         <Divider />
         <List>
-          {['Connection', 'Receipts', 'Reports'].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
+          {sidebarMenuItems.map((sidebarMenuItem, index) => (
+            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 sx={[
                   {
@@ -244,10 +258,10 @@ export const NavigationDrawer = () => {
                       },
                   ]}
                 >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  {sidebarMenuItem.icon}
                 </ListItemIcon>
                 <ListItemText
-                  primary={text}
+                  primary={sidebarMenuItem.title}
                   sx={[
                     open
                       ? {
