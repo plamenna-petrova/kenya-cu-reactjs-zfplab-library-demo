@@ -24,17 +24,23 @@ import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
 
-const FiscalDeviceConnectionStyledCardWrapper = styled(Card)(({ theme }) => ({
+const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
-  flexGrow: 1,
   width: '100%',
   maxWidth: 800,
+  minWidth: 0,
   margin: "auto",
   boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   borderRadius: theme.shape.borderRadius,
+  padding: theme.spacing(2),
   overflow: "hidden",
-  padding: theme.spacing(2)
+  boxSizing: "border-box",
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1),
+    maxWidth: '300px',
+    margin: theme.spacing(1),
+  },
 }));
 
 const FiscalDeviceConnectionTabPanel = (props) => {
@@ -69,7 +75,6 @@ const a11yProps = (index) => {
 const FiscalDeviceConnection = () => {
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
-  const [baudRates, setBaudRates] = useState(BAUD_RATES);
 
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
@@ -114,7 +119,7 @@ const FiscalDeviceConnection = () => {
   }, []);
 
   return (
-    <FiscalDeviceConnectionStyledCardWrapper>
+    <FiscalDeviceConnectionStyledCard>
       <Tabs
         value={fiscalDeviceConnectionTabValue}
         onChange={handleFiscalDeviceConnectionTabChange}
@@ -144,7 +149,7 @@ const FiscalDeviceConnection = () => {
               return (
                 <form onSubmit={handleSubmit}>
                   <Grid container spacing={2} justifyContent="center" alignItems="center">
-                    <Grid size={{ xs: 6 }} textAlign="center">
+                    <Grid size={{ xs: 12, sm: 6 }} textAlign="center">
                       <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
                         <Paragraph fontSize={14}>
                           Serial Port
@@ -165,21 +170,21 @@ const FiscalDeviceConnection = () => {
                               return;
                             }
 
-                            handleBlur(event); 
+                            handleBlur(event);
                           }}
                           options={serialPorts}
                           renderInput={(params) => (
                             <TextField
                               {...params}
                               name="serialPort"
-                              onBlur={handleBlur} 
+                              onBlur={handleBlur}
                               error={Boolean(touched.serialPort && errors.serialPort)}
                             />
                           )}
                         />
                       </FormControl>
                     </Grid>
-                    <Grid size={{ xs: 6 }} textAlign="center">
+                    <Grid size={{ xs: 12, sm: 6 }} textAlign="center">
                       <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
                         <Paragraph fontSize={14}>
                           Baud Rate
@@ -191,14 +196,14 @@ const FiscalDeviceConnection = () => {
                           onBlur={handleBlur}
                           MenuProps={FiscalDeviceConnectionMenuProps}
                         >
-                          {baudRates.map((baudRate, index) => (
+                          {BAUD_RATES.map((baudRate, index) => (
                             <MenuItem key={index} value={baudRate}>{baudRate}</MenuItem>
                           ))}
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, ml: '35px' }}>
-                      <Stack direction="row" spacing={2}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, ml: { xs: '0px', sm: '30px' } }}>
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                         <Button variant="contained" startIcon={<SearchIcon />} onClick={handleFindDevice}>
                           Find
                         </Button>
@@ -224,7 +229,7 @@ const FiscalDeviceConnection = () => {
           </Grid>
         </FiscalDeviceConnectionTabPanel>
       </CardContent>
-    </FiscalDeviceConnectionStyledCardWrapper>
+    </FiscalDeviceConnectionStyledCard>
   )
 }
 
