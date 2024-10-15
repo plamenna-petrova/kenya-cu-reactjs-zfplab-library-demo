@@ -13,6 +13,8 @@ import Grid from '@mui/material/Grid2';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import UsbIcon from '@mui/icons-material/Usb';
 import LanIcon from '@mui/icons-material/Lan';
@@ -135,35 +137,41 @@ const FiscalDeviceConnection = () => {
                         <Paragraph fontSize={14}>
                           Serial Port
                         </Paragraph>
-                        <Select
-                          name="serialPort"
+                        <Autocomplete
+                          size="small"
                           value={values.serialPort}
+                          onChange={handleChange}
+                          inputValue={values.serialPort}
+                          onInputChange={(_, newInputValue) => {
+                            setFieldValue(
+                              "serialPort",
+                              newInputValue !== null
+                                ? newInputValue
+                                : serialPortOrUSBConnectionInitialFormValues.serialPort
+                            );
+                          }}
+                          onBlur={handleBlur}
+                          options={serialPorts}
+                          renderInput={(autocompleteRenderInputParams) => <TextField {...autocompleteRenderInputParams} />}
+                        />
+                      </FormControl>
+                    </Grid>
+                    <Grid size={{ xs: 6 }} textAlign="center">
+                      <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
+                        <Paragraph fontSize={14}>
+                          Baud Rate
+                        </Paragraph>
+                        <Select
+                          name="baudRate"
+                          value={values.baudRate}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           MenuProps={FiscalDeviceConnectionMenuProps}
                         >
-                          {serialPorts.map((serialPort) => (
-                            <MenuItem value={serialPort}>{serialPort}</MenuItem>
+                          {baudRates.map((baudRate) => (
+                            <MenuItem value={baudRate}>{baudRate}</MenuItem>
                           ))}
                         </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid size={{ xs: 6 }} textAlign="center">
-                      <FormControl fullWidth size="small" sx={{ textAlign: 'left'}}>
-                         <Paragraph fontSize={14}>
-                            Baud Rate
-                         </Paragraph>
-                         <Select
-                           name="baudRate"
-                           value={values.baudRate}
-                           onChange={handleChange}
-                           onBlur={handleBlur}
-                           MenuProps={FiscalDeviceConnectionMenuProps}
-                         >
-                            {baudRates.map((baudRate) => (
-                              <MenuItem value={baudRate}>{baudRate}</MenuItem>
-                            ))}
-                         </Select>
                       </FormControl>
                     </Grid>
                   </Grid>
