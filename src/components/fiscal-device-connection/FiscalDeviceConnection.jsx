@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import { Formik } from "formik";
 import { Paragraph } from '../typography-elements/TypographyElements';
 import { BAUD_RATES, SELECT_MENU_ITEM_HEIGHT, SELECT_MENU_ITEM_PADDING_TOP } from '../../utils/constants';
+import * as Yup from "yup";
 import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -16,8 +17,12 @@ import FormControl from '@mui/material/FormControl';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
 import UsbIcon from '@mui/icons-material/Usb';
 import LanIcon from '@mui/icons-material/Lan';
+import SearchIcon from '@mui/icons-material/Search';
+import CableIcon from '@mui/icons-material/Cable';
 
 const FiscalDeviceConnectionStyledCardWrapper = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -64,7 +69,7 @@ const a11yProps = (index) => {
 const FiscalDeviceConnection = () => {
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
-  const [baudRates, setBaudRates] = useState([]);
+  const [baudRates, setBaudRates] = useState(BAUD_RATES);
 
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
@@ -75,8 +80,18 @@ const FiscalDeviceConnection = () => {
     baudRate: BAUD_RATES[BAUD_RATES.length - 1]
   }
 
+  const serialPortOrUSBConnectionValidationSchema = Yup.object().shape({
+    serialPort: Yup.string().required(),
+    baudRate: Yup.number().required()
+  });
+
+  const handleFindDevice = () => {
+    console.log("finding device");
+  }
+
   const handleSerialPortOrUSBConnectionFormSubmit = (serialPostOrUSBConnectionFormData, { setSubmitting, resetForm }) => {
     console.log("form submitted");
+    console.log(serialPostOrUSBConnectionFormData);
   }
 
   const FiscalDeviceConnectionMenuProps = {
@@ -98,10 +113,6 @@ const FiscalDeviceConnection = () => {
     setSerialPorts([...sampleSerialPorts]);
   }, []);
 
-  useEffect(() => {
-    setBaudRates([...BAUD_RATES]);
-  }, []);
-
   return (
     <FiscalDeviceConnectionStyledCardWrapper>
       <Tabs
@@ -117,6 +128,7 @@ const FiscalDeviceConnection = () => {
         <FiscalDeviceConnectionTabPanel value={fiscalDeviceConnectionTabValue} index={0}>
           <Formik
             initialValues={serialPortOrUSBConnectionInitialFormValues}
+            validationSchema={serialPortOrUSBConnectionValidationSchema}
             onSubmit={handleSerialPortOrUSBConnectionFormSubmit}
           >
             {({
@@ -138,21 +150,32 @@ const FiscalDeviceConnection = () => {
                           Serial Port
                         </Paragraph>
                         <Autocomplete
+                          name="serialPort"
                           size="small"
                           value={values.serialPort}
-                          onChange={handleChange}
+                          onChange={(_, newValue) => {
+                            setFieldValue("serialPort", newValue || "");
+                          }}
                           inputValue={values.serialPort}
                           onInputChange={(_, newInputValue) => {
-                            setFieldValue(
-                              "serialPort",
-                              newInputValue !== null
-                                ? newInputValue
-                                : serialPortOrUSBConnectionInitialFormValues.serialPort
-                            );
+                            setFieldValue("serialPort", newInputValue || "");
                           }}
-                          onBlur={handleBlur}
+                          onBlur={(event) => {
+                            if (event.relatedTarget && event.relatedTarget.getAttribute("role") === "combobox") {
+                              return;
+                            }
+
+                            handleBlur(event); 
+                          }}
                           options={serialPorts}
-                          renderInput={(autocompleteRenderInputParams) => <TextField {...autocompleteRenderInputParams} />}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              name="serialPort"
+                              onBlur={handleBlur} 
+                              error={Boolean(touched.serialPort && errors.serialPort)}
+                            />
+                          )}
                         />
                       </FormControl>
                     </Grid>
@@ -168,12 +191,22 @@ const FiscalDeviceConnection = () => {
                           onBlur={handleBlur}
                           MenuProps={FiscalDeviceConnectionMenuProps}
                         >
-                          {baudRates.map((baudRate) => (
-                            <MenuItem value={baudRate}>{baudRate}</MenuItem>
+                          {baudRates.map((baudRate, index) => (
+                            <MenuItem key={index} value={baudRate}>{baudRate}</MenuItem>
                           ))}
                         </Select>
                       </FormControl>
                     </Grid>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, ml: '35px' }}>
+                      <Stack direction="row" spacing={2}>
+                        <Button variant="contained" startIcon={<SearchIcon />} onClick={handleFindDevice}>
+                          Find
+                        </Button>
+                        <Button type="submit" variant="contained" startIcon={<CableIcon />}>
+                          Connect
+                        </Button>
+                      </Stack>
+                    </Box>
                   </Grid>
                 </form>
               )
