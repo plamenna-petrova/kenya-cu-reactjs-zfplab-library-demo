@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import { Formik } from "formik";
 import { Paragraph } from '../typography-elements/TypographyElements';
 import { BAUD_RATES, SELECT_MENU_ITEM_HEIGHT, SELECT_MENU_ITEM_PADDING_TOP } from '../../utils/constants';
+import { fp } from '../../utils/tremol-library-helpers';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
@@ -92,6 +93,13 @@ const FiscalDeviceConnection = () => {
 
   const handleFindDevice = () => {
     console.log("finding device");
+
+    try {
+      const foundDevice = fp.ServerFindDevice();
+      console.log(foundDevice);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const handleSerialPortOrUSBConnectionFormSubmit = (serialPostOrUSBConnectionFormData, { setSubmitting, resetForm }) => {
