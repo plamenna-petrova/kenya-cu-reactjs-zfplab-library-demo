@@ -187,10 +187,10 @@ export const NavigationDrawer = () => {
                 }
               }}
             >
-              <IconButton 
-                size="small" 
-                aria-label="Fiscal Device Connection" 
-                color="inherit" 
+              <IconButton
+                size="small"
+                aria-label="Fiscal Device Connection"
+                color="inherit"
                 sx={{ borderRadius: 0, py: 1, px: 2 }}
                 onClick={() => showSection(FISCAL_DEVICE_CONNECTION)}
               >
@@ -296,7 +296,16 @@ export const NavigationDrawer = () => {
           ))}
         </List>
       </MiniVariantDrawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box
+        component="main"
+        sx={{
+          display: 'flex',
+          flexGrow: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh'
+        }}
+      >
         <DrawerHeader />
         {activeSection === FISCAL_DEVICE_CONNECTION && <FiscalDeviceConnection />}
         {activeSection === FISCAL_RECEIPTS && <FiscalReceipts />}
