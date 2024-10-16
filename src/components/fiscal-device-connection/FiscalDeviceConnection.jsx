@@ -34,9 +34,8 @@ const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
   margin: "auto",
   boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(2),
-  overflow: "hidden",
-  boxSizing: "border-box",
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
   [theme.breakpoints.down('sm')]: {
     padding: theme.spacing(1),
     maxWidth: '300px',
@@ -55,7 +54,7 @@ const FiscalDeviceConnectionTabPanel = (props) => {
       aria-labelledby={`fiscal-device-connection-tab-${index}`}
       {...restProps}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box>{children}</Box>}
     </div>
   );
 }
@@ -102,7 +101,7 @@ const FiscalDeviceConnection = () => {
     }
   }
 
-  const handleSerialPortOrUSBConnectionFormSubmit = (serialPostOrUSBConnectionFormData, { setSubmitting, resetForm }) => {
+  const handleSerialPortOrUSBConnectionFormSubmit = (serialPostOrUSBConnectionFormData) => {
     console.log("form submitted");
     console.log(serialPostOrUSBConnectionFormData);
   }
@@ -151,8 +150,7 @@ const FiscalDeviceConnection = () => {
               handleChange,
               handleBlur,
               handleSubmit,
-              setFieldValue,
-              isSubmitting
+              setFieldValue
             }) => {
               return (
                 <form onSubmit={handleSubmit}>
@@ -210,7 +208,7 @@ const FiscalDeviceConnection = () => {
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, ml: { xs: '0px', sm: '30px' } }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1, ml: { xs: '0px', sm: '35px' } }}>
                       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                         <Button variant="contained" startIcon={<SearchIcon />} onClick={handleFindDevice}>
                           Find
