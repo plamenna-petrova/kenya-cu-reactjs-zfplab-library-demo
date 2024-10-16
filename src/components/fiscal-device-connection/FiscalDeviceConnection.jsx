@@ -145,6 +145,12 @@ const FiscalDeviceConnection = () => {
   const handleSerialPortOrUSBConnectionFormSubmit = (serialPostOrUSBConnectionFormData) => {
     console.log("form submitted");
     console.log(serialPostOrUSBConnectionFormData);
+
+    try {
+      
+    } catch (error) {
+
+    }
   }
 
   const FiscalDeviceConnectionMenuProps = {
