@@ -131,7 +131,7 @@ const FiscalDeviceConnection = () => {
         setSerialPortOrUSBConnectionStatus({
           severity: 'error',
           message: 'An error occurred while trying to find a fiscal device'
-        })
+        });
       }
 
       dispatch(setBackdropLoading({ isLoading: false }));
