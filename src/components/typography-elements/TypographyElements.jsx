@@ -47,7 +47,7 @@ export const H3 = ({ children, className, ellipsis, ...restProps }) => {
       mb={0}
       mt={0}
       component="h3"
-      fontSize="18px"
+      fontSize="20px"
       fontWeight="500"
       lineHeight="1.5"
       ellipsis={ellipsis}
