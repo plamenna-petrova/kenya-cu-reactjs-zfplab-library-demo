@@ -25,6 +25,7 @@ import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import UsbIcon from '@mui/icons-material/Usb';
 import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
@@ -83,6 +84,7 @@ const FiscalDeviceConnection = () => {
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
   const [serialPortOrUSBConnectionStatus, setSerialPortOrUSBConnectionStatus] = useState(null);
+  const isMobileScreen = useMediaQuery('(max-width:480px)');
 
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
@@ -98,7 +100,7 @@ const FiscalDeviceConnection = () => {
     baudRate: Yup.number().required()
   });
 
-  const handleFindDevice = () => {
+  const handleFindDevice = (setFieldValue, setTouched, setErrors) => {
     dispatch(setBackdropLoading({ isLoading: true, message: 'Connecting to a fiscal device...' }));
 
     setTimeout(() => {
@@ -107,6 +109,11 @@ const FiscalDeviceConnection = () => {
 
         if (foundDeviceDetails !== null) {
           const { serialPort, baudRate } = foundDeviceDetails;
+
+          setFieldValue("serialPort", serialPort);
+          setFieldValue("baudRate", baudRate);
+          setTouched({}, false);
+          setErrors({});
 
           setSerialPortOrUSBConnectionStatus({
             severity: 'success',
@@ -167,8 +174,8 @@ const FiscalDeviceConnection = () => {
         aria-label="Fiscal Device Connection Tabs"
         variant="fullWidth"
       >
-        <Tab label="Connection by Serial Port / USB" icon={<UsbIcon />} iconPosition="start" {...a11yProps(0)} />
-        <Tab label="Connection by LAN / WiFi" icon={<LanIcon />} iconPosition="start" {...a11yProps(1)} />
+        <Tab label={`${isMobileScreen ? 'Serial Port / USB' : 'Connection by Serial Port / USB'}`} icon={<UsbIcon />} iconPosition="start" {...a11yProps(0)} />
+        <Tab label={`${isMobileScreen ? 'LAN/WiFi' : 'Connection by LAN / WiFi'}`} icon={<LanIcon />} iconPosition="start" {...a11yProps(1)} />
       </Tabs>
       <CardContent>
         <FiscalDeviceConnectionTabPanel value={fiscalDeviceConnectionTabValue} index={0}>
@@ -184,7 +191,9 @@ const FiscalDeviceConnection = () => {
               handleChange,
               handleBlur,
               handleSubmit,
-              setFieldValue
+              setFieldValue,
+              setTouched,
+              setErrors
             }) => {
               return (
                 <form onSubmit={handleSubmit}>
@@ -264,9 +273,13 @@ const FiscalDeviceConnection = () => {
                         </Collapse>
                       </Box>
                     }
-                    <Box sx={{ display: 'flex', justifyContent: 'center', ml: { xs: '0px', sm: '35px' } }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', ml: { xs: '0px', sm: '36px' } }}>
                       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                        <Button variant="contained" startIcon={<SearchIcon />} onClick={handleFindDevice}>
+                        <Button 
+                          variant="contained" 
+                          startIcon={<SearchIcon />} 
+                          onClick={() => handleFindDevice(setFieldValue, setTouched, setErrors)}
+                        >
                           Find
                         </Button>
                         <Button type="submit" variant="contained" startIcon={<CableIcon />}>
