@@ -3,6 +3,7 @@ import { H3 } from "../typography-elements/TypographyElements";
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
+import PropTypes from 'prop-types';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 10,
@@ -40,6 +41,11 @@ const BackdropLoading = ({ isBackdropLoadingOpen, loadingMessage }) => {
       </Backdrop>
     </div>
   )
+}
+
+BackdropLoading.propTypes = {
+  isBackdropLoadingOpen: PropTypes.bool.isRequired,
+  loadingMessage: PropTypes.string
 }
 
 export default BackdropLoading;

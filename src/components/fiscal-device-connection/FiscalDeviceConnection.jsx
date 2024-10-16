@@ -110,6 +110,22 @@ const FiscalDeviceConnection = () => {
         if (foundDeviceDetails !== null) {
           const { serialPort, baudRate } = foundDeviceDetails;
 
+          if (!serialPorts.includes(serialPort)) {
+            const updatedSerialPorts = [...serialPorts, serialPort];
+
+            const comPorts = updatedSerialPorts.filter(serialPort => serialPort.startsWith("COM"));
+            const otherPorts = updatedSerialPorts.filter(serialPort => !serialPort.startsWith("COM"));
+
+            const sortedCOMPorts = comPorts.sort((a, b) => {
+              const firstPortNumberToCompare = parseInt(a.replace(/\D/g, ""), 10);
+              const secondPortNumberToCompare = parseInt(b.replace(/\D/g, ""), 10);
+
+              return firstPortNumberToCompare - secondPortNumberToCompare;
+            });
+
+            setSerialPorts([...sortedCOMPorts, ...otherPorts]);
+          }
+
           setFieldValue("serialPort", serialPort);
           setFieldValue("baudRate", baudRate);
           setTouched({}, false);
@@ -145,12 +161,6 @@ const FiscalDeviceConnection = () => {
   const handleSerialPortOrUSBConnectionFormSubmit = (serialPostOrUSBConnectionFormData) => {
     console.log("form submitted");
     console.log(serialPostOrUSBConnectionFormData);
-
-    try {
-      
-    } catch (error) {
-
-    }
   }
 
   const FiscalDeviceConnectionMenuProps = {

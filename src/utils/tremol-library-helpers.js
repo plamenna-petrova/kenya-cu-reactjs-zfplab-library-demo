@@ -229,7 +229,6 @@ export const handleZFPLabServerError = (error) => {
               return error.message;
           }
         }
-        break;
       //#endregion "Fiscal Device Errors"
       default:
         return error.message;
