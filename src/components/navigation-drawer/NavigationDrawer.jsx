@@ -29,7 +29,6 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import FiscalDeviceConnection from '../fiscal-device-connection/FiscalDeviceConnection';
 import FiscalReceipts from '../fiscal-receipts/FiscalReceipts';
 import Reports from '../reports/Reports';
-import BackdropLoading from '../backdrop-loading/BackdropLoading';
 
 const drawerWidth = 240;
 
@@ -221,7 +220,6 @@ export const NavigationDrawer = () => {
             </Tooltip>
             <Divider orientation="vertical" flexItem />
           </ButtonGroup>
-          <BackdropLoading loadingMessage={'Loading...'} />
         </Toolbar>
         <Divider />
       </AppBar>

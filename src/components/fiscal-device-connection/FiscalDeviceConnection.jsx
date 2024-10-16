@@ -4,6 +4,7 @@ import { Formik } from "formik";
 import { Paragraph } from '../typography-elements/TypographyElements';
 import { BAUD_RATES, SELECT_MENU_ITEM_HEIGHT, SELECT_MENU_ITEM_PADDING_TOP } from '../../utils/constants';
 import { fp } from '../../utils/tremol-library-helpers';
+import { useDispatch } from 'react-redux';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
@@ -24,6 +25,7 @@ import UsbIcon from '@mui/icons-material/Usb';
 import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
+import { setBackdropLoading } from '../../store/slices/loadingSlice';
 
 const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -73,6 +75,7 @@ const a11yProps = (index) => {
 }
 
 const FiscalDeviceConnection = () => {
+  const dispatch = useDispatch();
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
 
@@ -92,13 +95,24 @@ const FiscalDeviceConnection = () => {
 
   const handleFindDevice = () => {
     console.log("finding device");
+    dispatch(setBackdropLoading({ isLoading: true, message: 'Connecting to the fiscal device...' }));
 
-    try {
-      const foundDevice = fp.ServerFindDevice();
-      console.log(foundDevice);
-    } catch (error) {
-      console.log(error);
-    }
+    setTimeout(() => {
+      try {
+        const foundDevice = fp.ServerFindDevice();
+        
+        if (foundDevice !== null) {
+          console.log("found device");
+          console.log(foundDevice);
+        } else {
+
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      dispatch(setBackdropLoading({ isLoading: false }));
+    }, 500);
   }
 
   const handleSerialPortOrUSBConnectionFormSubmit = (serialPostOrUSBConnectionFormData) => {
