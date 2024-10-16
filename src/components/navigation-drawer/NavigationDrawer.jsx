@@ -4,13 +4,13 @@ import { red } from '@mui/material/colors';
 import { FISCAL_DEVICE_CONNECTION, FISCAL_RECEIPTS, REPORTS } from '../../utils/constants';
 import { useSelector, useDispatch } from 'react-redux';
 import { setActiveSection } from '../../store/slices/appNavigationSlice';
+import { H3, Paragraph } from '../typography-elements/TypographyElements';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Avatar from '@mui/material/Avatar';
@@ -161,9 +161,9 @@ export const NavigationDrawer = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
+          <H3 sx={{ display: { xs: 'none', sm: 'block' } }}>
             React ZFPLab Library Demo Application
-          </Typography>
+          </H3>
           <Box sx={{ flexGrow: 1 }} />
           <ButtonGroup
             size="medium"
@@ -172,7 +172,7 @@ export const NavigationDrawer = () => {
           >
             <Divider orientation="vertical" flexItem />
             <Tooltip
-              title={<Typography fontSize={14}>{`The fiscal device is connected`}</Typography>}
+              title={<Paragraph>{`The fiscal device is connected`}</Paragraph>}
               placement="bottom"
               slotProps={{
                 popper: {
@@ -199,7 +199,7 @@ export const NavigationDrawer = () => {
             </Tooltip>
             <Divider orientation="vertical" flexItem />
             <Tooltip
-              title={<Typography fontSize={14}>{`A connection with ZFPLabServer was not established`}</Typography>}
+              title={<Paragraph>{`A connection with ZFPLabServer was not established`}</Paragraph>}
               placement="bottom"
               slotProps={{
                 popper: {
