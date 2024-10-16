@@ -5,6 +5,7 @@ import { Paragraph } from '../typography-elements/TypographyElements';
 import { BAUD_RATES, SELECT_MENU_ITEM_HEIGHT, SELECT_MENU_ITEM_PADDING_TOP } from '../../utils/constants';
 import { fp } from '../../utils/tremol-library-helpers';
 import { useDispatch } from 'react-redux';
+import { setBackdropLoading } from '../../store/slices/loadingSlice';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
@@ -21,11 +22,14 @@ import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
 import UsbIcon from '@mui/icons-material/Usb';
 import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
-import { setBackdropLoading } from '../../store/slices/loadingSlice';
+import CloseIcon from '@mui/icons-material/Close';
 
 const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -78,6 +82,7 @@ const FiscalDeviceConnection = () => {
   const dispatch = useDispatch();
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
+  const [serialPortOrUSBConnectionStatus, setSerialPortOrUSBConnectionStatus] = useState(null);
 
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
@@ -94,25 +99,40 @@ const FiscalDeviceConnection = () => {
   });
 
   const handleFindDevice = () => {
-    console.log("finding device");
-    dispatch(setBackdropLoading({ isLoading: true, message: 'Connecting to the fiscal device...' }));
+    dispatch(setBackdropLoading({ isLoading: true, message: 'Connecting to a fiscal device...' }));
 
     setTimeout(() => {
       try {
-        const foundDevice = fp.ServerFindDevice();
-        
-        if (foundDevice !== null) {
-          console.log("found device");
-          console.log(foundDevice);
-        } else {
+        const foundDeviceDetails = fp.ServerFindDevice();
 
+        if (foundDeviceDetails !== null) {
+          const { serialPort, baudRate } = foundDeviceDetails;
+
+          setSerialPortOrUSBConnectionStatus({
+            severity: 'success',
+            message: `A fiscal device has been found on ${serialPort} and baud rate: ${baudRate}`
+          });
+        } else {
+          setSerialPortOrUSBConnectionStatus({
+            severity: 'warning',
+            message: `A fiscal device couldn't be found`
+          });
         }
       } catch (error) {
         console.log(error);
+
+        setSerialPortOrUSBConnectionStatus({
+          severity: 'error',
+          message: 'An error occurred while trying to find a fiscal device'
+        })
       }
 
       dispatch(setBackdropLoading({ isLoading: false }));
     }, 500);
+  }
+
+  const handleSerialPortOrUSBConnectionStatusAlertClose = () => {
+    setSerialPortOrUSBConnectionStatus(null);
   }
 
   const handleSerialPortOrUSBConnectionFormSubmit = (serialPostOrUSBConnectionFormData) => {
@@ -222,7 +242,29 @@ const FiscalDeviceConnection = () => {
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1, ml: { xs: '0px', sm: '35px' } }}>
+                    {serialPortOrUSBConnectionStatus &&
+                      <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 0 }}>
+                        <Collapse in={!!serialPortOrUSBConnectionStatus} sx={{ width: '100%' }}>
+                          <Alert
+                            variant="outlined"
+                            severity={serialPortOrUSBConnectionStatus.severity}
+                            action={
+                              <IconButton
+                                aria-label="Close Serial Port Or USB Connection Status Alert"
+                                color="inherit"
+                                size="small"
+                                onClick={handleSerialPortOrUSBConnectionStatusAlertClose}
+                              >
+                                <CloseIcon fontSize="inherit" />
+                              </IconButton>
+                            }
+                          >
+                            {serialPortOrUSBConnectionStatus.message}
+                          </Alert>
+                        </Collapse>
+                      </Box>
+                    }
+                    <Box sx={{ display: 'flex', justifyContent: 'center', ml: { xs: '0px', sm: '35px' } }}>
                       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                         <Button variant="contained" startIcon={<SearchIcon />} onClick={handleFindDevice}>
                           Find
