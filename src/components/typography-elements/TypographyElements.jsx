@@ -31,11 +31,6 @@ H1.propTypes = {
   restProps: PropTypes.object,
 };
 
-H1.defaultProps = {
-  className: '',
-  ellipsis: false,
-};
-
 export const H2 = ({ children, className, ellipsis, ...restProps }) => {
   return (
     <TypographyStyledBox
@@ -58,11 +53,6 @@ H2.propTypes = {
   className: PropTypes.string,
   ellipsis: PropTypes.bool, 
   restProps: PropTypes.object,
-};
-
-H2.defaultProps = {
-  className: '',
-  ellipsis: false,
 };
 
 export const H3 = ({ children, className, ellipsis, ...restProps }) => {
@@ -89,11 +79,6 @@ H3.propTypes = {
   restProps: PropTypes.object,
 };
 
-H3.defaultProps = {
-  className: '',
-  ellipsis: false,
-};
-
 export const H4 = ({ children, className, ellipsis, ...restProps }) => {
   return (
     <TypographyStyledBox
@@ -116,11 +101,6 @@ H4.propTypes = {
   className: PropTypes.string,
   ellipsis: PropTypes.bool, 
   restProps: PropTypes.object,
-};
-
-H4.defaultProps = {
-  className: '',
-  ellipsis: false,
 };
 
 export const H5 = ({ children, className, ellipsis, ...restProps }) => {
@@ -147,11 +127,6 @@ H5.propTypes = {
   restProps: PropTypes.object,
 };
 
-H5.defaultProps = {
-  className: '',
-  ellipsis: false,
-};
-
 export const H6 = ({ children, className, ellipsis, ...restProps }) => {
   return (
     <TypographyStyledBox
@@ -176,11 +151,6 @@ H6.propTypes = {
   restProps: PropTypes.object,
 };
 
-H6.defaultProps = {
-  className: '',
-  ellipsis: false,
-};
-
 export const Paragraph = ({ children, className, ellipsis, ...restProps }) => {
   return (
     <TypographyStyledBox
@@ -201,11 +171,6 @@ Paragraph.propTypes = {
   className: PropTypes.string,
   ellipsis: PropTypes.bool, 
   restProps: PropTypes.object,
-};
-
-Paragraph.defaultProps = {
-  className: '',
-  ellipsis: false,
 };
 
 export const Small = ({ children, className, ellipsis, ...restProps }) => {
@@ -230,11 +195,6 @@ Small.propTypes = {
   restProps: PropTypes.object,
 };
 
-Small.defaultProps = {
-  className: '',
-  ellipsis: false,
-};
-
 export const Span = ({ children, className, ellipsis, ...restProps }) => {
   return (
     <TypographyStyledBox
@@ -253,11 +213,6 @@ Span.propTypes = {
   className: PropTypes.string,
   ellipsis: PropTypes.bool, 
   restProps: PropTypes.object,
-};
-
-Span.defaultProps = {
-  className: '',
-  ellipsis: false,
 };
 
 export const Tiny = ({ children, className, ellipsis, ...restProps }) => {
@@ -279,9 +234,4 @@ Tiny.propTypes = {
   className: PropTypes.string,
   ellipsis: PropTypes.bool, 
   restProps: PropTypes.object,
-};
-
-Tiny.defaultProps = {
-  className: '',
-  ellipsis: false,
 };
