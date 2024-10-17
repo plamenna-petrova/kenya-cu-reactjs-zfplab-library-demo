@@ -579,7 +579,7 @@ Tremol.ServerError = function (message, type, ste1, ste2, fpliberror) {
         return new Tremol.ServerError(message, type, ste1, ste2, fpliberror);
     }
     this.type = type;
-    this.name = "Tremol.ZFPLabError";
+    // this.name = "Tremol.ZFPLabError";
     // this.message = Object.entries(object1).find(e => e[1] == type)[0] //TODO?
     this.message = (message || "");
     this.ste1;

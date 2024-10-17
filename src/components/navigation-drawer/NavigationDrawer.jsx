@@ -113,7 +113,7 @@ export const NavigationDrawer = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const activeSection = useSelector((state) => state.appNavigation.activeSection);
-  const [open, setOpen] = useState(true);
+  const [isNavigationDrawerOpen, setIsNavigationDrawerOpen] = useState(true);
 
   const sidebarMenuItems = [
     {
@@ -130,12 +130,12 @@ export const NavigationDrawer = () => {
     }
   ];
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
+  const handleNavigationDrawerOpen = () => {
+    setIsNavigationDrawerOpen(true);
   };
 
-  const handleDrawerClose = () => {
-    setOpen(false);
+  const handleNavigationDrawerClose = () => {
+    setIsNavigationDrawerOpen(false);
   };
 
   const showSection = (sectionIdentifier) => {
@@ -145,18 +145,18 @@ export const NavigationDrawer = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" elevation={0} open={open} sx={{ bgcolor: '#f5f5f5', color: '#000000' }}>
+      <AppBar position="fixed" elevation={0} open={isNavigationDrawerOpen} sx={{ bgcolor: '#f5f5f5', color: '#000000' }}>
         <Toolbar>
           <IconButton
             color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            aria-label="Open Navigation Drawer"
+            onClick={handleNavigationDrawerOpen}
             edge="start"
             sx={[
               {
                 marginRight: 5,
               },
-              open && { display: 'none' },
+              isNavigationDrawerOpen && { display: 'none' },
             ]}
           >
             <MenuIcon />
@@ -215,7 +215,7 @@ export const NavigationDrawer = () => {
               }}
             >
               <IconButton size="small" aria-label="ZFPLabServer Connection" color="inherit" sx={{ borderRadius: 0, py: 1, px: 2 }}>
-                <Avatar variant="square" src="/assets/images/zfplabserver.5309b59b.png" sx={{ bgcolor: red[600] }}></Avatar>
+                <Avatar variant="square" src="/assets/images/zfplabserver.5309b59b.png"></Avatar>
               </IconButton>
             </Tooltip>
             <Divider orientation="vertical" flexItem />
@@ -225,7 +225,7 @@ export const NavigationDrawer = () => {
       </AppBar>
       <MiniVariantDrawer
         variant="permanent"
-        open={open}
+        open={isNavigationDrawerOpen}
         PaperProps={{
           sx: {
             backgroundColor: "#f5f5f5",
@@ -238,7 +238,7 @@ export const NavigationDrawer = () => {
               <img src="/assets/images/tremol-full-text-logo.png" alt="Tremol Logo" style={{ width: '100%', height: '1.5rem' }} />
             </a>
           </Box>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={handleNavigationDrawerClose}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </DrawerHeader>
@@ -252,7 +252,7 @@ export const NavigationDrawer = () => {
                     minHeight: 48,
                     px: 2.5,
                   },
-                  open
+                  isNavigationDrawerOpen
                     ? {
                       justifyContent: 'initial',
                     }
@@ -268,7 +268,7 @@ export const NavigationDrawer = () => {
                       minWidth: 0,
                       justifyContent: 'center',
                     },
-                    open
+                    isNavigationDrawerOpen
                       ? {
                         mr: 3,
                       }
@@ -282,7 +282,7 @@ export const NavigationDrawer = () => {
                 <ListItemText
                   primary={sidebarMenuItem.title}
                   sx={[
-                    open
+                    isNavigationDrawerOpen
                       ? {
                         opacity: 1,
                       }

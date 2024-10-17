@@ -2,10 +2,17 @@ import { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Formik } from "formik";
 import { Paragraph } from '../typography-elements/TypographyElements';
-import { BAUD_RATES, SELECT_MENU_ITEM_HEIGHT, SELECT_MENU_ITEM_PADDING_TOP } from '../../utils/constants';
-import { fp } from '../../utils/tremol-library-helpers';
+import {
+  BAUD_RATES,
+  FISCAL_DEVICE_CONNECTION_SETTINGS_KEY,
+  SELECT_MENU_ITEM_HEIGHT,
+  SELECT_MENU_ITEM_PADDING_TOP,
+  SERIAL_PORT_CONNECTION,
+  TCP_CONNECTION
+} from '../../utils/constants';
 import { useDispatch } from 'react-redux';
-import { setBackdropLoading } from '../../store/slices/loadingSlice';
+import { useFP } from '../../hooks/useFP';
+import { toast } from 'react-toastify';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
@@ -31,6 +38,9 @@ import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
 import CloseIcon from '@mui/icons-material/Close';
+import Tremol from '../../assets/js/fp.js';
+import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
+import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 
 const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -80,11 +90,12 @@ const a11yProps = (index) => {
 }
 
 const FiscalDeviceConnection = () => {
-  const dispatch = useDispatch();
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
   const [serialPortOrUSBConnectionStatus, setSerialPortOrUSBConnectionStatus] = useState(null);
   const isMobileScreen = useMediaQuery('(max-width:480px)');
+  const fp = useFP();
+  const dispatch = useDispatch();
 
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
@@ -100,37 +111,35 @@ const FiscalDeviceConnection = () => {
     baudRate: Yup.number().required()
   });
 
-  const handleFindDevice = (setFieldValue, setTouched, setErrors) => {
-    dispatch(setBackdropLoading({ isLoading: true, message: 'Connecting to a fiscal device...' }));
-
-    setTimeout(() => {
+  const handleFindDevice = async (setFieldValue, setTouched, setErrors) => {
+    await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        const foundDeviceDetails = fp.ServerFindDevice();
-
-        if (foundDeviceDetails !== null) {
-          const { serialPort, baudRate } = foundDeviceDetails;
-
+        const foundDeviceSettings = await fp.ServerFindDevice();
+  
+        if (foundDeviceSettings !== null) {
+          const { serialPort, baudRate } = foundDeviceSettings;
+  
           if (!serialPorts.includes(serialPort)) {
             const updatedSerialPorts = [...serialPorts, serialPort];
-
+  
             const comPorts = updatedSerialPorts.filter(serialPort => serialPort.startsWith("COM"));
             const otherPorts = updatedSerialPorts.filter(serialPort => !serialPort.startsWith("COM"));
-
+  
             const sortedCOMPorts = comPorts.sort((a, b) => {
-              const firstPortNumberToCompare = parseInt(a.replace(/\D/g, ""), 10);
-              const secondPortNumberToCompare = parseInt(b.replace(/\D/g, ""), 10);
-
-              return firstPortNumberToCompare - secondPortNumberToCompare;
+              const firstCOMPortNumberToCompare = parseInt(a.replace(/\D/g, ""), 10);
+              const secondCOMPortNumberToCompare = parseInt(b.replace(/\D/g, ""), 10);
+  
+              return firstCOMPortNumberToCompare - secondCOMPortNumberToCompare;
             });
-
+  
             setSerialPorts([...sortedCOMPorts, ...otherPorts]);
           }
-
+  
           setFieldValue("serialPort", serialPort);
           setFieldValue("baudRate", baudRate);
           setTouched({}, false);
           setErrors({});
-
+  
           setSerialPortOrUSBConnectionStatus({
             severity: 'success',
             message: `A fiscal device has been found on ${serialPort} and baud rate: ${baudRate}`
@@ -142,26 +151,71 @@ const FiscalDeviceConnection = () => {
           });
         }
       } catch (error) {
-        console.log(error);
-
+        console.error(error);
+  
         setSerialPortOrUSBConnectionStatus({
           severity: 'error',
           message: 'An error occurred while trying to find a fiscal device'
         });
       }
-
-      dispatch(setBackdropLoading({ isLoading: false }));
-    }, 500);
+    }, 'Searching for a fiscal device...');
   }
 
   const handleSerialPortOrUSBConnectionStatusAlertClose = () => {
     setSerialPortOrUSBConnectionStatus(null);
   }
 
-  const handleSerialPortOrUSBConnectionFormSubmit = (serialPostOrUSBConnectionFormData) => {
-    console.log("form submitted");
-    console.log(serialPostOrUSBConnectionFormData);
-  }
+  const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData, setSubmitting, connectionType) => {
+    await executeFPOperationWithLoading(dispatch, async () => {
+      try {
+        let connectedFiscalDeviceSettings = {};
+
+        switch (connectionType) {
+          case SERIAL_PORT_CONNECTION:
+            const { serialPort, baudRate } = fiscalDeviceConnectionSettingsFormData;
+
+            await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
+
+            await fp.ApplyClientLibraryDefinitions();
+
+            const statusEntries = fp.ReadStatus();
+
+            console.table(statusEntries);
+
+            connectedFiscalDeviceSettings = {
+              connectionType,
+              serialPort,
+              baudRate,
+            };
+            
+            localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
+
+            setSerialPortOrUSBConnectionStatus({
+              severity: 'success',
+              message: `The fiscal device is connected on ${serialPort} and baud rate: ${baudRate}`,
+            });
+
+            toast.success("Successfully connected to the fiscal device");
+            break;
+          case TCP_CONNECTION:
+            break;
+        }
+      } catch (error) {
+        toast.error(handleZFPLabServerError(error));
+
+        setSerialPortOrUSBConnectionStatus({
+          severity: 'error',
+          message: `Couldn't connect to a fiscal device`,
+        });
+
+        if (localStorage.getItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY)) {
+          localStorage.removeItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
+        }
+      } finally {
+        setSubmitting(false);
+      }
+    }, 'Connecting to a fiscal device...');
+  };
 
   const FiscalDeviceConnectionMenuProps = {
     PaperProps: {
@@ -198,7 +252,7 @@ const FiscalDeviceConnection = () => {
           <Formik
             initialValues={serialPortOrUSBConnectionInitialFormValues}
             validationSchema={serialPortOrUSBConnectionValidationSchema}
-            onSubmit={handleSerialPortOrUSBConnectionFormSubmit}
+            onSubmit={(values, { setSubmitting }) => handleFiscalDeviceConnectionFormSubmit(values, setSubmitting, SERIAL_PORT_CONNECTION)}
           >
             {({
               values,
@@ -291,9 +345,9 @@ const FiscalDeviceConnection = () => {
                     }
                     <Box sx={{ display: 'flex', justifyContent: 'center', ml: { xs: '0px', sm: '36px' } }}>
                       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                        <Button 
-                          variant="contained" 
-                          startIcon={<SearchIcon />} 
+                        <Button
+                          variant="contained"
+                          startIcon={<SearchIcon />}
                           onClick={() => handleFindDevice(setFieldValue, setTouched, setErrors)}
                         >
                           Find
