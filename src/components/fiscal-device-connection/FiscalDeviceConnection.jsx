@@ -180,7 +180,7 @@ const FiscalDeviceConnection = () => {
 
             const statusEntries = await fp.ReadStatus();
 
-            console.table(statusEntries);
+            console.log(statusEntries);
 
             connectedFiscalDeviceSettings = {
               connectionType,
