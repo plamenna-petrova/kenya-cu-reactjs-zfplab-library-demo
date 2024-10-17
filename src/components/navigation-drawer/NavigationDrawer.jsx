@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import { red } from '@mui/material/colors';
 import { FISCAL_DEVICE_CONNECTION, FISCAL_RECEIPTS, REPORTS } from '../../utils/constants';
 import { useSelector, useDispatch } from 'react-redux';
 import { setActiveSection } from '../../store/slices/appNavigationSlice';

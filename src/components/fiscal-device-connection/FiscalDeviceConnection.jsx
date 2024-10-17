@@ -38,7 +38,7 @@ import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
 import CloseIcon from '@mui/icons-material/Close';
-import Tremol from '../../assets/js/fp.js';
+// import Tremol from '../../assets/js/fp.js';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 
@@ -171,7 +171,7 @@ const FiscalDeviceConnection = () => {
         let connectedFiscalDeviceSettings = {};
 
         switch (connectionType) {
-          case SERIAL_PORT_CONNECTION:
+          case SERIAL_PORT_CONNECTION: {
             const { serialPort, baudRate } = fiscalDeviceConnectionSettingsFormData;
 
             await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
@@ -190,27 +190,27 @@ const FiscalDeviceConnection = () => {
             
             localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
 
+            toast.success("Successfully connected to the fiscal device");
+
             setSerialPortOrUSBConnectionStatus({
               severity: 'success',
               message: `The fiscal device is connected on ${serialPort} and baud rate: ${baudRate}`,
             });
-
-            toast.success("Successfully connected to the fiscal device");
             break;
-          case TCP_CONNECTION:
+          }
+          case TCP_CONNECTION: {
             break;
+          }
         }
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
-
+        
         setSerialPortOrUSBConnectionStatus({
           severity: 'error',
           message: `Couldn't connect to a fiscal device`,
         });
 
-        if (localStorage.getItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY)) {
-          localStorage.removeItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
-        }
+        localStorage.removeItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
       } finally {
         setSubmitting(false);
       }
