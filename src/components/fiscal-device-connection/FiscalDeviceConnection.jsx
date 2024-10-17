@@ -178,7 +178,7 @@ const FiscalDeviceConnection = () => {
 
             await fp.ApplyClientLibraryDefinitions();
 
-            const statusEntries = fp.ReadStatus();
+            const statusEntries = await fp.ReadStatus();
 
             console.table(statusEntries);
 
