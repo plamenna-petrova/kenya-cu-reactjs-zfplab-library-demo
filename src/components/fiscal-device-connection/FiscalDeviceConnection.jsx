@@ -130,7 +130,6 @@ const FiscalDeviceConnection = () => {
             const sortedCOMPorts = comPorts.sort((a, b) => {
               const firstCOMPortNumberToCompare = parseInt(a.replace(/\D/g, ""), 10);
               const secondCOMPortNumberToCompare = parseInt(b.replace(/\D/g, ""), 10);
-
               return firstCOMPortNumberToCompare - secondCOMPortNumberToCompare;
             });
 
@@ -177,11 +176,9 @@ const FiscalDeviceConnection = () => {
             const { serialPort, baudRate } = fiscalDeviceConnectionSettingsFormData;
 
             await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
-
             await fp.ApplyClientLibraryDefinitions();
 
             const statusEntries = await fp.ReadStatus();
-
             console.log(statusEntries);
 
             connectedFiscalDeviceSettings = {
@@ -198,12 +195,6 @@ const FiscalDeviceConnection = () => {
               severity: 'success',
               message: `The fiscal device is connected on ${serialPort} and baud rate: ${baudRate}`,
             });
-
-            fp.OpenReceipt(1, "0", Tremol.Enums.Step_by_step_printing);
-
-            fp.SellPLUwithSpecifiedVAT("Noodles", Tremol.Enums.OptionVATClass.VAT_Class_A, 5, 2, null, null, null);
-
-            fp.CashPayCloseReceipt();
             break;
           }
           case TCP_CONNECTION: {
