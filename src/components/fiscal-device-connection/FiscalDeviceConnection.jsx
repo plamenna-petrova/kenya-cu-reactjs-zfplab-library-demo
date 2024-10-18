@@ -12,9 +12,11 @@ import {
   SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE,
   CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE
 } from '../../utils/constants';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
+import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
+import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
@@ -40,9 +42,7 @@ import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
 import CloseIcon from '@mui/icons-material/Close';
-import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
-import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
-import BackdropLoading from '../backdrop-loading/BackdropLoading';
+import Tremol from '../../assets/js/fp.js';
 
 const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -98,7 +98,6 @@ const FiscalDeviceConnection = () => {
   const isMobileScreen = useMediaQuery('(max-width:480px)');
   const fp = useFP();
   const dispatch = useDispatch();
-  const { isLoading, message: loadingMessageToSet } = useSelector((state) => state.loading);
 
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
@@ -118,31 +117,31 @@ const FiscalDeviceConnection = () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         const foundDeviceSettings = await fp.ServerFindDevice();
-  
+
         if (foundDeviceSettings !== null) {
           const { serialPort, baudRate } = foundDeviceSettings;
-  
+
           if (!serialPorts.includes(serialPort)) {
             const updatedSerialPorts = [...serialPorts, serialPort];
-  
+
             const comPorts = updatedSerialPorts.filter(serialPort => serialPort.startsWith("COM"));
             const otherPorts = updatedSerialPorts.filter(serialPort => !serialPort.startsWith("COM"));
-  
+
             const sortedCOMPorts = comPorts.sort((a, b) => {
               const firstCOMPortNumberToCompare = parseInt(a.replace(/\D/g, ""), 10);
               const secondCOMPortNumberToCompare = parseInt(b.replace(/\D/g, ""), 10);
-  
+
               return firstCOMPortNumberToCompare - secondCOMPortNumberToCompare;
             });
-  
+
             setSerialPorts([...sortedCOMPorts, ...otherPorts]);
           }
-  
+
           setFieldValue("serialPort", serialPort);
           setFieldValue("baudRate", baudRate);
           setTouched({}, false);
           setErrors({});
-  
+
           setSerialPortOrUSBConnectionStatus({
             severity: 'success',
             message: `A fiscal device has been found on ${serialPort} and baud rate: ${baudRate}`
@@ -155,7 +154,7 @@ const FiscalDeviceConnection = () => {
         }
       } catch (error) {
         console.error(error);
-  
+
         setSerialPortOrUSBConnectionStatus({
           severity: 'error',
           message: 'An error occurred while trying to find a fiscal device'
@@ -190,7 +189,7 @@ const FiscalDeviceConnection = () => {
               serialPort,
               baudRate,
             };
-            
+
             localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
 
             toast.success("Successfully connected to the fiscal device");
@@ -199,6 +198,12 @@ const FiscalDeviceConnection = () => {
               severity: 'success',
               message: `The fiscal device is connected on ${serialPort} and baud rate: ${baudRate}`,
             });
+
+            fp.OpenReceipt(1, "0", Tremol.Enums.Step_by_step_printing);
+
+            fp.SellPLUwithSpecifiedVAT("Noodles", Tremol.Enums.OptionVATClass.VAT_Class_A, 5, 2, null, null, null);
+
+            fp.CashPayCloseReceipt();
             break;
           }
           case TCP_CONNECTION: {
@@ -207,7 +212,7 @@ const FiscalDeviceConnection = () => {
         }
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
-        
+
         setSerialPortOrUSBConnectionStatus({
           severity: 'error',
           message: `Couldn't connect to a fiscal device`,
@@ -377,7 +382,6 @@ const FiscalDeviceConnection = () => {
           </Grid>
         </FiscalDeviceConnectionTabPanel>
       </CardContent>
-      {isLoading && <BackdropLoading isBackdropLoadingOpen={isLoading} loadingMessage={loadingMessageToSet} />}
     </FiscalDeviceConnectionStyledCard>
   )
 }
