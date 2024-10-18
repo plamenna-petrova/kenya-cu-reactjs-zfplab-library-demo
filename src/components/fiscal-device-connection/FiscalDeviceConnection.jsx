@@ -8,9 +8,11 @@ import {
   SELECT_MENU_ITEM_HEIGHT,
   SELECT_MENU_ITEM_PADDING_TOP,
   SERIAL_PORT_CONNECTION,
-  TCP_CONNECTION
+  TCP_CONNECTION,
+  SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE,
+  CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE
 } from '../../utils/constants';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import * as Yup from "yup";
@@ -38,9 +40,9 @@ import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
 import CloseIcon from '@mui/icons-material/Close';
-// import Tremol from '../../assets/js/fp.js';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
+import BackdropLoading from '../backdrop-loading/BackdropLoading';
 
 const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
@@ -96,6 +98,7 @@ const FiscalDeviceConnection = () => {
   const isMobileScreen = useMediaQuery('(max-width:480px)');
   const fp = useFP();
   const dispatch = useDispatch();
+  const { isLoading, message: loadingMessageToSet } = useSelector((state) => state.loading);
 
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
@@ -158,7 +161,7 @@ const FiscalDeviceConnection = () => {
           message: 'An error occurred while trying to find a fiscal device'
         });
       }
-    }, 'Searching for a fiscal device...');
+    }, SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE);
   }
 
   const handleSerialPortOrUSBConnectionStatusAlertClose = () => {
@@ -214,7 +217,7 @@ const FiscalDeviceConnection = () => {
       } finally {
         setSubmitting(false);
       }
-    }, 'Connecting to a fiscal device...');
+    }, CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE);
   };
 
   const FiscalDeviceConnectionMenuProps = {
@@ -374,6 +377,7 @@ const FiscalDeviceConnection = () => {
           </Grid>
         </FiscalDeviceConnectionTabPanel>
       </CardContent>
+      {isLoading && <BackdropLoading isBackdropLoadingOpen={isLoading} loadingMessage={loadingMessageToSet} />}
     </FiscalDeviceConnectionStyledCard>
   )
 }

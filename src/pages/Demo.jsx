@@ -5,8 +5,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Demo = () => {
-  const { isLoading, message: loadingMessageToSet } = useSelector((state) => state.loading);
-
   return (
     <>
       <NavigationDrawer />
@@ -23,7 +21,6 @@ const Demo = () => {
         theme="dark"
         style={{ top: '80px', right: '20px' }} 
       />
-      {isLoading && <BackdropLoading isBackdropLoadingOpen={isLoading} loadingMessage={loadingMessageToSet} />}
     </>
   );
 }

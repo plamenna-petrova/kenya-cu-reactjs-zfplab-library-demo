@@ -6,7 +6,13 @@ export const FISCAL_RECEIPTS = 'Receipts';
 
 export const REPORTS = 'Reports';
 
+// Loading Messages
+
 export const DEFAULT_LOADING_MESSAGE = 'Loading...';
+
+export const SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE = 'Searching for a fiscal device...';
+
+export const CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE = 'Connecting to a fiscal device...';
 
 // UI
 

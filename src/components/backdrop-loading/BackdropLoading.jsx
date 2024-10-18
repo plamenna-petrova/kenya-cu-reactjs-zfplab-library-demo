@@ -1,51 +1,46 @@
-import { styled } from "@mui/material/styles";
 import { H3 } from "../typography-elements/TypographyElements";
+import { DEFAULT_LOADING_MESSAGE } from "../../utils/constants";
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
-import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
+import CircularProgress from "@mui/material/CircularProgress";
 import PropTypes from 'prop-types';
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  height: 10,
-  borderRadius: 5,
-  [`&.${linearProgressClasses.colorPrimary}`]: {
-    backgroundColor: theme.palette.grey[500],
-    ...theme.applyStyles('dark', {
-      backgroundColor: theme.palette.grey[800],
-    }),
-  },
-  [`& .${linearProgressClasses.bar}`]: {
-    borderRadius: 5,
-    backgroundColor: '#203760',
-    ...theme.applyStyles('dark', {
-      backgroundColor: '#308fe8',
-    }),
-  },
-}));
-
-const BackdropLoading = ({ isBackdropLoadingOpen, loadingMessage }) => {
+const BackdropLoading = ({ isBackdropLoadingOpen, loadingMessage = DEFAULT_LOADING_MESSAGE }) => {
   return (
     <div>
       <Backdrop
+        aria-label="Loading"
         sx={{
           color: '#000',
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: 'rgba(245, 245, 245, 0.8)'
+          backgroundColor: 'rgba(245, 245, 245, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
         open={isBackdropLoadingOpen}
       >
-        <Box sx={{ display: 'flex', flexDirection: 'column', width: { xs: '18rem', md: '30rem' } }}>
-          <H3 sx={{ textAlign: 'center' }}>{loadingMessage}</H3>
-          <BorderLinearProgress value={50} sx={{ mt: 2 }} />
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            gap: 2
+          }}
+        >
+          <CircularProgress size="3rem" sx={{ color: '#273067' }} aria-label="Loading spinner" />
+          <H3>{loadingMessage}</H3>
         </Box>
       </Backdrop>
     </div>
-  )
-}
+  );
+};
 
 BackdropLoading.propTypes = {
   isBackdropLoadingOpen: PropTypes.bool.isRequired,
   loadingMessage: PropTypes.string
-}
+};
 
 export default BackdropLoading;
