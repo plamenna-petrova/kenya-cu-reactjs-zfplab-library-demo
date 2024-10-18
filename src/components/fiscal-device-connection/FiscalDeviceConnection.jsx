@@ -42,7 +42,6 @@ import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
 import CloseIcon from '@mui/icons-material/Close';
-import Tremol from '../../assets/js/fp.js';
 
 const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
   display: "flex",
