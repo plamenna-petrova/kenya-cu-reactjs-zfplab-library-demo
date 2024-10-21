@@ -23,7 +23,6 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid2';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
@@ -41,6 +40,7 @@ import UsbIcon from '@mui/icons-material/Usb';
 import LanIcon from '@mui/icons-material/Lan';
 import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
+import NetworkPingIcon from '@mui/icons-material/NetworkPing';
 import CloseIcon from '@mui/icons-material/Close';
 
 const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
@@ -93,7 +93,14 @@ const a11yProps = (index) => {
 const FiscalDeviceConnection = () => {
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
+  const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState({ serialPort: "COM1", baudRate: BAUD_RATES[BAUD_RATES.length - 1] });
+  const [serialPortOrUSBConnectionFormTouched, setSerialPortOrUSBConnectionFormTouched] = useState({});
+  const [serialPortOrUSBConnectionFormErrors, setSerialPortOrUSBConnectionFormErrors] = useState({});
+  const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState({ fiscalDeviceIPAddress: "", lanOrWifiPassword: "" });
+  const [lanOrWifiConnectionFormTouched, setLANOrWifiConnectionFormTouched] = useState({});
+  const [lanOrWifiConnectionFormErrors, setLANOrWifiConnectionFormErrors] = useState({});
   const [serialPortOrUSBConnectionStatus, setSerialPortOrUSBConnectionStatus] = useState(null);
+  const [lanOrWifiConnectionStatus, setLanOrWifiConnectionStatus] = useState(null);
   const isMobileScreen = useMediaQuery('(max-width:480px)');
   const fp = useFP();
   const dispatch = useDispatch();
@@ -102,14 +109,20 @@ const FiscalDeviceConnection = () => {
     setFiscalDeviceConnectionTabValue(newValue);
   };
 
-  const serialPortOrUSBConnectionInitialFormValues = {
-    serialPort: "COM1",
-    baudRate: BAUD_RATES[BAUD_RATES.length - 1]
-  }
-
   const serialPortOrUSBConnectionValidationSchema = Yup.object().shape({
     serialPort: Yup.string().required(),
     baudRate: Yup.number().required()
+  });
+
+  const lanOrWifiConnectionValidationSchema = Yup.object().shape({
+    fiscalDeviceIPAddress: Yup
+      .string()
+      .required("The fiscal device IP address is required")
+      .matches(
+        /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/,
+        "The fiscal device password must be a valid IP address"
+      ),
+    lanOrWifiPassword: Yup.string().required("The network password is required")
   });
 
   const handleFindDevice = async (setFieldValue, setTouched, setErrors) => {
@@ -161,10 +174,6 @@ const FiscalDeviceConnection = () => {
     }, SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE);
   }
 
-  const handleSerialPortOrUSBConnectionStatusAlertClose = () => {
-    setSerialPortOrUSBConnectionStatus(null);
-  }
-
   const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData, setSubmitting, connectionType) => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
@@ -175,45 +184,74 @@ const FiscalDeviceConnection = () => {
             const { serialPort, baudRate } = fiscalDeviceConnectionSettingsFormData;
 
             await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
-            await fp.ApplyClientLibraryDefinitions();
 
-            const statusEntries = await fp.ReadStatus();
-            console.log(statusEntries);
+            await fp.ApplyClientLibraryDefinitions();
 
             connectedFiscalDeviceSettings = {
               connectionType,
               serialPort,
               baudRate,
             };
-
-            localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
-
-            toast.success("Successfully connected to the fiscal device");
-
-            setSerialPortOrUSBConnectionStatus({
-              severity: 'success',
-              message: `The fiscal device is connected on ${serialPort} and baud rate: ${baudRate}`,
-            });
             break;
           }
           case TCP_CONNECTION: {
+            const { fiscalDeviceIPAddress, lanOrWifiPassword } = fiscalDeviceConnectionSettingsFormData;
+
+            await fp.ServerSetDeviceTcpSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
+
+            await fp.ApplyClientLibraryDefinitions();
+
+            connectedFiscalDeviceSettings = {
+              connectionType,
+              fiscalDeviceIPAddress,
+              lanOrWifiPassword
+            };
             break;
           }
         }
-      } catch (error) {
-        toast.error(handleZFPLabServerError(error));
 
-        setSerialPortOrUSBConnectionStatus({
+        const statusEntries = await fp.ReadStatus();
+        console.log(statusEntries);
+     
+        if (serialPortOrUSBConnectionStatus) {
+          clearSerialPortOrUSBConnectionStatusAlert();
+        }
+        
+        if (lanOrWifiConnectionStatus) {
+          clearLANOrWifiConnectionStatusAlert();
+        }
+        
+        localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
+
+        toast.success("Successfully connected to the fiscal device");
+      } catch (error) {
+        const fiscalDevicefailedConnectionStatus = {
           severity: 'error',
           message: `Couldn't connect to a fiscal device`,
-        });
+        }
+
+        if (connectionType == SERIAL_PORT_CONNECTION) {
+          setSerialPortOrUSBConnectionStatus(fiscalDevicefailedConnectionStatus);
+        } else {
+          setLanOrWifiConnectionStatus(fiscalDevicefailedConnectionStatus);
+        }
 
         localStorage.removeItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
+
+        toast.error(handleZFPLabServerError(error));
       } finally {
         setSubmitting(false);
       }
     }, CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE);
-  };
+  }
+
+  const clearSerialPortOrUSBConnectionStatusAlert = () => {
+    setSerialPortOrUSBConnectionStatus(null);
+  }
+
+  const clearLANOrWifiConnectionStatusAlert = () => {
+    setLanOrWifiConnectionStatus(null);
+  }
 
   const FiscalDeviceConnectionMenuProps = {
     PaperProps: {
@@ -223,6 +261,19 @@ const FiscalDeviceConnection = () => {
       },
     },
   };
+
+  const FormHelperTextCustomProps = {
+    color: 'rgb(255, 61, 87)',
+    fontWeight: 400
+  }
+
+  const errorOutlineStyles = {
+    '& .MuiOutlinedInput-root': {
+      '&.Mui-error fieldset': {
+        borderColor: 'rgb(255, 61, 87)',
+      }
+    },
+  }
 
   useEffect(() => {
     let sampleSerialPorts = [];
@@ -248,9 +299,10 @@ const FiscalDeviceConnection = () => {
       <CardContent>
         <FiscalDeviceConnectionTabPanel value={fiscalDeviceConnectionTabValue} index={0}>
           <Formik
-            initialValues={serialPortOrUSBConnectionInitialFormValues}
+            initialValues={serialPortOrUSBConnectionFormValues}
             validationSchema={serialPortOrUSBConnectionValidationSchema}
             onSubmit={(values, { setSubmitting }) => handleFiscalDeviceConnectionFormSubmit(values, setSubmitting, SERIAL_PORT_CONNECTION)}
+            enableReinitialize={true}
           >
             {({
               values,
@@ -263,10 +315,21 @@ const FiscalDeviceConnection = () => {
               setTouched,
               setErrors
             }) => {
+              useEffect(() => {
+                setSerialPortOrUSBConnectionFormValues(values);
+                setSerialPortOrUSBConnectionFormTouched(touched);
+                setSerialPortOrUSBConnectionFormErrors(errors);
+              }, [values, touched, errors]);
+
+              useEffect(() => {
+                setTouched(serialPortOrUSBConnectionFormTouched);
+                setErrors(serialPortOrUSBConnectionFormErrors);
+              }, [serialPortOrUSBConnectionFormTouched, setTouched, serialPortOrUSBConnectionFormErrors, setErrors]);
+
               return (
                 <form onSubmit={handleSubmit}>
                   <Grid container spacing={2} justifyContent="center" alignItems="center">
-                    <Grid size={{ xs: 12, sm: 6 }} textAlign="center">
+                    <Grid size={{ xs: 12, md: 6 }} textAlign="center">
                       <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
                         <Paragraph fontSize={14}>
                           Serial Port
@@ -296,12 +359,13 @@ const FiscalDeviceConnection = () => {
                               name="serialPort"
                               onBlur={handleBlur}
                               error={Boolean(touched.serialPort && errors.serialPort)}
+                              sx={errorOutlineStyles}
                             />
                           )}
                         />
                       </FormControl>
                     </Grid>
-                    <Grid size={{ xs: 12, sm: 6 }} textAlign="center">
+                    <Grid size={{ xs: 12, md: 6 }} textAlign="center">
                       <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
                         <Paragraph fontSize={14}>
                           Baud Rate
@@ -330,7 +394,7 @@ const FiscalDeviceConnection = () => {
                                 aria-label="Close Serial Port Or USB Connection Status Alert"
                                 color="inherit"
                                 size="small"
-                                onClick={handleSerialPortOrUSBConnectionStatusAlertClose}
+                                onClick={clearSerialPortOrUSBConnectionStatusAlert}
                               >
                                 <CloseIcon fontSize="inherit" />
                               </IconButton>
@@ -362,14 +426,112 @@ const FiscalDeviceConnection = () => {
           </Formik>
         </FiscalDeviceConnectionTabPanel>
         <FiscalDeviceConnectionTabPanel value={fiscalDeviceConnectionTabValue} index={1}>
-          <Grid container spacing={2} justifyContent="center" alignItems="center">
-            <Grid size={{ xs: 6 }} textAlign="center">
-              <Typography>Grid 2 6</Typography>
-            </Grid>
-            <Grid size={{ xs: 6 }} textAlign="center">
-              <Typography>Grid 2 6</Typography>
-            </Grid>
-          </Grid>
+          <Formik
+            initialValues={lanOrWifiConnectionFormValues}
+            validationSchema={lanOrWifiConnectionValidationSchema}
+            onSubmit={(values, { setSubmitting }) => handleFiscalDeviceConnectionFormSubmit(values, setSubmitting, TCP_CONNECTION)}
+            enableReinitialize={true}
+          >
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              setTouched,
+              setErrors
+            }) => {
+              useEffect(() => {
+                setLANOrWiFiConnectionFormValues(values);
+                setLANOrWifiConnectionFormTouched(touched);
+                setLANOrWifiConnectionFormErrors(errors);
+              }, [values, touched, errors]);
+
+              useEffect(() => {
+                setTouched(lanOrWifiConnectionFormTouched)
+                setErrors(lanOrWifiConnectionFormErrors);
+              }, [lanOrWifiConnectionFormTouched, setTouched, lanOrWifiConnectionFormErrors, setErrors]);
+
+              return (
+                <form onSubmit={handleSubmit}>
+                  <Grid container spacing={2} justifyContent="center" alignItems="center">
+                    <Grid size={{ xs: 12, md: 6 }} textAlign="center">
+                      <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
+                        <Paragraph fontSize={14}>
+                          Fiscal Device IP Address
+                        </Paragraph>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          type="text"
+                          name="fiscalDeviceIPAddress"
+                          variant="outlined"
+                          placeholder="Example - 192.168.0.1"
+                          onBlur={handleBlur}
+                          value={values.fiscalDeviceIPAddress}
+                          onChange={handleChange}
+                          helperText={touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress}
+                          error={Boolean(touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress)}
+                          FormHelperTextProps={FormHelperTextCustomProps}
+                          sx={errorOutlineStyles}
+                        />
+                      </FormControl>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 6 }} textAlign="center">
+                      <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
+                        <Paragraph>
+                          Network Password
+                        </Paragraph>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          type="text"
+                          name="lanOrWifiPassword"
+                          variant="outlined"
+                          placeholder="Example - 1234"
+                          onBlur={handleBlur}
+                          value={values.lanOrWifiPassword}
+                          onChange={handleChange}
+                          helperText={touched.lanOrWifiPassword && errors.lanOrWifiPassword}
+                          error={Boolean(touched.lanOrWifiPassword && errors.lanOrWifiPassword)}
+                          FormHelperTextProps={FormHelperTextCustomProps}
+                          sx={errorOutlineStyles}
+                        />
+                      </FormControl>
+                    </Grid>
+                    {lanOrWifiConnectionStatus &&
+                      <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 0 }}>
+                        <Collapse in={!!lanOrWifiConnectionStatus} sx={{ width: '100%' }}>
+                          <Alert
+                            variant="outlined"
+                            severity={lanOrWifiConnectionStatus.severity}
+                            action={
+                              <IconButton
+                                aria-label="Close LAN Or Wifi Connection Status Alert"
+                                color="inherit"
+                                size="small"
+                                onClick={clearLANOrWifiConnectionStatusAlert}
+                              >
+                                <CloseIcon fontSize="inherit" />
+                              </IconButton>
+                            }
+                          >
+                            {lanOrWifiConnectionStatus.message}
+                          </Alert>
+                        </Collapse>
+                      </Box>
+                    }
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                      <Button type="submit" variant="contained" startIcon={<NetworkPingIcon />}>
+                        Connect
+                      </Button>
+                    </Box>
+                  </Grid>
+                </form>
+              )
+            }}
+          </Formik>
         </FiscalDeviceConnectionTabPanel>
       </CardContent>
     </FiscalDeviceConnectionStyledCard>
