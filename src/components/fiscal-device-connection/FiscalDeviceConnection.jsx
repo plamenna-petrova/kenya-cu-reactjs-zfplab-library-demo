@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Formik } from "formik";
@@ -185,8 +186,6 @@ const FiscalDeviceConnection = () => {
 
             await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
 
-            await fp.ApplyClientLibraryDefinitions();
-
             connectedFiscalDeviceSettings = {
               connectionType,
               serialPort,
@@ -199,8 +198,6 @@ const FiscalDeviceConnection = () => {
 
             await fp.ServerSetDeviceTcpSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
 
-            await fp.ApplyClientLibraryDefinitions();
-
             connectedFiscalDeviceSettings = {
               connectionType,
               fiscalDeviceIPAddress,
@@ -209,6 +206,8 @@ const FiscalDeviceConnection = () => {
             break;
           }
         }
+  
+        await fp.ApplyClientLibraryDefinitions();
 
         const statusEntries = await fp.ReadStatus();
         console.log(statusEntries);
@@ -262,19 +261,6 @@ const FiscalDeviceConnection = () => {
     },
   };
 
-  const FormHelperTextCustomProps = {
-    color: 'rgb(255, 61, 87)',
-    fontWeight: 400
-  }
-
-  const textFieldErrorOutlineStyles = {
-    '& .MuiOutlinedInput-root': {
-      '&.Mui-error fieldset': {
-        borderColor: 'rgb(255, 61, 87)',
-      }
-    },
-  }
-
   useEffect(() => {
     let sampleSerialPorts = [];
 
@@ -324,7 +310,7 @@ const FiscalDeviceConnection = () => {
               useEffect(() => {
                 setTouched(serialPortOrUSBConnectionFormTouched);
                 setErrors(serialPortOrUSBConnectionFormErrors);
-              }, [serialPortOrUSBConnectionFormTouched, setTouched, serialPortOrUSBConnectionFormErrors, setErrors]);
+              }, [setTouched, setErrors]);
 
               return (
                 <form onSubmit={handleSubmit}>
@@ -357,7 +343,6 @@ const FiscalDeviceConnection = () => {
                               name="serialPort"
                               onBlur={handleBlur}
                               error={Boolean(touched.serialPort && errors.serialPort)}
-                              sx={textFieldErrorOutlineStyles}
                             />
                           )}
                         />
@@ -447,7 +432,7 @@ const FiscalDeviceConnection = () => {
               useEffect(() => {
                 setTouched(lanOrWifiConnectionFormTouched)
                 setErrors(lanOrWifiConnectionFormErrors);
-              }, [lanOrWifiConnectionFormTouched, setTouched, lanOrWifiConnectionFormErrors, setErrors]);
+              }, [setTouched, setErrors]);
 
               return (
                 <form onSubmit={handleSubmit}>
@@ -467,8 +452,6 @@ const FiscalDeviceConnection = () => {
                           onChange={handleChange}
                           helperText={touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress}
                           error={Boolean(touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress)}
-                          FormHelperTextProps={FormHelperTextCustomProps}
-                          sx={textFieldErrorOutlineStyles}
                         />
                       </FormControl>
                     </Grid>
@@ -487,8 +470,6 @@ const FiscalDeviceConnection = () => {
                           onChange={handleChange}
                           helperText={touched.lanOrWifiPassword && errors.lanOrWifiPassword}
                           error={Boolean(touched.lanOrWifiPassword && errors.lanOrWifiPassword)}
-                          FormHelperTextProps={FormHelperTextCustomProps}
-                          sx={textFieldErrorOutlineStyles}
                         />
                       </FormControl>
                     </Grid>

@@ -1,3 +1,4 @@
+import { useEffect, useCallback } from "react";
 import { styled } from '@mui/material/styles';
 import { Formik } from "formik";
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
@@ -6,7 +7,8 @@ import { useDispatch } from 'react-redux';
 import { useFP } from '../../hooks/useFP';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { toast } from 'react-toastify';
-import { CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE } from '../../utils/constants';
+import { setActiveSection } from '../../store/slices/appNavigationSlice';
+import { CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE, FISCAL_DEVICE_CONNECTION } from '../../utils/constants';
 import * as Yup from "yup";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -48,45 +50,43 @@ const ZFPLabServerConnection = () => {
       .string()
       .required("The ZFPLabServer address is required")
       .matches(
-        /^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/,
+        /^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[\w]*))?)/,
         "The ZFPLabServer address must be a valid URL"
       )
   });
 
   const handleZFPLabServerConnectionFormSubmit = async ({ zfpLabServerAddress }, { setSubmitting }) => {
+    await connectToZFPLabServer(zfpLabServerAddress, setSubmitting);
+  }
+
+  const connectToZFPLabServer = useCallback(async (zfpLabServerAddress, setSubmitting) => {
     await executeFPOperationWithLoading(dispatch, async () => {
-      await fp.ServerSetSettings(zfpLabServerAddress);
-    }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE).then(async () => {
-      setTimeout(async () => {
-        try {
-          const serverDeviceSettings = await fp.ServerGetDeviceSettings();
+      try {
+        await fp.ServerSetSettings(zfpLabServerAddress);
 
-          if (serverDeviceSettings) {
-            toast.success("Successfully connected to ZFPLabServer");
-          }
-        } catch (error) {
-          toast.error(`Unable to connect to ZFPLabServer on: \r\n${zfpLabServerAddress}`);
+        const serverDeviceSettings = await fp.ServerGetDeviceSettings();
+
+        if (serverDeviceSettings) {
+          dispatch(setActiveSection(FISCAL_DEVICE_CONNECTION));
         }
-      }, 300);
-    }).catch((error) => {
-      toast.error(handleZFPLabServerError(error));
-    }).finally(() => {
-      setSubmitting(false);
-    })
-  }
-
-  const FormHelperTextCustomProps = {
-    color: 'rgb(255, 61, 87)',
-    fontWeight: 400
-  }
-
-  const textFieldErrorOutlineStyles = {
-    '& .MuiOutlinedInput-root': {
-      '&.Mui-error fieldset': {
-        borderColor: 'rgb(255, 61, 87)',
+      } catch (error) {
+        const zfpLabServerError = handleZFPLabServerError(error);
+        toast.error(`${zfpLabServerError ? zfpLabServerError + '\n' : ''}Unable to connect to ZFPLabServer on: \r\n${zfpLabServerAddress}`);
+      } finally {
+        if (setSubmitting) {
+          setSubmitting(false);
+        }
       }
-    },
-  }
+    }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE);
+  }, [dispatch, fp]);
+
+  useEffect(() => {
+    const handleZFPLabServerConnection = async () => {
+      await connectToZFPLabServer(zfpLabServerConnectionInitialFormValues.zfpLabServerAddress);
+    };
+
+    handleZFPLabServerConnection();
+  }, [connectToZFPLabServer, zfpLabServerConnectionInitialFormValues.zfpLabServerAddress]);
 
   return (
     <ZFPLabServerConnectionStyledCard>
@@ -121,8 +121,6 @@ const ZFPLabServerConnection = () => {
                         onChange={handleChange}
                         helperText={touched.zfpLabServerAddress && errors.zfpLabServerAddress}
                         error={Boolean(touched.zfpLabServerAddress && errors.zfpLabServerAddress)}
-                        FormHelperTextProps={FormHelperTextCustomProps}
-                        sx={textFieldErrorOutlineStyles}
                       />
                     </FormControl>
                   </Grid>

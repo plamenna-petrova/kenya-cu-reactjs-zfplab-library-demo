@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { FISCAL_DEVICE_CONNECTION } from "../../utils/constants";
+import { ZFP_LAB_SERVER_CONNECTION } from "../../utils/constants";
 
 const appNavigationInitialState = {
-    activeSection: FISCAL_DEVICE_CONNECTION
+    activeSection: ZFP_LAB_SERVER_CONNECTION
 }
 
 const appNavigationSlice = createSlice({
