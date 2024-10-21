@@ -102,8 +102,8 @@ const FiscalDeviceConnection = () => {
   const [serialPortOrUSBConnectionStatus, setSerialPortOrUSBConnectionStatus] = useState(null);
   const [lanOrWifiConnectionStatus, setLanOrWifiConnectionStatus] = useState(null);
   const isMobileScreen = useMediaQuery('(max-width:480px)');
-  const fp = useFP();
   const dispatch = useDispatch();
+  const fp = useFP();
 
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
@@ -267,7 +267,7 @@ const FiscalDeviceConnection = () => {
     fontWeight: 400
   }
 
-  const errorOutlineStyles = {
+  const textFieldErrorOutlineStyles = {
     '& .MuiOutlinedInput-root': {
       '&.Mui-error fieldset': {
         borderColor: 'rgb(255, 61, 87)',
@@ -331,9 +331,7 @@ const FiscalDeviceConnection = () => {
                   <Grid container spacing={2} justifyContent="center" alignItems="center">
                     <Grid size={{ xs: 12, md: 6 }} textAlign="center">
                       <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
-                        <Paragraph fontSize={14}>
-                          Serial Port
-                        </Paragraph>
+                        <Paragraph fontSize={14}>Serial Port</Paragraph>
                         <Autocomplete
                           name="serialPort"
                           size="small"
@@ -359,7 +357,7 @@ const FiscalDeviceConnection = () => {
                               name="serialPort"
                               onBlur={handleBlur}
                               error={Boolean(touched.serialPort && errors.serialPort)}
-                              sx={errorOutlineStyles}
+                              sx={textFieldErrorOutlineStyles}
                             />
                           )}
                         />
@@ -367,9 +365,7 @@ const FiscalDeviceConnection = () => {
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }} textAlign="center">
                       <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
-                        <Paragraph fontSize={14}>
-                          Baud Rate
-                        </Paragraph>
+                        <Paragraph fontSize={14}>Baud Rate</Paragraph>
                         <Select
                           name="baudRate"
                           value={values.baudRate}
@@ -458,9 +454,7 @@ const FiscalDeviceConnection = () => {
                   <Grid container spacing={2} justifyContent="center" alignItems="center">
                     <Grid size={{ xs: 12, md: 6 }} textAlign="center">
                       <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
-                        <Paragraph fontSize={14}>
-                          Fiscal Device IP Address
-                        </Paragraph>
+                        <Paragraph fontSize={14}>Fiscal Device IP Address</Paragraph>
                         <TextField
                           fullWidth
                           size="small"
@@ -474,15 +468,13 @@ const FiscalDeviceConnection = () => {
                           helperText={touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress}
                           error={Boolean(touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress)}
                           FormHelperTextProps={FormHelperTextCustomProps}
-                          sx={errorOutlineStyles}
+                          sx={textFieldErrorOutlineStyles}
                         />
                       </FormControl>
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }} textAlign="center">
                       <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
-                        <Paragraph>
-                          Network Password
-                        </Paragraph>
+                        <Paragraph>Network Password</Paragraph>
                         <TextField
                           fullWidth
                           size="small"
@@ -496,7 +488,7 @@ const FiscalDeviceConnection = () => {
                           helperText={touched.lanOrWifiPassword && errors.lanOrWifiPassword}
                           error={Boolean(touched.lanOrWifiPassword && errors.lanOrWifiPassword)}
                           FormHelperTextProps={FormHelperTextCustomProps}
-                          sx={errorOutlineStyles}
+                          sx={textFieldErrorOutlineStyles}
                         />
                       </FormControl>
                     </Grid>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import { FISCAL_DEVICE_CONNECTION, FISCAL_RECEIPTS, REPORTS } from '../../utils/constants';
+import { ZFP_LAB_SERVER_CONNECTION, FISCAL_DEVICE_CONNECTION, FISCAL_RECEIPTS, REPORTS } from '../../utils/constants';
 import { useSelector, useDispatch } from 'react-redux';
 import { setActiveSection } from '../../store/slices/appNavigationSlice';
 import { H3, Paragraph } from '../typography-elements/TypographyElements';
@@ -25,6 +25,7 @@ import ListItemText from '@mui/material/ListItemText';
 import SensorsIcon from '@mui/icons-material/Sensors';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import ZFPLabServerConnection from '../zfp-lab-server-connection/ZFPLabServerConnection';
 import FiscalDeviceConnection from '../fiscal-device-connection/FiscalDeviceConnection';
 import FiscalReceipts from '../fiscal-receipts/FiscalReceipts';
 import Reports from '../reports/Reports';
@@ -213,7 +214,13 @@ export const NavigationDrawer = () => {
                 }
               }}
             >
-              <IconButton size="small" aria-label="ZFPLabServer Connection" color="inherit" sx={{ borderRadius: 0, py: 1, px: 2 }}>
+              <IconButton 
+                size="small" 
+                aria-label="ZFPLabServer Connection" 
+                color="inherit" 
+                sx={{ borderRadius: 0, py: 1, px: 2 }}
+                onClick={() => showSection(ZFP_LAB_SERVER_CONNECTION)}
+              >
                 <Avatar variant="square" src="/assets/images/zfplabserver.5309b59b.png"></Avatar>
               </IconButton>
             </Tooltip>
@@ -306,6 +313,7 @@ export const NavigationDrawer = () => {
         }}
       >
         <DrawerHeader />
+        {activeSection === ZFP_LAB_SERVER_CONNECTION && <ZFPLabServerConnection />}
         {activeSection === FISCAL_DEVICE_CONNECTION && <FiscalDeviceConnection />}
         {activeSection === FISCAL_RECEIPTS && <FiscalReceipts />}
         {activeSection === REPORTS && <Reports />}

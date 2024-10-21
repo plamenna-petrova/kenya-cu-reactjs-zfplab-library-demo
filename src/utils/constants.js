@@ -1,14 +1,18 @@
 // Labels
 
+export const ZFP_LAB_SERVER_CONNECTION = 'ZFPLabServer Connection';
+
 export const FISCAL_DEVICE_CONNECTION = 'FD Connection';
 
 export const FISCAL_RECEIPTS = 'Receipts';
 
 export const REPORTS = 'Reports';
 
-// Loading Messages
+// Loading Message
 
 export const DEFAULT_LOADING_MESSAGE = 'Loading...';
+
+export const CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE = 'Connecting to ZFPLabServer...';
 
 export const SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE = 'Searching for a fiscal device...';
 
