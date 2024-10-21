@@ -8,7 +8,7 @@ export const FISCAL_RECEIPTS = 'Receipts';
 
 export const REPORTS = 'Reports';
 
-// Loading Message
+// Loading Messages
 
 export const DEFAULT_LOADING_MESSAGE = 'Loading...';
 
