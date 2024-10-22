@@ -171,9 +171,9 @@ export const NavigationDrawer = () => {
   const connectToZFPLabServer = async (zfpLabServerAddress) => {
     await fp.ServerSetSettings(zfpLabServerAddress);
 
-    const serverDeviceSettings = await fp.ServerGetDeviceSettings();
+    const serverSettingsForConnectionTest = await fp.ServerGetSettingsForConnectionTest();
 
-    if (serverDeviceSettings) {
+    if (serverSettingsForConnectionTest) {
       localStorage.setItem(ZFP_LAB_SERVER_ADDRESS_KEY, zfpLabServerAddress);
       showSection(FISCAL_DEVICE_CONNECTION);
     }

@@ -6,6 +6,7 @@ import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
 import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
 import * as Yup from "yup";
+import PropTypes from 'prop-types';
 import ZFPLabServerConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid2';
@@ -94,6 +95,10 @@ const ZFPLabServerConnection = ({ zfpLabServerConnectionHandler }) => {
       </CardContent>
     </ZFPLabServerConnectionCard>
   )
+}
+
+ZFPLabServerConnection.propTypes = {
+  zfpLabServerConnectionHandler: PropTypes.func
 }
 
 export default ZFPLabServerConnection;

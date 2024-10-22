@@ -319,6 +319,18 @@ Tremol.FP = Tremol.FP ||
             }
         }
 
+        this.ServerGetSettingsForConnectionTest = function () {
+            w = true;
+
+            try {
+                var response = sendReq("GET", "settings", null);
+                return response;
+            }
+            finally {
+                w = false;
+            }
+        };
+
         /**
          * Gets the device settings
          * @returns {Tremol.FP.DeviceSettings}
@@ -327,6 +339,8 @@ Tremol.FP = Tremol.FP ||
             w = true;
             try {
                 var response = sendReq("GET", "settings", null);
+                console.log("response");
+                console.log(response);
                 var isTcp = Boolean(Number(response.getElementsByTagName("tcp")[0].firstChild.nodeValue));
                 var comS = response.getElementsByTagName("com")[0].firstChild.nodeValue; //.data
                 var baudS = Number(response.getElementsByTagName("baud")[0].firstChild.nodeValue);

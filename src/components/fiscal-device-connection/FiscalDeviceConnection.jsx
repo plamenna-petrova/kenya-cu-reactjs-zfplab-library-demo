@@ -466,4 +466,10 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
   )
 }
 
+FiscalDeviceConnection.propTypes = {
+  initialSerialPortOrUSBConnectionFormValues: PropTypes.object,
+  initialLANOrWifiConnectionFormValues: PropTypes.object,
+  fiscalDeviceConnectionHandler: PropTypes.func
+}
+
 export default FiscalDeviceConnection;
