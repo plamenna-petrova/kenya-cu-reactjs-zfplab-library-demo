@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import {
   ZFP_LAB_SERVER_CONNECTION,
@@ -9,7 +9,6 @@ import {
   CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE,
   ZFP_LAB_SERVER_ADDRESS_KEY,
   DEFAULT_ZFP_LAB_SERVER_ADDRESS,
-  FISCAL_DEVICE_CONNECTION_SETTINGS_KEY,
   SERIAL_PORT_CONNECTION,
   TCP_CONNECTION,
 } from '../../utils/constants';
@@ -18,6 +17,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useFP } from '../../hooks/useFP';
 import { setActiveSection } from '../../store/slices/appNavigationSlice';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
+import { getConfiguredFiscalDeviceConnectionSettings, getInitialFiscalDeviceConnectionFormValues } from '../../utils/connectionUtils';
 import { toast } from 'react-toastify';
 import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import Box from '@mui/material/Box';
@@ -142,6 +142,14 @@ export const NavigationDrawer = () => {
     }
   ];
 
+  const initialSerialPortOrUSBConnectionFormValues = useMemo(() => {
+    return getInitialFiscalDeviceConnectionFormValues(SERIAL_PORT_CONNECTION);
+  }, []);
+
+  const initialLANOrWifiConnectionFormValues = useMemo(() => {
+    return getInitialFiscalDeviceConnectionFormValues(TCP_CONNECTION);
+  }, []);
+
   const handleNavigationDrawerOpen = () => {
     setIsNavigationDrawerOpen(true);
   };
@@ -193,7 +201,6 @@ export const NavigationDrawer = () => {
         break;
       }
       case TCP_CONNECTION: {
-        console.log("here");
         const { fiscalDeviceIPAddress, lanOrWifiPassword } = fiscalDeviceConnectionSettings;
         await fp.ServerSetDeviceTcpSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
         break;
@@ -216,25 +223,19 @@ export const NavigationDrawer = () => {
     let isNavigationDrawerMounted = true;
 
     const handleZFPLabServerAndFiscalDeviceAutomaticConnection = async () => {
-      try {
-        if (isNavigationDrawerMounted) {
-          const savedZFPLabServerAddress = localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS;
+      if (isNavigationDrawerMounted) {
+        const savedZFPLabServerAddress = localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS;
 
-          await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress);
+        await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress).then(async () => {
+          setTimeout(async () => {
+            const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
 
-          const savedFiscalDeviceConnectionSettingsJSON = localStorage.getItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
-
-          if (savedFiscalDeviceConnectionSettingsJSON) {
-            const parsedFiscalDeviceConnectionSettings = JSON.parse(savedFiscalDeviceConnectionSettingsJSON);
-            const { connectionType, ...connectionParameters } = parsedFiscalDeviceConnectionSettings;
-
-            if (isNavigationDrawerMounted) {
+            if (configuredFiscalDeviceConnectionSettings && isNavigationDrawerMounted) {
+              const { connectionType, ...connectionParameters } = getConfiguredFiscalDeviceConnectionSettings();
               await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
             }
-          }
-        }
-      } catch (error) {
-        console.error('Error during automatic connection', error);
+          }, 300);
+        });
       }
     };
 
@@ -242,7 +243,7 @@ export const NavigationDrawer = () => {
 
     return () => {
       isNavigationDrawerMounted = false;
-    };
+    }
   }, []);
 
   return (
@@ -418,8 +419,16 @@ export const NavigationDrawer = () => {
         }}
       >
         <DrawerHeader />
-        {activeSection === ZFP_LAB_SERVER_CONNECTION && (<ZFPLabServerConnection zfpLabServerConnectionHandler={connectToZFPLabServer} />)}
-        {activeSection === FISCAL_DEVICE_CONNECTION && (<FiscalDeviceConnection fiscalDeviceConnectionHandler={connectToFiscalDevice} />)}
+        {activeSection === ZFP_LAB_SERVER_CONNECTION && (
+          <ZFPLabServerConnection zfpLabServerConnectionHandler={connectToZFPLabServer} />
+        )}
+        {activeSection === FISCAL_DEVICE_CONNECTION && (
+          <FiscalDeviceConnection
+            initialSerialPortOrUSBConnectionFormValues={initialSerialPortOrUSBConnectionFormValues}
+            initialLANOrWifiConnectionFormValues={initialLANOrWifiConnectionFormValues}
+            fiscalDeviceConnectionHandler={connectToFiscalDevice}
+          />
+        )}
         {activeSection === FISCAL_RECEIPTS && <FiscalReceipts />}
         {activeSection === REPORTS && <Reports />}
       </Box>

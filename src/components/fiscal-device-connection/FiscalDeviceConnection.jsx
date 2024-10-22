@@ -72,13 +72,13 @@ const a11yProps = (index) => {
   };
 }
 
-const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
+const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, initialLANOrWifiConnectionFormValues, fiscalDeviceConnectionHandler }) => {
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
-  const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState({ serialPort: "COM1", baudRate: BAUD_RATES[BAUD_RATES.length - 1] });
+  const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState(initialSerialPortOrUSBConnectionFormValues);
   const [serialPortOrUSBConnectionFormTouched, setSerialPortOrUSBConnectionFormTouched] = useState({});
   const [serialPortOrUSBConnectionFormErrors, setSerialPortOrUSBConnectionFormErrors] = useState({});
-  const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState({ fiscalDeviceIPAddress: "", lanOrWifiPassword: "" });
+  const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState(initialLANOrWifiConnectionFormValues);
   const [lanOrWifiConnectionFormTouched, setLANOrWifiConnectionFormTouched] = useState({});
   const [lanOrWifiConnectionFormErrors, setLANOrWifiConnectionFormErrors] = useState({});
   const [serialPortOrUSBConnectionStatus, setSerialPortOrUSBConnectionStatus] = useState(null);

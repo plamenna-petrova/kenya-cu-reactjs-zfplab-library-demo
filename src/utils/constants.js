@@ -30,6 +30,8 @@ export const DEFAULT_ZFP_LAB_SERVER_ADDRESS = 'http://localhost:4444';
 
 export const ZFP_LAB_SERVER_ADDRESS_KEY = 'zfpLabServerAddress';
 
+export const DEFAULT_SERIAL_PORT = "COM1";
+
 export const BAUD_RATES = [9600, 19200, 38400, 57600, 115200];
 
 export const SERIAL_PORT_CONNECTION = "Serial";
