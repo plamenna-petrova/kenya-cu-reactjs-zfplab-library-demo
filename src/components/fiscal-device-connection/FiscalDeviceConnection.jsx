@@ -178,8 +178,6 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
         }
 
         localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
-
-        toast.success("Successfully connected to the fiscal device");
       } catch (error) {
         const fiscalDevicefailedConnectionStatus = {
           severity: 'error',
