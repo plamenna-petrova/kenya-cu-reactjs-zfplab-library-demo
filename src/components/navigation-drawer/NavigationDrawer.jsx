@@ -142,13 +142,9 @@ export const NavigationDrawer = () => {
     }
   ];
 
-  const initialSerialPortOrUSBConnectionFormValues = useMemo(() => {
-    return getInitialFiscalDeviceConnectionFormValues(SERIAL_PORT_CONNECTION);
-  }, []);
+  const initialSerialPortOrUSBConnectionFormValues = getInitialFiscalDeviceConnectionFormValues(SERIAL_PORT_CONNECTION);
 
-  const initialLANOrWifiConnectionFormValues = useMemo(() => {
-    return getInitialFiscalDeviceConnectionFormValues(TCP_CONNECTION);
-  }, []);
+  const initialLANOrWifiConnectionFormValues = getInitialFiscalDeviceConnectionFormValues(TCP_CONNECTION);
 
   const handleNavigationDrawerOpen = () => {
     setIsNavigationDrawerOpen(true);
