@@ -72,7 +72,7 @@ const a11yProps = (index) => {
   };
 }
 
-const FiscalDeviceConnection = () => {
+const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
   const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState({ serialPort: "COM1", baudRate: BAUD_RATES[BAUD_RATES.length - 1] });
@@ -159,47 +159,24 @@ const FiscalDeviceConnection = () => {
   const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData, setSubmitting, connectionType) => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
+        await fiscalDeviceConnectionHandler(fiscalDeviceConnectionSettingsFormData, connectionType);
+
         let connectedFiscalDeviceSettings = {};
 
-        switch (connectionType) {
-          case SERIAL_PORT_CONNECTION: {
-            const { serialPort, baudRate } = fiscalDeviceConnectionSettingsFormData;
-
-            await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
-
-            connectedFiscalDeviceSettings = {
-              connectionType,
-              serialPort,
-              baudRate,
-            };
-            break;
-          }
-          case TCP_CONNECTION: {
-            const { fiscalDeviceIPAddress, lanOrWifiPassword } = fiscalDeviceConnectionSettingsFormData;
-
-            await fp.ServerSetDeviceTcpSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
-
-            connectedFiscalDeviceSettings = {
-              connectionType,
-              fiscalDeviceIPAddress,
-              lanOrWifiPassword
-            };
-            break;
-          }
+        if (connectionType === SERIAL_PORT_CONNECTION) {
+          connectedFiscalDeviceSettings = {
+            connectionType,
+            serialPort: fiscalDeviceConnectionSettingsFormData.serialPort,
+            baudRate: fiscalDeviceConnectionSettingsFormData.baudRate,
+          };
+        } else {
+          connectedFiscalDeviceSettings = {
+            connectionType,
+            fiscalDeviceIPAddress: fiscalDeviceConnectionSettingsFormData.fiscalDeviceIPAddress,
+            lanOrWifiPassword: fiscalDeviceConnectionSettingsFormData.lanOrWifiPassword
+          };
         }
-  
-        await fp.ApplyClientLibraryDefinitions();
 
-        await fp.ReadStatus();
-     
-        if (serialPortOrUSBConnectionStatus) {
-          clearSerialPortOrUSBConnectionStatusAlert();
-        }
-        
-        if (lanOrWifiConnectionStatus) {
-          clearLANOrWifiConnectionStatusAlert();
-        }
-        
         localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
 
         toast.success("Successfully connected to the fiscal device");

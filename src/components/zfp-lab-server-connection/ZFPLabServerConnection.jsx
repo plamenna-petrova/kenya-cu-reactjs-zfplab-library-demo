@@ -1,6 +1,9 @@
 import { Formik } from "formik";
 import { Paragraph } from "../layout/typography-elements/TypographyElements";
-import { DEFAULT_ZFP_LAB_SERVER_ADDRESS } from '../../utils/constants';
+import { DEFAULT_ZFP_LAB_SERVER_ADDRESS, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE } from '../../utils/constants';
+import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
+import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
+import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import ZFPLabServerConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
@@ -11,7 +14,9 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import PowerIcon from '@mui/icons-material/Power';
 
-const ZFPLabServerConnection = ({ connectToZFPLabServerHandler }) => {
+const ZFPLabServerConnection = ({ zfpLabServerConnectionHandler }) => {
+  const dispatch = useDispatch();
+
   const zfpLabServerConnectionInitialFormValues = {
     zfpLabServerAddress: DEFAULT_ZFP_LAB_SERVER_ADDRESS
   }
@@ -27,7 +32,16 @@ const ZFPLabServerConnection = ({ connectToZFPLabServerHandler }) => {
   });
 
   const handleZFPLabServerConnectionFormSubmit = async ({ zfpLabServerAddress }, { setSubmitting }) => {
-    await connectToZFPLabServerHandler(zfpLabServerAddress, setSubmitting);
+    await executeFPOperationWithLoading(dispatch, async () => {
+      try {
+        await zfpLabServerConnectionHandler(zfpLabServerAddress);
+      } catch (error) {
+        const zfpLabServerError = handleZFPLabServerError(error);
+        toast.error(`${zfpLabServerError || ''}Unable to connect to ZFPLabServer on: ${zfpLabServerAddress}`);
+      } finally {
+        setSubmitting(false);
+      }
+    }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE);
   }
 
   return (

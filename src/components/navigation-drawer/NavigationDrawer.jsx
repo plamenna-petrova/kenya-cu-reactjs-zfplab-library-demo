@@ -1,13 +1,17 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import { 
-  ZFP_LAB_SERVER_CONNECTION, 
-  FISCAL_DEVICE_CONNECTION, 
-  FISCAL_RECEIPTS, 
-  REPORTS, 
+import {
+  ZFP_LAB_SERVER_CONNECTION,
+  FISCAL_DEVICE_CONNECTION,
+  FISCAL_RECEIPTS,
+  REPORTS,
   CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE,
+  CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE,
   ZFP_LAB_SERVER_ADDRESS_KEY,
-  DEFAULT_ZFP_LAB_SERVER_ADDRESS
+  DEFAULT_ZFP_LAB_SERVER_ADDRESS,
+  FISCAL_DEVICE_CONNECTION_SETTINGS_KEY,
+  SERIAL_PORT_CONNECTION,
+  TCP_CONNECTION,
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { useSelector, useDispatch } from 'react-redux';
@@ -150,30 +154,77 @@ export const NavigationDrawer = () => {
     dispatch(setActiveSection(sectionIdentifier));
   }
 
-  const connectToZFPLabServer = useCallback(async (zfpLabServerAddress, setSubmitting) => {
+  const connectToZFPLabServerAutomatically = async (zfpLabServerAddress) => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        await fp.ServerSetSettings(zfpLabServerAddress);
-
-        const serverDeviceSettings = await fp.ServerGetDeviceSettings();
-
-        if (serverDeviceSettings) {
-          localStorage.setItem(ZFP_LAB_SERVER_ADDRESS_KEY, zfpLabServerAddress);
-          dispatch(setActiveSection(FISCAL_DEVICE_CONNECTION));
-        }
+        await connectToZFPLabServer(zfpLabServerAddress);
       } catch (error) {
-        const zfpLabServerError = handleZFPLabServerError(error);
-        toast.error(`${zfpLabServerError || ''}Unable to connect to ZFPLabServer on: ${zfpLabServerAddress}`);
-      } finally {
-        if (setSubmitting) {
-          setSubmitting(false);
-        }
+        toast.error(handleZFPLabServerError(error));
       }
     }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE);
-  }, [dispatch, fp]);
+  }
+
+  const connectToZFPLabServer = async (zfpLabServerAddress) => {
+    await fp.ServerSetSettings(zfpLabServerAddress);
+
+    const serverDeviceSettings = await fp.ServerGetDeviceSettings();
+
+    if (serverDeviceSettings) {
+      localStorage.setItem(ZFP_LAB_SERVER_ADDRESS_KEY, zfpLabServerAddress);
+      showSection(FISCAL_DEVICE_CONNECTION);
+    }
+  };
+
+  const connectToFiscalDeviceAutomatically = async (fiscalDeviceConnectionSettings, connectionType) => {
+    await executeFPOperationWithLoading(dispatch, async () => {
+      try {
+        await connectToFiscalDevice(fiscalDeviceConnectionSettings, connectionType);
+      } catch (error) {
+        toast.error(handleZFPLabServerError(error));
+      }
+    }, CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE);
+  }
+
+  const connectToFiscalDevice = async (fiscalDeviceConnectionSettings, connectionType) => {
+    switch (connectionType) {
+      case SERIAL_PORT_CONNECTION: {
+        const { serialPort, baudRate } = fiscalDeviceConnectionSettings;
+        await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
+        break;
+      }
+      case TCP_CONNECTION: {
+        console.log("here");
+        const { fiscalDeviceIPAddress, lanOrWifiPassword } = fiscalDeviceConnectionSettings;
+        await fp.ServerSetDeviceTcpSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
+        break;
+      }
+    }
+
+    await fp.ApplyClientLibraryDefinitions();
+
+    await fp.ReadStatus();
+
+    showSection(FISCAL_RECEIPTS);
+  }
 
   useEffect(() => {
-    connectToZFPLabServer(localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS);
+    const handleZFPLabServerAndFiscalDeviceAutomaticConnection = async () => {
+      const savedZFPLabServerAddress = localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS;
+  
+      await connectToZFPLabServerAutomatically(savedZFPLabServerAddress).then(async () => {
+        setTimeout(async () => {
+          const savedFiscalDeviceConnectionSettingsJSON = localStorage.getItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
+    
+          if (savedFiscalDeviceConnectionSettingsJSON) {
+            const parsedFiscalDeviceConnectionSettings = JSON.parse(savedFiscalDeviceConnectionSettingsJSON);
+            const { connectionType, ...connectionParameters } = parsedFiscalDeviceConnectionSettings;
+            await connectToFiscalDeviceAutomatically(connectionParameters, connectionType);
+          }
+        }, 300);
+      });
+    };
+
+    handleZFPLabServerAndFiscalDeviceAutomaticConnection();
   }, []);
 
   return (
@@ -248,10 +299,10 @@ export const NavigationDrawer = () => {
                 }
               }}
             >
-              <IconButton 
-                size="small" 
-                aria-label="ZFPLabServer Connection" 
-                color="inherit" 
+              <IconButton
+                size="small"
+                aria-label="ZFPLabServer Connection"
+                color="inherit"
                 sx={{ borderRadius: 0, py: 1, px: 2 }}
                 onClick={() => showSection(ZFP_LAB_SERVER_CONNECTION)}
               >
@@ -347,8 +398,8 @@ export const NavigationDrawer = () => {
         }}
       >
         <DrawerHeader />
-        {activeSection === ZFP_LAB_SERVER_CONNECTION && <ZFPLabServerConnection connectToZFPLabServerHandler={connectToZFPLabServer} />}
-        {activeSection === FISCAL_DEVICE_CONNECTION && <FiscalDeviceConnection />}
+        {activeSection === ZFP_LAB_SERVER_CONNECTION && <ZFPLabServerConnection zfpLabServerConnectionHandler={connectToZFPLabServer} />}
+        {activeSection === FISCAL_DEVICE_CONNECTION && <FiscalDeviceConnection fiscalDeviceConnectionHandler={connectToFiscalDevice} />}
         {activeSection === FISCAL_RECEIPTS && <FiscalReceipts />}
         {activeSection === REPORTS && <Reports />}
       </Box>
