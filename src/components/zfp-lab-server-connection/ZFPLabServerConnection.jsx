@@ -1,16 +1,8 @@
-import { useEffect, useCallback } from "react";
-import { styled } from '@mui/material/styles';
 import { Formik } from "formik";
-import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
-import { Paragraph } from "../typography-elements/TypographyElements";
-import { useDispatch } from 'react-redux';
-import { useFP } from '../../hooks/useFP';
-import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
-import { toast } from 'react-toastify';
-import { setActiveSection } from '../../store/slices/appNavigationSlice';
-import { CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE, FISCAL_DEVICE_CONNECTION } from '../../utils/constants';
+import { Paragraph } from "../layout/typography-elements/TypographyElements";
+import { DEFAULT_ZFP_LAB_SERVER_ADDRESS } from '../../utils/constants';
 import * as Yup from "yup";
-import Card from '@mui/material/Card';
+import ZFPLabServerConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid2';
 import FormControl from '@mui/material/FormControl';
@@ -19,30 +11,9 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import PowerIcon from '@mui/icons-material/Power';
 
-const ZFPLabServerConnectionStyledCard = styled(Card)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  width: '100%',
-  maxWidth: 800,
-  minWidth: 0,
-  margin: "auto",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  borderRadius: theme.shape.borderRadius,
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
-  [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(1),
-    maxWidth: '300px',
-    margin: theme.spacing(1),
-  },
-}));
-
-const ZFPLabServerConnection = () => {
-  const fp = useFP();
-  const dispatch = useDispatch();
-
+const ZFPLabServerConnection = ({ connectToZFPLabServerHandler }) => {
   const zfpLabServerConnectionInitialFormValues = {
-    zfpLabServerAddress: "http://localhost:4444"
+    zfpLabServerAddress: DEFAULT_ZFP_LAB_SERVER_ADDRESS
   }
 
   const zfpLabServerConnectionValidationSchema = Yup.object().shape({
@@ -56,40 +27,11 @@ const ZFPLabServerConnection = () => {
   });
 
   const handleZFPLabServerConnectionFormSubmit = async ({ zfpLabServerAddress }, { setSubmitting }) => {
-    await connectToZFPLabServer(zfpLabServerAddress, setSubmitting);
+    await connectToZFPLabServerHandler(zfpLabServerAddress, setSubmitting);
   }
 
-  const connectToZFPLabServer = useCallback(async (zfpLabServerAddress, setSubmitting) => {
-    await executeFPOperationWithLoading(dispatch, async () => {
-      try {
-        await fp.ServerSetSettings(zfpLabServerAddress);
-
-        const serverDeviceSettings = await fp.ServerGetDeviceSettings();
-
-        if (serverDeviceSettings) {
-          dispatch(setActiveSection(FISCAL_DEVICE_CONNECTION));
-        }
-      } catch (error) {
-        const zfpLabServerError = handleZFPLabServerError(error);
-        toast.error(`${zfpLabServerError ? zfpLabServerError + '\n' : ''}Unable to connect to ZFPLabServer on: \r\n${zfpLabServerAddress}`);
-      } finally {
-        if (setSubmitting) {
-          setSubmitting(false);
-        }
-      }
-    }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE);
-  }, [dispatch, fp]);
-
-  useEffect(() => {
-    const handleZFPLabServerConnection = async () => {
-      await connectToZFPLabServer(zfpLabServerConnectionInitialFormValues.zfpLabServerAddress);
-    };
-
-    handleZFPLabServerConnection();
-  }, [connectToZFPLabServer, zfpLabServerConnectionInitialFormValues.zfpLabServerAddress]);
-
   return (
-    <ZFPLabServerConnectionStyledCard>
+    <ZFPLabServerConnectionCard>
       <CardContent>
         <Formik
           initialValues={zfpLabServerConnectionInitialFormValues}
@@ -135,7 +77,7 @@ const ZFPLabServerConnection = () => {
           }}
         </Formik>
       </CardContent>
-    </ZFPLabServerConnectionStyledCard>
+    </ZFPLabServerConnectionCard>
   )
 }
 

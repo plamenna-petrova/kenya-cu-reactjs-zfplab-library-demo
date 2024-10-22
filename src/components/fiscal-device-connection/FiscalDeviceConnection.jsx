@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useState, useEffect } from 'react';
-import { styled } from '@mui/material/styles';
 import { Formik } from "formik";
-import { Paragraph } from '../typography-elements/TypographyElements';
+import { Paragraph } from '../layout/typography-elements/TypographyElements';
 import {
   BAUD_RATES,
   FISCAL_DEVICE_CONNECTION_SETTINGS_KEY,
@@ -20,7 +19,7 @@ import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
-import Card from '@mui/material/Card';
+import FiscalDeviceConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -43,24 +42,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
 import NetworkPingIcon from '@mui/icons-material/NetworkPing';
 import CloseIcon from '@mui/icons-material/Close';
-
-const FiscalDeviceConnectionStyledCard = styled(Card)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  width: '100%',
-  maxWidth: 800,
-  minWidth: 0,
-  margin: "auto",
-  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  borderRadius: theme.shape.borderRadius,
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
-  [theme.breakpoints.down('sm')]: {
-    padding: theme.spacing(1),
-    maxWidth: '300px',
-    margin: theme.spacing(1),
-  },
-}));
 
 const FiscalDeviceConnectionTabPanel = (props) => {
   const { children, value, index, ...restProps } = props;
@@ -209,8 +190,7 @@ const FiscalDeviceConnection = () => {
   
         await fp.ApplyClientLibraryDefinitions();
 
-        const statusEntries = await fp.ReadStatus();
-        console.log(statusEntries);
+        await fp.ReadStatus();
      
         if (serialPortOrUSBConnectionStatus) {
           clearSerialPortOrUSBConnectionStatusAlert();
@@ -272,7 +252,7 @@ const FiscalDeviceConnection = () => {
   }, []);
 
   return (
-    <FiscalDeviceConnectionStyledCard>
+    <FiscalDeviceConnectionCard>
       <Tabs
         value={fiscalDeviceConnectionTabValue}
         onChange={handleFiscalDeviceConnectionTabChange}
@@ -507,7 +487,7 @@ const FiscalDeviceConnection = () => {
           </Formik>
         </FiscalDeviceConnectionTabPanel>
       </CardContent>
-    </FiscalDeviceConnectionStyledCard>
+    </FiscalDeviceConnectionCard>
   )
 }
 

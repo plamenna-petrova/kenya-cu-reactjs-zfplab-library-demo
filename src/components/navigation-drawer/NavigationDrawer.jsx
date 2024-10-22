@@ -1,9 +1,21 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import { ZFP_LAB_SERVER_CONNECTION, FISCAL_DEVICE_CONNECTION, FISCAL_RECEIPTS, REPORTS } from '../../utils/constants';
+import { 
+  ZFP_LAB_SERVER_CONNECTION, 
+  FISCAL_DEVICE_CONNECTION, 
+  FISCAL_RECEIPTS, 
+  REPORTS, 
+  CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE,
+  ZFP_LAB_SERVER_ADDRESS_KEY,
+  DEFAULT_ZFP_LAB_SERVER_ADDRESS
+} from '../../utils/constants';
+import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { useSelector, useDispatch } from 'react-redux';
+import { useFP } from '../../hooks/useFP';
 import { setActiveSection } from '../../store/slices/appNavigationSlice';
-import { H3, Paragraph } from '../typography-elements/TypographyElements';
+import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
+import { toast } from 'react-toastify';
+import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -22,7 +34,6 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import SensorsIcon from '@mui/icons-material/Sensors';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ZFPLabServerConnection from '../zfp-lab-server-connection/ZFPLabServerConnection';
@@ -110,16 +121,13 @@ const MiniVariantDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop 
 );
 
 export const NavigationDrawer = () => {
+  const [isNavigationDrawerOpen, setIsNavigationDrawerOpen] = useState(true);
+  const activeSection = useSelector((state) => state.appNavigation.activeSection);
   const theme = useTheme();
   const dispatch = useDispatch();
-  const activeSection = useSelector((state) => state.appNavigation.activeSection);
-  const [isNavigationDrawerOpen, setIsNavigationDrawerOpen] = useState(true);
+  const fp = useFP();
 
   const sidebarMenuItems = [
-    {
-      title: FISCAL_DEVICE_CONNECTION,
-      icon: <SensorsIcon />
-    },
     {
       title: FISCAL_RECEIPTS,
       icon: <ReceiptIcon />
@@ -141,6 +149,32 @@ export const NavigationDrawer = () => {
   const showSection = (sectionIdentifier) => {
     dispatch(setActiveSection(sectionIdentifier));
   }
+
+  const connectToZFPLabServer = useCallback(async (zfpLabServerAddress, setSubmitting) => {
+    await executeFPOperationWithLoading(dispatch, async () => {
+      try {
+        await fp.ServerSetSettings(zfpLabServerAddress);
+
+        const serverDeviceSettings = await fp.ServerGetDeviceSettings();
+
+        if (serverDeviceSettings) {
+          localStorage.setItem(ZFP_LAB_SERVER_ADDRESS_KEY, zfpLabServerAddress);
+          dispatch(setActiveSection(FISCAL_DEVICE_CONNECTION));
+        }
+      } catch (error) {
+        const zfpLabServerError = handleZFPLabServerError(error);
+        toast.error(`${zfpLabServerError || ''}Unable to connect to ZFPLabServer on: ${zfpLabServerAddress}`);
+      } finally {
+        if (setSubmitting) {
+          setSubmitting(false);
+        }
+      }
+    }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE);
+  }, [dispatch, fp]);
+
+  useEffect(() => {
+    connectToZFPLabServer(localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS);
+  }, []);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -313,7 +347,7 @@ export const NavigationDrawer = () => {
         }}
       >
         <DrawerHeader />
-        {activeSection === ZFP_LAB_SERVER_CONNECTION && <ZFPLabServerConnection />}
+        {activeSection === ZFP_LAB_SERVER_CONNECTION && <ZFPLabServerConnection connectToZFPLabServerHandler={connectToZFPLabServer} />}
         {activeSection === FISCAL_DEVICE_CONNECTION && <FiscalDeviceConnection />}
         {activeSection === FISCAL_RECEIPTS && <FiscalReceipts />}
         {activeSection === REPORTS && <Reports />}

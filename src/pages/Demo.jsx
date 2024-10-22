@@ -11,7 +11,7 @@ const Demo = () => {
     <>
       <NavigationDrawer />
       <ToastContainer
-        position="top-right"
+        position="bottom-right"
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
@@ -21,7 +21,6 @@ const Demo = () => {
         draggable
         pauseOnHover
         theme="dark"
-        style={{ top: '80px', right: '20px' }}
       />
       {isLoading && <BackdropLoading isBackdropLoadingOpen={isLoading} loadingMessage={loadingMessageToSet} />}
     </>

@@ -1,4 +1,4 @@
-import { H3 } from "../typography-elements/TypographyElements";
+import { H3 } from "../layout/typography-elements/TypographyElements";
 import { DEFAULT_LOADING_MESSAGE } from "../../utils/constants";
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
