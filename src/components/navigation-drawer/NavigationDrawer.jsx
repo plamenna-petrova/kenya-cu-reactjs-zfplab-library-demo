@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
+import { red } from '@mui/material/colors';
 import {
   ZFP_LAB_SERVER_CONNECTION,
   FISCAL_DEVICE_CONNECTION,
@@ -11,6 +12,8 @@ import {
   DEFAULT_ZFP_LAB_SERVER_ADDRESS,
   SERIAL_PORT_CONNECTION,
   TCP_CONNECTION,
+  ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE,
+  FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { useSelector, useDispatch } from 'react-redux';
@@ -44,6 +47,7 @@ import ZFPLabServerConnection from '../zfp-lab-server-connection/ZFPLabServerCon
 import FiscalDeviceConnection from '../fiscal-device-connection/FiscalDeviceConnection';
 import FiscalReceipts from '../fiscal-receipts/FiscalReceipts';
 import Reports from '../reports/Reports';
+import { setFiscalDeviceConnectionState, setZFPLabServerConnectionState } from '../../store/slices/zfpConnectionSlice';
 
 const drawerWidth = 240;
 
@@ -127,6 +131,8 @@ const MiniVariantDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop 
 export const NavigationDrawer = () => {
   const [isNavigationDrawerOpen, setIsNavigationDrawerOpen] = useState(true);
   const activeSection = useSelector((state) => state.appNavigation.activeSection);
+  const zfpLabServerConnectionState = useSelector((state) => state.zfpConnection.zfpLabServerConnectionState);
+  const fiscalDeviceConnectionState = useSelector((state) => state.zfpConnection.fiscalDeviceConnectionState);
   const theme = useTheme();
   const dispatch = useDispatch();
   const fp = useFP();
@@ -154,6 +160,20 @@ export const NavigationDrawer = () => {
     setIsNavigationDrawerOpen(false);
   };
 
+  const showZFPLabServerConnectionSection = () => {
+    sendZFPLabServerConnectionState(false, ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE);
+    sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
+    showSection(ZFP_LAB_SERVER_CONNECTION);
+  }
+
+  const showFiscalDeviceConnectionSection = () => {
+    if (!fiscalDeviceConnectionState.isConnected) {
+      return;
+    }
+
+    showSection(FISCAL_DEVICE_CONNECTION);
+  }
+
   const showSection = (sectionIdentifier) => {
     dispatch(setActiveSection(sectionIdentifier));
   }
@@ -164,17 +184,21 @@ export const NavigationDrawer = () => {
         await connectToZFPLabServer(zfpLabServerAddress);
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
+        sendZFPLabServerConnectionState(false, ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE);
       }
     }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE);
   }
 
   const connectToZFPLabServer = async (zfpLabServerAddress) => {
+    sendZFPLabServerConnectionState(false, ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE);
+
     await fp.ServerSetSettings(zfpLabServerAddress);
 
     const serverSettingsForConnectionTest = await fp.ServerGetSettingsForConnectionTest();
 
     if (serverSettingsForConnectionTest) {
       localStorage.setItem(ZFP_LAB_SERVER_ADDRESS_KEY, zfpLabServerAddress);
+      sendZFPLabServerConnectionState(true, `Connected to ZFPLabServer on: ${zfpLabServerAddress}`);
       showSection(FISCAL_DEVICE_CONNECTION);
     }
   };
@@ -210,6 +234,14 @@ export const NavigationDrawer = () => {
     showSection(FISCAL_RECEIPTS);
 
     toast.success("Successfully connected to the fiscal device");
+  }
+
+  const sendZFPLabServerConnectionState = (isConnected, connectionStateMessage) => {
+    dispatch(setZFPLabServerConnectionState({ isConnected, connectionStateMessage }));
+  }
+
+  const sendFiscalDeviceConnectionState = (isConnected, connectionStateMessage) => {
+    dispatch(setFiscalDeviceConnectionState({ isConnected, connectionStateMessage }));
   }
 
   const isZFPLabServerOrFiscalDeviceConnectionSection = () =>
@@ -272,7 +304,7 @@ export const NavigationDrawer = () => {
           >
             <Divider orientation="vertical" flexItem />
             <Tooltip
-              title={<Paragraph>{`The fiscal device is connected`}</Paragraph>}
+              title={<Paragraph>{fiscalDeviceConnectionState.connectionStateMessage}</Paragraph>}
               placement="bottom"
               slotProps={{
                 popper: {
@@ -292,14 +324,18 @@ export const NavigationDrawer = () => {
                 aria-label="Fiscal Device Connection"
                 color="inherit"
                 sx={{ borderRadius: 0, py: 1, px: 2 }}
-                onClick={() => showSection(FISCAL_DEVICE_CONNECTION)}
+                onClick={showFiscalDeviceConnectionSection}
               >
-                <Avatar variant="square" src="/assets/images/tremol-s21-removebg-preview.png" sx={{ p: '1px' }}></Avatar>
+                <Avatar 
+                  variant="square" 
+                  src="/assets/images/tremol-s21-removebg-preview.png" 
+                  sx={{ bgcolor: !fiscalDeviceConnectionState.isConnected ? red[600] : 'transparent' }}
+                ></Avatar>
               </IconButton>
             </Tooltip>
             <Divider orientation="vertical" flexItem />
             <Tooltip
-              title={<Paragraph>{`A connection with ZFPLabServer was not established`}</Paragraph>}
+              title={<Paragraph>{zfpLabServerConnectionState.connectionStateMessage}</Paragraph>}
               placement="bottom"
               slotProps={{
                 popper: {
@@ -319,9 +355,13 @@ export const NavigationDrawer = () => {
                 aria-label="ZFPLabServer Connection"
                 color="inherit"
                 sx={{ borderRadius: 0, py: 1, px: 2 }}
-                onClick={() => showSection(ZFP_LAB_SERVER_CONNECTION)}
+                onClick={showZFPLabServerConnectionSection}
               >
-                <Avatar variant="square" src="/assets/images/zfplabserver.5309b59b.png"></Avatar>
+                <Avatar 
+                  variant="square" 
+                  src="/assets/images/zfplabserver.5309b59b.png" 
+                  sx={{ bgcolor: !zfpLabServerConnectionState.isConnected ? red[600] : 'transparent' }}
+                ></Avatar>
               </IconButton>
             </Tooltip>
             <Divider orientation="vertical" flexItem />
@@ -367,6 +407,7 @@ export const NavigationDrawer = () => {
                     },
                 ]}
                 onClick={() => showSection(sidebarMenuItem.title)}
+                disabled={!zfpLabServerConnectionState.isConnected || !fiscalDeviceConnectionState.isConnected}
               >
                 <ListItemIcon
                   sx={[

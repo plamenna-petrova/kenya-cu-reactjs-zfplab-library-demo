@@ -81,8 +81,8 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
   const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState(initialLANOrWifiConnectionFormValues);
   const [lanOrWifiConnectionFormTouched, setLANOrWifiConnectionFormTouched] = useState({});
   const [lanOrWifiConnectionFormErrors, setLANOrWifiConnectionFormErrors] = useState({});
-  const [serialPortOrUSBConnectionStatus, setSerialPortOrUSBConnectionStatus] = useState(null);
-  const [lanOrWifiConnectionStatus, setLanOrWifiConnectionStatus] = useState(null);
+  const [serialPortOrUSBConnectionState, setSerialPortOrUSBConnectionState] = useState(null);
+  const [lanOrWifiConnectionState, setLanOrWifiConnectionState] = useState(null);
   const isMobileScreen = useMediaQuery('(max-width:480px)');
   const dispatch = useDispatch();
   const fp = useFP();
@@ -135,12 +135,12 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
           setTouched({}, false);
           setErrors({});
 
-          setSerialPortOrUSBConnectionStatus({
+          setSerialPortOrUSBConnectionState({
             severity: 'success',
             message: `A fiscal device has been found on ${serialPort} and baud rate: ${baudRate}`
           });
         } else {
-          setSerialPortOrUSBConnectionStatus({
+          setSerialPortOrUSBConnectionState({
             severity: 'warning',
             message: `A fiscal device couldn't be found`
           });
@@ -148,7 +148,7 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
       } catch (error) {
         console.error(error);
 
-        setSerialPortOrUSBConnectionStatus({
+        setSerialPortOrUSBConnectionState({
           severity: 'error',
           message: 'An error occurred while trying to find a fiscal device'
         });
@@ -185,9 +185,9 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
         }
 
         if (connectionType == SERIAL_PORT_CONNECTION) {
-          setSerialPortOrUSBConnectionStatus(fiscalDevicefailedConnectionStatus);
+          setSerialPortOrUSBConnectionState(fiscalDevicefailedConnectionStatus);
         } else {
-          setLanOrWifiConnectionStatus(fiscalDevicefailedConnectionStatus);
+          setLanOrWifiConnectionState(fiscalDevicefailedConnectionStatus);
         }
 
         localStorage.removeItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
@@ -199,12 +199,12 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
     }, CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE);
   }
 
-  const clearSerialPortOrUSBConnectionStatusAlert = () => {
-    setSerialPortOrUSBConnectionStatus(null);
+  const clearSerialPortOrUSBConnectionStateAlert = () => {
+    setSerialPortOrUSBConnectionState(null);
   }
 
-  const clearLANOrWifiConnectionStatusAlert = () => {
-    setLanOrWifiConnectionStatus(null);
+  const clearLANOrWifiConnectionStateAlert = () => {
+    setLanOrWifiConnectionState(null);
   }
 
   const FiscalDeviceConnectionMenuProps = {
@@ -319,24 +319,24 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
                         </Select>
                       </FormControl>
                     </Grid>
-                    {serialPortOrUSBConnectionStatus &&
+                    {serialPortOrUSBConnectionState &&
                       <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 0 }}>
-                        <Collapse in={!!serialPortOrUSBConnectionStatus} sx={{ width: '100%' }}>
+                        <Collapse in={!!serialPortOrUSBConnectionState} sx={{ width: '100%' }}>
                           <Alert
                             variant="outlined"
-                            severity={serialPortOrUSBConnectionStatus.severity}
+                            severity={serialPortOrUSBConnectionState.severity}
                             action={
                               <IconButton
                                 aria-label="Close Serial Port Or USB Connection Status Alert"
                                 color="inherit"
                                 size="small"
-                                onClick={clearSerialPortOrUSBConnectionStatusAlert}
+                                onClick={clearSerialPortOrUSBConnectionStateAlert}
                               >
                                 <CloseIcon fontSize="inherit" />
                               </IconButton>
                             }
                           >
-                            {serialPortOrUSBConnectionStatus.message}
+                            {serialPortOrUSBConnectionState.message}
                           </Alert>
                         </Collapse>
                       </Box>
@@ -428,24 +428,24 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
                         />
                       </FormControl>
                     </Grid>
-                    {lanOrWifiConnectionStatus &&
+                    {lanOrWifiConnectionState &&
                       <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 0 }}>
-                        <Collapse in={!!lanOrWifiConnectionStatus} sx={{ width: '100%' }}>
+                        <Collapse in={!!lanOrWifiConnectionState} sx={{ width: '100%' }}>
                           <Alert
                             variant="outlined"
-                            severity={lanOrWifiConnectionStatus.severity}
+                            severity={lanOrWifiConnectionState.severity}
                             action={
                               <IconButton
                                 aria-label="Close LAN Or Wifi Connection Status Alert"
                                 color="inherit"
                                 size="small"
-                                onClick={clearLANOrWifiConnectionStatusAlert}
+                                onClick={clearLANOrWifiConnectionStateAlert}
                               >
                                 <CloseIcon fontSize="inherit" />
                               </IconButton>
                             }
                           >
-                            {lanOrWifiConnectionStatus.message}
+                            {lanOrWifiConnectionState.message}
                           </Alert>
                         </Collapse>
                       </Box>

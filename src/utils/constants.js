@@ -39,3 +39,9 @@ export const SERIAL_PORT_CONNECTION = "Serial";
 export const TCP_CONNECTION = "TCP";
 
 export const FISCAL_DEVICE_CONNECTION_SETTINGS_KEY = 'fiscalDeviceConnectionSettings';
+
+// Error Messages
+
+export const ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE = 'A connection with ZFPLabServer is not established';
+
+export const FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE = 'A fiscal device is not connected';

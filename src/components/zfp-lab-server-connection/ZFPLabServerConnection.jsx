@@ -1,8 +1,13 @@
 import { Formik } from "formik";
 import { Paragraph } from "../layout/typography-elements/TypographyElements";
-import { DEFAULT_ZFP_LAB_SERVER_ADDRESS, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE } from '../../utils/constants';
+import { 
+  DEFAULT_ZFP_LAB_SERVER_ADDRESS, 
+  CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE, 
+  ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE 
+} from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
+import { setZFPLabServerConnectionState } from "../../store/slices/zfpConnectionSlice";
 import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
 import * as Yup from "yup";
@@ -38,8 +43,9 @@ const ZFPLabServerConnection = ({ zfpLabServerConnectionHandler }) => {
       try {
         await zfpLabServerConnectionHandler(zfpLabServerAddress);
       } catch (error) {
-        const zfpLabServerError = handleZFPLabServerError(error);
-        toast.error(`${zfpLabServerError || ''}Unable to connect to ZFPLabServer on: ${zfpLabServerAddress}`);
+        const zfpLabServerConnectionError = handleZFPLabServerError(error);
+        toast.error(`${zfpLabServerConnectionError || ''}Unable to connect to ZFPLabServer on: ${zfpLabServerAddress}`);
+        dispatch(setZFPLabServerConnectionState({ isConnected: false, connectionStateMessage: ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE }))
       } finally {
         setSubmitting(false);
       }
