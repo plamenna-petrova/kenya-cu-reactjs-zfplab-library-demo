@@ -13,14 +13,21 @@ import {
   SERIAL_PORT_CONNECTION,
   TCP_CONNECTION,
   ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE,
-  FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE
+  FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE,
+  CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { useSelector, useDispatch } from 'react-redux';
 import { useFP } from '../../hooks/useFP';
 import { setActiveSection } from '../../store/slices/appNavigationSlice';
+import {
+  setFiscalDeviceConnectionState,
+  setZFPLabServerConnectionState,
+  setIsConnectingToZFPLabServer,
+  setIsSearchingForFiscalDevice
+} from '../../store/slices/zfpConnectionSlice';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
-import { getConfiguredFiscalDeviceConnectionSettings, getInitialFiscalDeviceConnectionFormValues } from '../../utils/connectionUtils';
+import { getConfiguredFiscalDeviceConnectionSettings } from '../../utils/connectionUtils';
 import { toast } from 'react-toastify';
 import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import Box from '@mui/material/Box';
@@ -41,13 +48,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import CircularProgress from "@mui/material/CircularProgress";
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ZFPLabServerConnection from '../zfp-lab-server-connection/ZFPLabServerConnection';
 import FiscalDeviceConnection from '../fiscal-device-connection/FiscalDeviceConnection';
 import FiscalReceipts from '../fiscal-receipts/FiscalReceipts';
 import Reports from '../reports/Reports';
-import { setFiscalDeviceConnectionState, setZFPLabServerConnectionState } from '../../store/slices/zfpConnectionSlice';
 
 const drawerWidth = 240;
 
@@ -148,10 +155,6 @@ export const NavigationDrawer = () => {
     }
   ];
 
-  const initialSerialPortOrUSBConnectionFormValues = getInitialFiscalDeviceConnectionFormValues(SERIAL_PORT_CONNECTION);
-
-  const initialLANOrWifiConnectionFormValues = getInitialFiscalDeviceConnectionFormValues(TCP_CONNECTION);
-
   const handleNavigationDrawerOpen = () => {
     setIsNavigationDrawerOpen(true);
   };
@@ -180,19 +183,22 @@ export const NavigationDrawer = () => {
   }
 
   const handleZFPLabServerAutomaticConnection = async (zfpLabServerAddress) => {
+    dispatch(setIsConnectingToZFPLabServer(true));
+
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
+        sendZFPLabServerConnectionState(false, ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE);
         await connectToZFPLabServer(zfpLabServerAddress);
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
         sendZFPLabServerConnectionState(false, ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE);
+      } finally {
+        dispatch(setIsConnectingToZFPLabServer(false));
       }
     }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE);
   }
 
   const connectToZFPLabServer = async (zfpLabServerAddress) => {
-    sendZFPLabServerConnectionState(false, ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE);
-
     await fp.ServerSetSettings(zfpLabServerAddress);
 
     const serverSettingsForConnectionTest = await fp.ServerGetSettingsForConnectionTest();
@@ -205,19 +211,22 @@ export const NavigationDrawer = () => {
   };
 
   const handleFiscalDeviceAutomaticConnection = async (fiscalDeviceConnectionSettings, connectionType) => {
+    dispatch(setIsSearchingForFiscalDevice(true));
+
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
+        sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
         await connectToFiscalDevice(fiscalDeviceConnectionSettings, connectionType);
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
         sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
+      } finally {
+        dispatch(setIsSearchingForFiscalDevice(false));
       }
     }, CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE);
   }
 
   const connectToFiscalDevice = async (fiscalDeviceConnectionSettings, connectionType) => {
-    sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
-
     let fiscalDeviceConnectionDetails = {};
 
     switch (connectionType) {
@@ -242,14 +251,13 @@ export const NavigationDrawer = () => {
     const fiscalDeviceSerialNumber = await fp.ReadSerialAndFiscalNums().SerialNumber;
     const fiscalDeviceModel = await fp.ReadVersion().Model;
 
-    const fiscalDeviceSuccessfulConnectionMessage = connectionType === SERIAL_PORT_CONNECTION 
+    const fiscalDeviceSuccessfulConnectionMessage = connectionType === SERIAL_PORT_CONNECTION
       ? `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on ${fiscalDeviceConnectionDetails.serialPort} and baud rate ${fiscalDeviceConnectionDetails.baudRate}`
-      : `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on IP address ${fiscalDeviceConnectionDetails.fiscalDeviceIPAddress}`; 
+      : `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on IP address ${fiscalDeviceConnectionDetails.fiscalDeviceIPAddress}`;
 
-    sendFiscalDeviceConnectionState(true, fiscalDeviceSuccessfulConnectionMessage );
+    sendFiscalDeviceConnectionState(true, fiscalDeviceSuccessfulConnectionMessage);
     showSection(FISCAL_RECEIPTS);
-
-    toast.success("Successfully connected to the fiscal device");
+    toast.success(CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE);
   }
 
   const sendZFPLabServerConnectionState = (isConnected, connectionStateMessage) => {
@@ -342,11 +350,19 @@ export const NavigationDrawer = () => {
                 sx={{ borderRadius: 0, py: 1, px: 2 }}
                 onClick={showFiscalDeviceConnectionSection}
               >
-                <Avatar 
-                  variant="square" 
-                  src="/assets/images/tremol-s21-removebg-preview.png" 
+                <Avatar
+                  variant="square"
+                  src="/assets/images/tremol-s21-removebg-preview.png"
                   sx={{ bgcolor: !fiscalDeviceConnectionState.isConnected ? red[600] : 'transparent' }}
                 ></Avatar>
+                {fiscalDeviceConnectionState.isSearching && (
+                  <CircularProgress
+                    size={22}
+                    thickness={7}
+                    aria-label="Fiscal device connection loading spinner"
+                    sx={{ ml: 1, color: '#252525' }}
+                  />
+                )}
               </IconButton>
             </Tooltip>
             <Divider orientation="vertical" flexItem />
@@ -373,11 +389,19 @@ export const NavigationDrawer = () => {
                 sx={{ borderRadius: 0, py: 1, px: 2 }}
                 onClick={showZFPLabServerConnectionSection}
               >
-                <Avatar 
-                  variant="square" 
-                  src="/assets/images/zfplabserver.5309b59b.png" 
+                <Avatar
+                  variant="square"
+                  src="/assets/images/zfplabserver.5309b59b.png"
                   sx={{ bgcolor: !zfpLabServerConnectionState.isConnected ? red[600] : 'transparent' }}
                 ></Avatar>
+                {zfpLabServerConnectionState.isConnecting && (
+                  <CircularProgress
+                    size={22}
+                    thickness={7}
+                    aria-label="ZFPLabServer connection loading spinner"
+                    sx={{ ml: 1, color: '#252525' }}
+                  />
+                )}
               </IconButton>
             </Tooltip>
             <Divider orientation="vertical" flexItem />
@@ -476,11 +500,7 @@ export const NavigationDrawer = () => {
           <ZFPLabServerConnection zfpLabServerConnectionHandler={connectToZFPLabServer} />
         )}
         {activeSection === FISCAL_DEVICE_CONNECTION && (
-          <FiscalDeviceConnection
-            initialSerialPortOrUSBConnectionFormValues={initialSerialPortOrUSBConnectionFormValues}
-            initialLANOrWifiConnectionFormValues={initialLANOrWifiConnectionFormValues}
-            fiscalDeviceConnectionHandler={connectToFiscalDevice}
-          />
+          <FiscalDeviceConnection fiscalDeviceConnectionHandler={connectToFiscalDevice} />
         )}
         {activeSection === FISCAL_RECEIPTS && <FiscalReceipts />}
         {activeSection === REPORTS && <Reports />}

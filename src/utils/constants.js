@@ -8,6 +8,14 @@ export const FISCAL_RECEIPTS = 'Receipts';
 
 export const REPORTS = 'Reports';
 
+export const SERIAL_PORT_OR_USB_CONNECTION_MOBILE_TAB_LABEL = 'Serial Port / USB';
+
+export const SERIAL_PORT_OR_USB_CONNECTION_TAB_LABEL = 'Connection by Serial Port / USB';
+
+export const LAN_OR_WIFI_CONNECTION_MOBILE_TAB_LABEL = 'LAN/WiFi';
+
+export const LAN_OR_WIFI_CONNECTION_TAB_LABEL = 'Connection by LAN / WiFi';
+
 // Loading Messages
 
 export const DEFAULT_LOADING_MESSAGE = 'Loading...';
@@ -40,8 +48,30 @@ export const TCP_CONNECTION = "TCP";
 
 export const FISCAL_DEVICE_CONNECTION_SETTINGS_KEY = 'fiscalDeviceConnectionSettings';
 
-// Error Messages
+// Validation Messages
+
+export const REQUIRED_ZFP_LAB_SERVER_ADDRESS_ERROR_MESSAGE = 'The ZFPLabServer address is required';
+
+export const INVALID_ZFP_LAB_SERVER_ADDRESS_URL_ERROR_MESSAGE = 'The ZFPLabServer address must be a valid URL';
+
+export const REQUIRED_FISCAL_DEVICE_IP_ADDRESS_ERROR_MESSAGE = 'The fiscal device IP address is required';
+
+export const INVALID_FISCAL_DEVICE_IP_ADDRESS_ERROR_MESSAGE = 'The fiscal device IP address must be valid';
+
+export const REQUIRED_NETWORK_PASSWORD_ERROR_MESSAGE = 'The network password is required';
+
+// Success Messages
+
+export const CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE = 'Successfully connected to the fiscal device';
+
+// Operation Error / Warning Messages
 
 export const ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE = 'A connection with ZFPLabServer is not established';
 
 export const FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE = 'A fiscal device is not connected';
+
+export const FISCAL_DEVICE_NOT_FOUND_WARNING_MESSAGE = 'A fiscal device couldn\'t be found';
+
+export const FISCAL_DEVICE_NOT_FOUND_ERROR_MESSAGE = 'An error occurred while trying to find a fiscal device';
+
+export const NOT_CONNECTED_TO_FISCAL_DEVICE_ERROR_MESSAGE = 'Couldn\'t connect to a fiscal device';

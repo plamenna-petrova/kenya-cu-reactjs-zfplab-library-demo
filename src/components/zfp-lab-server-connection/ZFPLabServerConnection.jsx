@@ -3,11 +3,13 @@ import { Paragraph } from "../layout/typography-elements/TypographyElements";
 import { 
   DEFAULT_ZFP_LAB_SERVER_ADDRESS, 
   CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE, 
-  ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE 
+  ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE,
+  REQUIRED_ZFP_LAB_SERVER_ADDRESS_ERROR_MESSAGE,
+  INVALID_ZFP_LAB_SERVER_ADDRESS_URL_ERROR_MESSAGE 
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
-import { setZFPLabServerConnectionState } from "../../store/slices/zfpConnectionSlice";
+import { setIsConnectingToZFPLabServer, setZFPLabServerConnectionState } from "../../store/slices/zfpConnectionSlice";
 import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
 import * as Yup from "yup";
@@ -31,23 +33,26 @@ const ZFPLabServerConnection = ({ zfpLabServerConnectionHandler }) => {
   const zfpLabServerConnectionValidationSchema = Yup.object().shape({
     zfpLabServerAddress: Yup
       .string()
-      .required("The ZFPLabServer address is required")
+      .required(REQUIRED_ZFP_LAB_SERVER_ADDRESS_ERROR_MESSAGE)
       .matches(
         /^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[\w]*))?)/,
-        "The ZFPLabServer address must be a valid URL"
+        INVALID_ZFP_LAB_SERVER_ADDRESS_URL_ERROR_MESSAGE
       )
   });
 
   const handleZFPLabServerConnectionFormSubmit = async ({ zfpLabServerAddress }, { setSubmitting }) => {
+    dispatch(setIsConnectingToZFPLabServer(true));
+
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await zfpLabServerConnectionHandler(zfpLabServerAddress);
       } catch (error) {
         const zfpLabServerConnectionError = handleZFPLabServerError(error);
-        toast.error(`${zfpLabServerConnectionError || ''}Unable to connect to ZFPLabServer on: ${zfpLabServerAddress}`);
+        toast.error(`${zfpLabServerConnectionError || ''}Unable to connect on: ${zfpLabServerAddress}`);
         dispatch(setZFPLabServerConnectionState({ isConnected: false, connectionStateMessage: ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE }))
       } finally {
         setSubmitting(false);
+        dispatch(setIsConnectingToZFPLabServer(false));
       }
     }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE);
   }

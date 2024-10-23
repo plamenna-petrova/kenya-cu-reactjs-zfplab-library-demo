@@ -11,14 +11,25 @@ import {
   TCP_CONNECTION,
   SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE,
   CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE,
-  FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE
+  FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE,
+  REQUIRED_FISCAL_DEVICE_IP_ADDRESS_ERROR_MESSAGE,
+  INVALID_FISCAL_DEVICE_IP_ADDRESS_ERROR_MESSAGE,
+  REQUIRED_NETWORK_PASSWORD_ERROR_MESSAGE,
+  FISCAL_DEVICE_NOT_FOUND_WARNING_MESSAGE,
+  FISCAL_DEVICE_NOT_FOUND_ERROR_MESSAGE,
+  NOT_CONNECTED_TO_FISCAL_DEVICE_ERROR_MESSAGE,
+  SERIAL_PORT_OR_USB_CONNECTION_MOBILE_TAB_LABEL,
+  SERIAL_PORT_OR_USB_CONNECTION_TAB_LABEL,
+  LAN_OR_WIFI_CONNECTION_MOBILE_TAB_LABEL,
+  LAN_OR_WIFI_CONNECTION_TAB_LABEL
 } from '../../utils/constants';
 import { useDispatch } from 'react-redux';
 import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
-import { setFiscalDeviceConnectionState } from '../../store/slices/zfpConnectionSlice';
+import { getInitialFiscalDeviceConnectionFormValues } from '../../utils/connectionUtils';
+import { setFiscalDeviceConnectionState, setIsSearchingForFiscalDevice } from '../../store/slices/zfpConnectionSlice';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
 import FiscalDeviceConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
@@ -74,13 +85,13 @@ const a11yProps = (index) => {
   };
 }
 
-const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, initialLANOrWifiConnectionFormValues, fiscalDeviceConnectionHandler }) => {
+const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
   const [serialPorts, setSerialPorts] = useState([]);
-  const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState(initialSerialPortOrUSBConnectionFormValues);
+  const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState(getInitialFiscalDeviceConnectionFormValues(SERIAL_PORT_CONNECTION));
   const [serialPortOrUSBConnectionFormTouched, setSerialPortOrUSBConnectionFormTouched] = useState({});
   const [serialPortOrUSBConnectionFormErrors, setSerialPortOrUSBConnectionFormErrors] = useState({});
-  const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState(initialLANOrWifiConnectionFormValues);
+  const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState(getInitialFiscalDeviceConnectionFormValues(TCP_CONNECTION));
   const [lanOrWifiConnectionFormTouched, setLANOrWifiConnectionFormTouched] = useState({});
   const [lanOrWifiConnectionFormErrors, setLANOrWifiConnectionFormErrors] = useState({});
   const [serialPortOrUSBConnectionState, setSerialPortOrUSBConnectionState] = useState(null);
@@ -101,15 +112,17 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
   const lanOrWifiConnectionValidationSchema = Yup.object().shape({
     fiscalDeviceIPAddress: Yup
       .string()
-      .required("The fiscal device IP address is required")
+      .required(REQUIRED_FISCAL_DEVICE_IP_ADDRESS_ERROR_MESSAGE)
       .matches(
         /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/,
-        "The fiscal device password must be a valid IP address"
+        INVALID_FISCAL_DEVICE_IP_ADDRESS_ERROR_MESSAGE
       ),
-    lanOrWifiPassword: Yup.string().required("The network password is required")
+    lanOrWifiPassword: Yup.string().required(REQUIRED_NETWORK_PASSWORD_ERROR_MESSAGE)
   });
 
   const handleFindDevice = async (setFieldValue, setTouched, setErrors) => {
+    dispatch(setIsSearchingForFiscalDevice(true));
+
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         const foundDeviceSettings = await fp.ServerFindDevice();
@@ -144,7 +157,7 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
         } else {
           setSerialPortOrUSBConnectionState({
             severity: 'warning',
-            message: `A fiscal device couldn't be found`
+            message: FISCAL_DEVICE_NOT_FOUND_WARNING_MESSAGE
           });
         }
       } catch (error) {
@@ -152,13 +165,17 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
 
         setSerialPortOrUSBConnectionState({
           severity: 'error',
-          message: 'An error occurred while trying to find a fiscal device'
+          message: FISCAL_DEVICE_NOT_FOUND_ERROR_MESSAGE
         });
+      } finally {
+        dispatch(setIsSearchingForFiscalDevice(false));
       }
     }, SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE);
   }
 
   const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData, setSubmitting, connectionType) => {
+    dispatch(setIsSearchingForFiscalDevice(true));
+    
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fiscalDeviceConnectionHandler(fiscalDeviceConnectionSettingsFormData, connectionType);
@@ -183,7 +200,7 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
       } catch (error) {
         const fiscalDevicefailedConnectionStatus = {
           severity: 'error',
-          message: `Couldn't connect to a fiscal device`,
+          message: NOT_CONNECTED_TO_FISCAL_DEVICE_ERROR_MESSAGE,
         }
 
         if (connectionType == SERIAL_PORT_CONNECTION) {
@@ -197,6 +214,7 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
         dispatch(setFiscalDeviceConnectionState({ isConnected: false, connectionStateMessage: FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE }));
       } finally {
         setSubmitting(false);
+        dispatch(setIsSearchingForFiscalDevice(false));
       }
     }, CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE);
   }
@@ -236,8 +254,18 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
         aria-label="Fiscal Device Connection Tabs"
         variant="fullWidth"
       >
-        <Tab label={`${isMobileScreen ? 'Serial Port / USB' : 'Connection by Serial Port / USB'}`} icon={<UsbIcon />} iconPosition="start" {...a11yProps(0)} />
-        <Tab label={`${isMobileScreen ? 'LAN/WiFi' : 'Connection by LAN / WiFi'}`} icon={<LanIcon />} iconPosition="start" {...a11yProps(1)} />
+        <Tab 
+          label={`${isMobileScreen ? SERIAL_PORT_OR_USB_CONNECTION_MOBILE_TAB_LABEL : SERIAL_PORT_OR_USB_CONNECTION_TAB_LABEL}`} 
+          icon={<UsbIcon />} 
+          iconPosition="start" 
+          {...a11yProps(0)} 
+        />
+        <Tab 
+          label={`${isMobileScreen ? LAN_OR_WIFI_CONNECTION_MOBILE_TAB_LABEL : LAN_OR_WIFI_CONNECTION_TAB_LABEL}`} 
+          icon={<LanIcon />} 
+          iconPosition="start" 
+          {...a11yProps(1)} 
+        />
       </Tabs>
       <CardContent>
         <FiscalDeviceConnectionTabPanel value={fiscalDeviceConnectionTabValue} index={0}>
@@ -469,8 +497,6 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
 }
 
 FiscalDeviceConnection.propTypes = {
-  initialSerialPortOrUSBConnectionFormValues: PropTypes.object,
-  initialLANOrWifiConnectionFormValues: PropTypes.object,
   fiscalDeviceConnectionHandler: PropTypes.func
 }
 

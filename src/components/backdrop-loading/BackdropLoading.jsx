@@ -30,7 +30,7 @@ const BackdropLoading = ({ isBackdropLoadingOpen, loadingMessage = DEFAULT_LOADI
             gap: 2
           }}
         >
-          <CircularProgress size="3rem" sx={{ color: '#273067' }} aria-label="Loading spinner" />
+          <CircularProgress size="3rem" sx={{ color: '#273067' }} aria-label="FP operation loading spinner" />
           <H3>{loadingMessage}</H3>
         </Box>
       </Backdrop>
