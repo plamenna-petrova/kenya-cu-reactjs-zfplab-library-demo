@@ -171,6 +171,7 @@ export const NavigationDrawer = () => {
       return;
     }
 
+    sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
     showSection(FISCAL_DEVICE_CONNECTION);
   }
 
@@ -209,20 +210,27 @@ export const NavigationDrawer = () => {
         await connectToFiscalDevice(fiscalDeviceConnectionSettings, connectionType);
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
+        sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
       }
     }, CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE);
   }
 
   const connectToFiscalDevice = async (fiscalDeviceConnectionSettings, connectionType) => {
+    sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
+
+    let fiscalDeviceConnectionDetails = {};
+
     switch (connectionType) {
       case SERIAL_PORT_CONNECTION: {
         const { serialPort, baudRate } = fiscalDeviceConnectionSettings;
         await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
+        Object.assign(fiscalDeviceConnectionDetails, { serialPort, baudRate });
         break;
       }
       case TCP_CONNECTION: {
         const { fiscalDeviceIPAddress, lanOrWifiPassword } = fiscalDeviceConnectionSettings;
         await fp.ServerSetDeviceTcpSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
+        Object.assign(fiscalDeviceConnectionDetails, { fiscalDeviceIPAddress });
         break;
       }
     }
@@ -231,6 +239,14 @@ export const NavigationDrawer = () => {
 
     await fp.ReadStatus();
 
+    const fiscalDeviceSerialNumber = await fp.ReadSerialAndFiscalNums().SerialNumber;
+    const fiscalDeviceModel = await fp.ReadVersion().Model;
+
+    const fiscalDeviceSuccessfulConnectionMessage = connectionType === SERIAL_PORT_CONNECTION 
+      ? `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on ${fiscalDeviceConnectionDetails.serialPort} and baud rate ${fiscalDeviceConnectionDetails.baudRate}`
+      : `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on IP address ${fiscalDeviceConnectionDetails.fiscalDeviceIPAddress}`; 
+
+    sendFiscalDeviceConnectionState(true, fiscalDeviceSuccessfulConnectionMessage );
     showSection(FISCAL_RECEIPTS);
 
     toast.success("Successfully connected to the fiscal device");

@@ -10,13 +10,15 @@ import {
   SERIAL_PORT_CONNECTION,
   TCP_CONNECTION,
   SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE,
-  CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE
+  CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE,
+  FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE
 } from '../../utils/constants';
 import { useDispatch } from 'react-redux';
 import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
+import { setFiscalDeviceConnectionState } from '../../store/slices/zfpConnectionSlice';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
 import FiscalDeviceConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
@@ -86,7 +88,7 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
   const isMobileScreen = useMediaQuery('(max-width:480px)');
   const dispatch = useDispatch();
   const fp = useFP();
-
+  
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
   };
@@ -191,8 +193,8 @@ const FiscalDeviceConnection = ({ initialSerialPortOrUSBConnectionFormValues, in
         }
 
         localStorage.removeItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
-
         toast.error(handleZFPLabServerError(error));
+        dispatch(setFiscalDeviceConnectionState({ isConnected: false, connectionStateMessage: FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE }));
       } finally {
         setSubmitting(false);
       }
