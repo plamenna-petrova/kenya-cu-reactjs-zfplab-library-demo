@@ -1,11 +1,11 @@
 import { Formik } from "formik";
 import { Paragraph } from "../layout/typography-elements/TypographyElements";
-import { 
-  DEFAULT_ZFP_LAB_SERVER_ADDRESS, 
-  CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE, 
+import {
+  DEFAULT_ZFP_LAB_SERVER_ADDRESS,
+  CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE,
   ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE,
   REQUIRED_ZFP_LAB_SERVER_ADDRESS_ERROR_MESSAGE,
-  INVALID_ZFP_LAB_SERVER_ADDRESS_URL_ERROR_MESSAGE 
+  INVALID_ZFP_LAB_SERVER_ADDRESS_URL_ERROR_MESSAGE
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
@@ -17,7 +17,6 @@ import PropTypes from 'prop-types';
 import ZFPLabServerConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid2';
-import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
@@ -76,22 +75,20 @@ const ZFPLabServerConnection = ({ zfpLabServerConnectionHandler }) => {
             return (
               <form onSubmit={handleSubmit}>
                 <Grid container spacing={2} justifyContent="center" alignItems="center">
-                  <Grid size={{ xs: 12 }} textAlign="center">
-                    <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
-                      <Paragraph>ZFPLabServer Address</Paragraph>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        type="text"
-                        name="zfpLabServerAddress"
-                        variant="outlined"
-                        onBlur={handleBlur}
-                        value={values.zfpLabServerAddress}
-                        onChange={handleChange}
-                        helperText={touched.zfpLabServerAddress && errors.zfpLabServerAddress}
-                        error={Boolean(touched.zfpLabServerAddress && errors.zfpLabServerAddress)}
-                      />
-                    </FormControl>
+                  <Grid size={{ xs: 12 }} textAlign="left">
+                    <Paragraph fontSize={14}>ZFPLabServer Address</Paragraph>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      type="text"
+                      name="zfpLabServerAddress"
+                      variant="outlined"
+                      onBlur={handleBlur}
+                      value={values.zfpLabServerAddress}
+                      onChange={handleChange}
+                      helperText={touched.zfpLabServerAddress && errors.zfpLabServerAddress}
+                      error={Boolean(touched.zfpLabServerAddress && errors.zfpLabServerAddress)}
+                    />
                   </Grid>
                   <Box sx={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
                     <Button type="submit" variant="contained" startIcon={<PowerIcon />}>

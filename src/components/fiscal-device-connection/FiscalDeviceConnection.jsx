@@ -99,7 +99,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
   const isMobileScreen = useMediaQuery('(max-width:480px)');
   const dispatch = useDispatch();
   const fp = useFP();
-  
+
   const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
     setFiscalDeviceConnectionTabValue(newValue);
   };
@@ -175,7 +175,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
 
   const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData, setSubmitting, connectionType) => {
     dispatch(setIsSearchingForFiscalDevice(true));
-    
+
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fiscalDeviceConnectionHandler(fiscalDeviceConnectionSettingsFormData, connectionType);
@@ -254,17 +254,17 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
         aria-label="Fiscal Device Connection Tabs"
         variant="fullWidth"
       >
-        <Tab 
-          label={`${isMobileScreen ? SERIAL_PORT_OR_USB_CONNECTION_MOBILE_TAB_LABEL : SERIAL_PORT_OR_USB_CONNECTION_TAB_LABEL}`} 
-          icon={<UsbIcon />} 
-          iconPosition="start" 
-          {...a11yProps(0)} 
+        <Tab
+          label={`${isMobileScreen ? SERIAL_PORT_OR_USB_CONNECTION_MOBILE_TAB_LABEL : SERIAL_PORT_OR_USB_CONNECTION_TAB_LABEL}`}
+          icon={<UsbIcon />}
+          iconPosition="start"
+          {...a11yProps(0)}
         />
-        <Tab 
-          label={`${isMobileScreen ? LAN_OR_WIFI_CONNECTION_MOBILE_TAB_LABEL : LAN_OR_WIFI_CONNECTION_TAB_LABEL}`} 
-          icon={<LanIcon />} 
-          iconPosition="start" 
-          {...a11yProps(1)} 
+        <Tab
+          label={`${isMobileScreen ? LAN_OR_WIFI_CONNECTION_MOBILE_TAB_LABEL : LAN_OR_WIFI_CONNECTION_TAB_LABEL}`}
+          icon={<LanIcon />}
+          iconPosition="start"
+          {...a11yProps(1)}
         />
       </Tabs>
       <CardContent>
@@ -422,41 +422,37 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
               return (
                 <form onSubmit={handleSubmit}>
                   <Grid container spacing={2} justifyContent="center" alignItems="center">
-                    <Grid size={{ xs: 12, md: 6 }} textAlign="center">
-                      <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
-                        <Paragraph fontSize={14}>Fiscal Device IP Address</Paragraph>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          type="text"
-                          name="fiscalDeviceIPAddress"
-                          variant="outlined"
-                          placeholder="Example - 192.168.0.1"
-                          onBlur={handleBlur}
-                          value={values.fiscalDeviceIPAddress}
-                          onChange={handleChange}
-                          helperText={touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress}
-                          error={Boolean(touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress)}
-                        />
-                      </FormControl>
+                    <Grid size={{ xs: 12, md: 6 }} textAlign="left">
+                      <Paragraph fontSize={14}>Fiscal Device IP Address</Paragraph>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        type="text"
+                        name="fiscalDeviceIPAddress"
+                        variant="outlined"
+                        placeholder="Example - 192.168.0.1"
+                        onBlur={handleBlur}
+                        value={values.fiscalDeviceIPAddress}
+                        onChange={handleChange}
+                        helperText={touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress}
+                        error={Boolean(touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress)}
+                      />
                     </Grid>
-                    <Grid size={{ xs: 12, md: 6 }} textAlign="center">
-                      <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
-                        <Paragraph>Network Password</Paragraph>
-                        <TextField
-                          fullWidth
-                          size="small"
-                          type="text"
-                          name="lanOrWifiPassword"
-                          variant="outlined"
-                          placeholder="Example - 1234"
-                          onBlur={handleBlur}
-                          value={values.lanOrWifiPassword}
-                          onChange={handleChange}
-                          helperText={touched.lanOrWifiPassword && errors.lanOrWifiPassword}
-                          error={Boolean(touched.lanOrWifiPassword && errors.lanOrWifiPassword)}
-                        />
-                      </FormControl>
+                    <Grid size={{ xs: 12, md: 6 }} textAlign="left">
+                      <Paragraph fontSize={14}>Network Password</Paragraph>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        type="text"
+                        name="lanOrWifiPassword"
+                        variant="outlined"
+                        placeholder="Example - 1234"
+                        onBlur={handleBlur}
+                        value={values.lanOrWifiPassword}
+                        onChange={handleChange}
+                        helperText={touched.lanOrWifiPassword && errors.lanOrWifiPassword}
+                        error={Boolean(touched.lanOrWifiPassword && errors.lanOrWifiPassword)}
+                      />
                     </Grid>
                     {lanOrWifiConnectionState &&
                       <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 0 }}>
