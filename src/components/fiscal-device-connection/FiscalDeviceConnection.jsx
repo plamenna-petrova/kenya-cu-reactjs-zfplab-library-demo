@@ -120,7 +120,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
     lanOrWifiPassword: Yup.string().required(REQUIRED_NETWORK_PASSWORD_ERROR_MESSAGE)
   });
 
-  const handleFindDevice = async (setFieldValue, setTouched, setErrors) => {
+  const handleFindDeviceClick = async (setFieldValue, setTouched, setErrors) => {
     dispatch(setIsSearchingForFiscalDevice(true));
 
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -377,7 +377,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                         <Button
                           variant="contained"
                           startIcon={<SearchIcon />}
-                          onClick={() => handleFindDevice(setFieldValue, setTouched, setErrors)}
+                          onClick={() => handleFindDeviceClick(setFieldValue, setTouched, setErrors)}
                         >
                           Find
                         </Button>

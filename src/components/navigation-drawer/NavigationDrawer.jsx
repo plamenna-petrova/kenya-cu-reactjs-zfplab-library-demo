@@ -257,6 +257,7 @@ export const NavigationDrawer = () => {
 
     sendFiscalDeviceConnectionState(true, fiscalDeviceSuccessfulConnectionMessage);
     showSection(FISCAL_RECEIPTS);
+
     toast.success(CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE);
   }
 

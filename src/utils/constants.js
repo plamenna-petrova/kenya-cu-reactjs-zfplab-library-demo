@@ -26,6 +26,10 @@ export const SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE = "Searching for a fisc
 
 export const CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE = "Connecting to a fiscal device...";
 
+export const FISCAL_RECEIPT_OPENING_LOADING_MESSAGE = "Opening fiscal receipt...";
+
+export const FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE = "Closing the fiscal receipt automatically in cash";
+
 // UI
 
 export const SELECT_MENU_ITEM_HEIGHT = 48;
@@ -97,6 +101,12 @@ export const DISCOUNT_OR_ADDITION_VALUE_MAX_LENGTH_ERROR_MESSAGE = "The discount
 export const DEPARTMENT_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE = "The provided department number value must be a number";
 
 export const DEPARTMENT_NUMBER_MAX_LENGTH_ERROR_MESSAGE = "The department number can't be longer than two characters";
+
+export const FISCAL_RECEIPT_OPENING_ERROR_MESSAGE = "Cannot open receipt";
+
+export const FISCAL_RECEIPT_ALREADY_OPENED_ERROR_MESSAGE = "A fiscal receipt has already been opened";
+
+export const FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE = "A fiscal receipt hasn't been opened";
 
 // Success Messages
 

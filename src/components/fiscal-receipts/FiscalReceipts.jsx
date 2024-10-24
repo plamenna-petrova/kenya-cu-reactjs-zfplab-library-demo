@@ -2,10 +2,13 @@
 import { useState, useEffect } from "react";
 import { Formik } from "formik";
 import { H3, Paragraph } from "../layout/typography-elements/TypographyElements";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { toast } from 'react-toastify';
 import { useFP } from '../../hooks/useFP';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
+import { setOperatorData } from "../../store/slices/operatorDataSlice";
+import { isNullOrWhitespace } from "../../utils/helperFunctions";
 import {
   REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE,
   OPERATOR_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE,
@@ -25,7 +28,12 @@ import {
   DISCOUNT_OR_ADDITION_PERCENTAGE_MAX_LENGTH_ERROR_MESSAGE,
   DISCOUNT_OR_ADDITION_VALUE_MAX_LENGTH_ERROR_MESSAGE,
   DEPARTMENT_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE,
-  DEPARTMENT_NUMBER_MAX_LENGTH_ERROR_MESSAGE
+  DEPARTMENT_NUMBER_MAX_LENGTH_ERROR_MESSAGE,
+  FISCAL_RECEIPT_OPENING_LOADING_MESSAGE,
+  FISCAL_RECEIPT_OPENING_ERROR_MESSAGE,
+  FISCAL_RECEIPT_ALREADY_OPENED_ERROR_MESSAGE,
+  FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE,
+  FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE
 } from "../../utils/constants";
 import * as Yup from "yup";
 import Box from '@mui/material/Box';
@@ -41,13 +49,16 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import CircularProgress from "@mui/material/CircularProgress";
+import Stack from '@mui/material/Stack';
 import Tremol from "../../assets/js/fp";
 
 const FiscalReceipts = () => {
-  const [operatorDataFormValues, setOperatorDataFormValues] = useState({ operatorNumber: "1", operatorPassword: "0" });
   const [vatGroups, setVATGroups] = useState([]);
+  const operatorData = useSelector((state) => state.operatorData);
   const dispatch = useDispatch();
   const fp = useFP();
+
+  const operatorDataInitialFormValues = operatorData;
 
   const operatorDataValidationSchema = Yup.object().shape({
     operatorNumber: Yup
@@ -111,9 +122,172 @@ const FiscalReceipts = () => {
   });
 
   const handleExternalDatabaseArticleSaleFromSubmit = async (externalDatabaseArticleSaleFormData, { setSubmitting }) => {
-    console.log(operatorDataFormValues);
-    console.log(externalDatabaseArticleSaleFormData);
-    setSubmitting(false);
+    try {
+      const isFiscalReceiptOpened = await fp.ReadStatus().Opened_Fiscal_Receipt;
+
+      if (!isFiscalReceiptOpened) {
+        if (!await handleFiscalReceiptOpening()) {
+          return;
+        }
+      }
+
+      const {
+        withCorrection,
+        articleName: externalDatabaseArticleName,
+        vatGroup: externalDatabaseArticleVATGroup,
+        price,
+        quantity,
+        isDiscountOrAdditionInPercentage,
+        discountOrAddition,
+        departmentNumber,
+      } = externalDatabaseArticleSaleFormData
+
+      const externalDatabaseArticlePrice = withCorrection ? price * -1 : price;
+
+      const externalDatabaseArticleQuantity = !isNullOrWhitespace(quantity) ? quantity : null;
+
+      const externalDatabaseArticleDiscountOrAdditionArray = getDiscountOrAdditionValues(
+        discountOrAddition, isDiscountOrAdditionInPercentage
+      );
+
+      const externalDatabaseArticleDepartmentNumber = !isNullOrWhitespace(departmentNumber) ? departmentNumber : null;
+
+      await fp.SellPLUwithSpecifiedVAT(
+        externalDatabaseArticleName,
+        externalDatabaseArticleVATGroup,
+        externalDatabaseArticlePrice,
+        externalDatabaseArticleQuantity,
+        externalDatabaseArticleDiscountOrAdditionArray[0],
+        externalDatabaseArticleDiscountOrAdditionArray[1],
+        externalDatabaseArticleDepartmentNumber
+      );
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const handleOpenFiscalReceiptClick = async () => {
+    try {
+      const isFiscalReceiptOpened = await fp.ReadStatus().Opened_Fiscal_Receipt;
+
+      if (!isFiscalReceiptOpened) {
+        await handleFiscalReceiptOpening();
+      } else {
+        toast.error(FISCAL_RECEIPT_ALREADY_OPENED_ERROR_MESSAGE);
+      }
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    }
+  }
+
+  const handleAutomaticReceiptClosureClick = async () => {
+    try {
+      const isFiscalReceiptOpened = await fp.ReadStatus().Opened_Fiscal_Receipt;
+
+      if (isFiscalReceiptOpened) {
+        await executeFPOperationWithLoading(dispatch, async () => {
+          try {
+            await fp.CashPayCloseReceipt();
+          } catch (error) {
+            toast.error(handleZFPLabServerError(error));
+          }
+        }, FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE);
+      }
+      else {
+        toast.error(FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE);
+      }
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    }
+  }
+
+  const handleFiscalReceiptOpening = async () => {
+    let isReceiptOpeningSuccessful = false;
+
+    if (!isOperatorProvided()) {
+      return false;
+    }
+
+    if (!await checkStatusForReceiptOpening()) {
+      return false;
+    }
+
+    await executeFPOperationWithLoading(dispatch, async () => {
+      try {
+        await fp.OpenReceipt(
+          operatorData.operatorNumber,
+          operatorData.operatorPassword,
+          Tremol.Enums.OptionPrintType.Step_by_step_printing
+        );
+
+        isReceiptOpeningSuccessful = true;
+      } catch (error) {
+        toast.error(handleZFPLabServerError(error));
+      }
+    }, FISCAL_RECEIPT_OPENING_LOADING_MESSAGE);
+
+    return isReceiptOpeningSuccessful;
+  };
+
+  const checkStatusForReceiptOpening = async () => {
+    try {
+      const status = await fp.ReadStatus();
+
+      return !status.Blocking_3_days_without_mobile_operator
+        && !status.DateTime_not_set && !status.DateTime_wrong
+        && !status.FM_error && !status.FM_full && !status.FM_Read_only && !status.No_FM_module
+        && !status.Hardware_clock_error
+        && !status.No_GPRS_Modem && !status.No_SIM_card
+        && !status.No_task_from_NRA
+        && !status.Opened_Non_fiscal_Receipt && !status.Opened_Fiscal_Receipt
+        && !status.Opened_Invoice_Fiscal_Receipt
+        && !status.Printer_not_ready_no_paper
+        && !status.Printer_not_ready_overheat
+        && !status.RAM_reset
+        && !status.Reports_registers_Overflow
+        && !status.SD_card_full
+        && !status.Unsent_data_for_24_hours
+        && !status.Wrong_SIM_card
+        && !status.Wrong_SD_card;
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+      return false;
+    }
+  }
+
+  const isOperatorProvided = () => {
+    if (isNullOrWhitespace(operatorData.operatorNumber)) {
+      toast.error(`${FISCAL_RECEIPT_OPENING_ERROR_MESSAGE}. ${REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE}.`);
+      return false;
+    } else {
+      if (isNaN(operatorData.operatorNumber)) {
+        toast.error(`${FISCAL_RECEIPT_OPENING_ERROR_MESSAGE}. ${OPERATOR_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE}.`);
+        return false;
+      }
+    }
+
+    if (isNullOrWhitespace(operatorData.operatorPassword)) {
+      toast.error(`${FISCAL_RECEIPT_OPENING_ERROR_MESSAGE}. ${REQUIRED_OPERATOR_PASSWORD_ERROR_MESSAGE}.`);
+      return false;
+    }
+
+    return true;
+  }
+
+  const getDiscountOrAdditionValues = (discountOrAdditionToCheck, isDiscountOrAdditionInPercentage) => {
+    let discountOrAdditionFillableArray = [null, null];
+
+    if (discountOrAdditionToCheck || !isNullOrWhitespace(discountOrAdditionToCheck)) {
+      if (isDiscountOrAdditionInPercentage) {
+        discountOrAdditionFillableArray[0] = Number(discountOrAdditionToCheck);
+      } else {
+        discountOrAdditionFillableArray[1] = Number(discountOrAdditionToCheck);
+      }
+    }
+
+    return discountOrAdditionFillableArray;
   }
 
   const configureVATGroups = () => {
@@ -132,14 +306,14 @@ const FiscalReceipts = () => {
   return (
     <Box sx={{ width: '100%', height: '100%', px: 2 }}>
       <Grid container spacing={2}>
-        <Grid size={{ xs: 12, sm: 12, md: 3 }}>
+        <Grid size={{ xs: 12, sm: 12, lg: 3 }}>
           <Card>
             <CardContent>
               <H3 sx={{ color: 'text.secondary' }}>
                 Operator
               </H3>
               <Formik
-                initialValues={operatorDataFormValues}
+                initialValues={operatorDataInitialFormValues}
                 validationSchema={operatorDataValidationSchema}
               >
                 {({
@@ -151,7 +325,7 @@ const FiscalReceipts = () => {
                   handleSubmit
                 }) => {
                   useEffect(() => {
-                    setOperatorDataFormValues(values);
+                    dispatch(setOperatorData(values));
                   }, [values]);
 
                   return (
@@ -191,7 +365,7 @@ const FiscalReceipts = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, sm: 12, md: 3 }}>
+        <Grid size={{ xs: 12, sm: 12, lg: 4 }}>
           <Formik
             initialValues={externalDatabaseArticleSaleInitialFormValues}
             validationSchema={externalDatabaseArticleSaleValidationSchema}
@@ -204,7 +378,7 @@ const FiscalReceipts = () => {
               handleChange,
               handleBlur,
               handleSubmit
-            }) => {              
+            }) => {
               return (
                 <Card>
                   <form onSubmit={handleSubmit}>
@@ -212,7 +386,7 @@ const FiscalReceipts = () => {
                       <H3 sx={{ color: 'text.secondary' }}>
                         Sale/Correction from external database
                       </H3>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
                         <FormControlLabel
                           control={
                             <Checkbox
@@ -331,6 +505,19 @@ const FiscalReceipts = () => {
               )
             }}
           </Formik>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 12, lg: 3 }}>
+          <Card>
+            <CardContent>
+              <H3 sx={{ color: 'text.secondary' }}>
+                Fiscal Receipt Operations
+              </H3>
+              <Stack spacing={2} sx={{ mt: 3 }}>
+                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleOpenFiscalReceiptClick}>Open Receipt</Button>
+                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleAutomaticReceiptClosureClick}>Close In Cash</Button>
+              </Stack>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
     </Box>
