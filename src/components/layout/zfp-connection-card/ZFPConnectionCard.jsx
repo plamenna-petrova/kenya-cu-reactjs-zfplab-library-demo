@@ -1,4 +1,5 @@
 import { styled } from '@mui/material/styles';
+import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
 
 const StyledCardWrapper = styled(Card)(({ theme }) => ({
@@ -17,14 +18,18 @@ const StyledCardWrapper = styled(Card)(({ theme }) => ({
       maxWidth: '300px',
       margin: theme.spacing(1),
     },
-  }));
+}));
 
 const ZFPConnectionCard = ({ children }) => {
     return (
       <StyledCardWrapper>
         {children}
       </StyledCardWrapper>
-    )
-}
+    );
+};
+
+ZFPConnectionCard.propTypes = {
+  children: PropTypes.node.isRequired
+};
 
 export default ZFPConnectionCard;

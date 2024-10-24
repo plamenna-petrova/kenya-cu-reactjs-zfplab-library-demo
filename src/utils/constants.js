@@ -28,7 +28,13 @@ export const CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE = "Connecting to a fisc
 
 export const FISCAL_RECEIPT_OPENING_LOADING_MESSAGE = "Opening fiscal receipt...";
 
-export const FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE = "Closing the fiscal receipt automatically in cash";
+export const FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE = "Closing the fiscal receipt automatically in cash...";
+
+export const PRINT_DAILY_X_REPORT_LOADING_MESSAGE = "Printing daily report without zeroing...";
+
+export const PRINT_DAILY_Z_REPORT_LOADING_MESSAGE = "Printing daily report with zeroing...";
+
+export const READING_ELECTRONIC_JOURNAL_REPORT_BY_Z_REPORT_NUMBERS_LOADING_MESSAGE = "Reading electronic journal report by Z report numbers...";
 
 // UI
 
@@ -107,6 +113,18 @@ export const FISCAL_RECEIPT_OPENING_ERROR_MESSAGE = "Cannot open receipt";
 export const FISCAL_RECEIPT_ALREADY_OPENED_ERROR_MESSAGE = "A fiscal receipt has already been opened";
 
 export const FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE = "A fiscal receipt hasn't been opened";
+
+export const REQUIRED_ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_ERROR_MESSAGE = "The starting Z report number is required";
+
+export const ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE = "The provided starting Z report value must be a number";
+
+export const ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE = "The starting Z report number can't be longer than 4 characters";
+
+export const REQUIRED_ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_ERROR_MESSAGE = "The ending Z report number is required";
+
+export const ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE = "The provided ending Z report value must be a number";
+
+export const ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE = "The ending Z report number can't be longer than 4 characters";
 
 // Success Messages
 

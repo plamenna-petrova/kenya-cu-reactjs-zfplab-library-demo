@@ -182,7 +182,7 @@ const FiscalReceipts = () => {
     }
   }
 
-  const handleAutomaticReceiptClosureClick = async () => {
+  const handleAutomaticReceiptClosingClick = async () => {
     try {
       const isFiscalReceiptOpened = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
@@ -279,7 +279,7 @@ const FiscalReceipts = () => {
   const getDiscountOrAdditionValues = (discountOrAdditionToCheck, isDiscountOrAdditionInPercentage) => {
     let discountOrAdditionFillableArray = [null, null];
 
-    if (discountOrAdditionToCheck || !isNullOrWhitespace(discountOrAdditionToCheck)) {
+    if (!isNullOrWhitespace(discountOrAdditionToCheck)) {
       if (isDiscountOrAdditionInPercentage) {
         discountOrAdditionFillableArray[0] = Number(discountOrAdditionToCheck);
       } else {
@@ -306,7 +306,7 @@ const FiscalReceipts = () => {
   return (
     <Box sx={{ width: '100%', height: '100%', px: 2 }}>
       <Grid container spacing={2}>
-        <Grid size={{ xs: 12, sm: 12, lg: 3 }}>
+        <Grid size={{ xs: 12, lg: 3 }}>
           <Card>
             <CardContent>
               <H3 sx={{ color: 'text.secondary' }}>
@@ -365,7 +365,7 @@ const FiscalReceipts = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, sm: 12, lg: 4 }}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           <Formik
             initialValues={externalDatabaseArticleSaleInitialFormValues}
             validationSchema={externalDatabaseArticleSaleValidationSchema}
@@ -497,7 +497,7 @@ const FiscalReceipts = () => {
                         />
                       </Box>
                     </CardContent>
-                    <CardActions sx={{ justifyContent: 'center', px: 2, pb: 2, pt: 1 }}>
+                    <CardActions sx={{ justifyContent: 'center', px: 2, pb: 3, pt: 1 }}>
                       <Button type="submit" size="medium" variant="contained" sx={{ width: '100%' }}>Sell Article</Button>
                     </CardActions>
                   </form>
@@ -506,15 +506,29 @@ const FiscalReceipts = () => {
             }}
           </Formik>
         </Grid>
-        <Grid size={{ xs: 12, sm: 12, lg: 3 }}>
+        <Grid size={{ xs: 12, lg: 3 }}>
           <Card>
             <CardContent>
               <H3 sx={{ color: 'text.secondary' }}>
                 Fiscal Receipt Operations
               </H3>
               <Stack spacing={2} sx={{ mt: 3 }}>
-                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleOpenFiscalReceiptClick}>Open Receipt</Button>
-                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleAutomaticReceiptClosureClick}>Close In Cash</Button>
+                <Button 
+                  size="medium" 
+                  variant="contained" 
+                  sx={{ width: '100%' }} 
+                  onClick={handleOpenFiscalReceiptClick}
+                >
+                  Open Receipt
+                </Button>
+                <Button 
+                  size="medium" 
+                  variant="contained" 
+                  sx={{ width: '100%' }} 
+                  onClick={handleAutomaticReceiptClosingClick}
+                >
+                  Close In Cash
+                </Button>
               </Stack>
             </CardContent>
           </Card>
