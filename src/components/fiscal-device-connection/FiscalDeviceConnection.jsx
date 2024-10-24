@@ -210,6 +210,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
         }
 
         localStorage.removeItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
+        
         toast.error(handleZFPLabServerError(error));
         dispatch(setFiscalDeviceConnectionState({ isConnected: false, connectionStateMessage: FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE }));
       } finally {

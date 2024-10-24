@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+import { useState, useEffect } from "react";
 import { Formik } from "formik";
-import { H3 } from "../layout/typography-elements/TypographyElements";
+import { H3, Paragraph } from "../layout/typography-elements/TypographyElements";
 import { useDispatch } from "react-redux";
 import { useFP } from '../../hooks/useFP';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
@@ -35,17 +37,19 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import CircularProgress from "@mui/material/CircularProgress";
+import Tremol from "../../assets/js/fp";
 
 const FiscalReceipts = () => {
+  const [operatorDataFormValues, setOperatorDataFormValues] = useState({ operatorNumber: "1", operatorPassword: "0" });
+  const [vatGroups, setVATGroups] = useState([]);
   const dispatch = useDispatch();
   const fp = useFP();
 
-  const operatorCredentialsInitialFormValues = {
-    operatorNumber: "",
-    operatorPassword: ""
-  }
-
-  const operatorCredentialsValidationSchema = Yup.object().shape({
+  const operatorDataValidationSchema = Yup.object().shape({
     operatorNumber: Yup
       .number()
       .required(REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE)
@@ -62,7 +66,7 @@ const FiscalReceipts = () => {
   const externalDatabaseArticleSaleInitialFormValues = {
     withCorrection: false,
     articleName: "",
-    vatGroup: "",
+    vatGroup: Tremol.Enums.OptionVATClass.VAT_Class_A,
     price: "",
     quantity: "",
     isDiscountOrAdditionInPercentage: false,
@@ -107,9 +111,23 @@ const FiscalReceipts = () => {
   });
 
   const handleExternalDatabaseArticleSaleFromSubmit = async (externalDatabaseArticleSaleFormData, { setSubmitting }) => {
+    console.log(operatorDataFormValues);
     console.log(externalDatabaseArticleSaleFormData);
     setSubmitting(false);
   }
+
+  const configureVATGroups = () => {
+    const vatGroupOptionsToSet = Object.entries(Tremol.Enums.OptionVATClass).map(([key, value]) => ({
+      name: key.replaceAll("_", ""),
+      value
+    }));
+
+    setVATGroups(vatGroupOptionsToSet);
+  }
+
+  useEffect(() => {
+    configureVATGroups();
+  }, []);
 
   return (
     <Box sx={{ width: '100%', height: '100%', px: 2 }}>
@@ -121,8 +139,8 @@ const FiscalReceipts = () => {
                 Operator
               </H3>
               <Formik
-                initialValues={operatorCredentialsInitialFormValues}
-                validationSchema={operatorCredentialsValidationSchema}
+                initialValues={operatorDataFormValues}
+                validationSchema={operatorDataValidationSchema}
               >
                 {({
                   values,
@@ -132,6 +150,10 @@ const FiscalReceipts = () => {
                   handleBlur,
                   handleSubmit
                 }) => {
+                  useEffect(() => {
+                    setOperatorDataFormValues(values);
+                  }, [values]);
+
                   return (
                     <form onSubmit={handleSubmit}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
@@ -182,7 +204,7 @@ const FiscalReceipts = () => {
               handleChange,
               handleBlur,
               handleSubmit
-            }) => {
+            }) => {              
               return (
                 <Card>
                   <form onSubmit={handleSubmit}>
@@ -193,10 +215,10 @@ const FiscalReceipts = () => {
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <FormControlLabel
                           control={
-                            <Checkbox 
-                              checked={values.withCorrection} 
-                              onChange={handleChange} 
-                              name="withCorrection" 
+                            <Checkbox
+                              checked={values.withCorrection}
+                              onChange={handleChange}
+                              name="withCorrection"
                             />
                           }
                           label="Correction"
@@ -215,6 +237,28 @@ const FiscalReceipts = () => {
                           helperText={touched.articleName && errors.articleName}
                           error={Boolean(touched.articleName && errors.articleName)}
                         />
+                        <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
+                          <Paragraph fontSize={14}>VAT Group</Paragraph>
+                          <Select
+                            name="vatGroup"
+                            value={vatGroups.length > 0 ? values.vatGroup : ''}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            displayEmpty
+                          >
+                            {vatGroups.length > 0 ? (
+                              vatGroups.map((vatGroup) => (
+                                <MenuItem key={vatGroup.name} value={vatGroup.value}>
+                                  {vatGroup.value}
+                                </MenuItem>
+                              ))
+                            ) : (
+                              <MenuItem disabled sx={{ dispaly: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <CircularProgress size={20} />
+                              </MenuItem>
+                            )}
+                          </Select>
+                        </FormControl>
                         <TextField
                           label="Price"
                           fullWidth
@@ -256,10 +300,10 @@ const FiscalReceipts = () => {
                         />
                         <FormControlLabel
                           control={
-                            <Checkbox 
-                              checked={values.isDiscountOrAdditionInPercentage} 
-                              onChange={handleChange} 
-                              name="isDiscountOrAdditionInPercentage" 
+                            <Checkbox
+                              checked={values.isDiscountOrAdditionInPercentage}
+                              onChange={handleChange}
+                              name="isDiscountOrAdditionInPercentage"
                             />
                           }
                           label="In Percentage"
