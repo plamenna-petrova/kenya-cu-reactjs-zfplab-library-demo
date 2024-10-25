@@ -14,7 +14,8 @@ import {
   TCP_CONNECTION,
   ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE,
   FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE,
-  CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE
+  CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE,
+  INFORMATION
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { useSelector, useDispatch } from 'react-redux';
@@ -51,10 +52,12 @@ import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from "@mui/material/CircularProgress";
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import InfoIcon from '@mui/icons-material/Info';
 import ZFPLabServerConnection from '../zfp-lab-server-connection/ZFPLabServerConnection';
 import FiscalDeviceConnection from '../fiscal-device-connection/FiscalDeviceConnection';
 import FiscalReceipts from '../fiscal-receipts/FiscalReceipts';
 import Reports from '../reports/Reports';
+import FiscalDeviceInformation from '../fiscal-device-information/FiscalDeviceInformation';
 
 const drawerWidth = 240;
 
@@ -152,6 +155,10 @@ export const NavigationDrawer = () => {
     {
       title: REPORTS,
       icon: <ReceiptLongIcon />
+    },
+    {
+      title: INFORMATION,
+      icon: <InfoIcon />
     }
   ];
 
@@ -505,6 +512,7 @@ export const NavigationDrawer = () => {
         )}
         {activeSection === FISCAL_RECEIPTS && <FiscalReceipts />}
         {activeSection === REPORTS && <Reports />}
+        {activeSection === INFORMATION && <FiscalDeviceInformation />}
       </Box>
     </Box>
   );

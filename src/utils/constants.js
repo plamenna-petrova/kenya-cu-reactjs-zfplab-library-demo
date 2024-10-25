@@ -8,6 +8,8 @@ export const FISCAL_RECEIPTS = "Receipts";
 
 export const REPORTS = "Reports";
 
+export const INFORMATION = "Information";
+
 export const SERIAL_PORT_OR_USB_CONNECTION_MOBILE_TAB_LABEL = "Serial Port / USB";
 
 export const SERIAL_PORT_OR_USB_CONNECTION_TAB_LABEL = "Connection by Serial Port / USB";

@@ -256,6 +256,7 @@ Tremol.FP = Tremol.FP ||
                 }
                 x += "</Command>";
                 var response = sendReq("POST", "", x);
+
                 return analyzeResponse(response);
             }
             catch (ex) {

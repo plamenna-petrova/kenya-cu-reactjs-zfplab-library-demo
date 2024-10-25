@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Formik } from "formik";
 import { H3 } from '../layout/typography-elements/TypographyElements';
 import { useDispatch } from "react-redux";
@@ -32,7 +32,6 @@ import Stack from '@mui/material/Stack';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Paper from '@mui/material/Paper';
 import Draggable from 'react-draggable';
@@ -40,12 +39,15 @@ import TextField from '@mui/material/TextField';
 import Tremol from "../../assets/js/fp";
 
 const DraggableReadReportContentDialogPaperWrapper = (props) => {
+  const draggableReadReportContentDialogPaper = useRef(null);
+
   return (
     <Draggable
+      nodeRef={draggableReadReportContentDialogPaper}
       handle="#draggable-report-content-dialog-title"
       cancel={'[class*="MuiDialogContent-root"]'}
     >
-      <Paper {...props} />
+      <Paper ref={draggableReadReportContentDialogPaper} {...props} />
     </Draggable>
   )
 }
@@ -110,7 +112,7 @@ const Reports = () => {
 
         if (!isNullOrWhitespace(electronicJournalReportByZReportNumbersContent)) {
           handleReadReportDraggableDialogOpen(
-            `EJ Report By Z Report Numbers (${startingZReportNumber}, ${endingZReportNumber})`, 
+            `EJ Report By Z Report Numbers (${startingZReportNumber}, ${endingZReportNumber})`,
             electronicJournalReportByZReportNumbersContent
           );
         } else {
@@ -161,7 +163,7 @@ const Reports = () => {
   return (
     <Box sx={{ width: '100%', height: '100%', px: 2 }}>
       <Grid container spacing={2}>
-        <Grid size={{ xs: 12, sm: 12, lg: 3 }}>
+        <Grid size={{ xs: 12, lg: 3 }}>
           <Card>
             <CardContent>
               <H3 sx={{ color: 'text.secondary' }}>
@@ -258,9 +260,9 @@ const Reports = () => {
           {readReportDraggableDialogTitle}
         </DialogTitle>
         <DialogContent sx={{ maxHeight: '600px', overflowY: 'auto' }}>
-          <DialogContentText sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
             <pre>{readReportDraggableDialogContent}</pre>
-          </DialogContentText>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleReadReportDraggableDialogClose}>Close</Button>
