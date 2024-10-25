@@ -8,7 +8,7 @@ import { useFP } from '../../hooks/useFP';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
 import { setOperatorData } from "../../store/slices/operatorDataSlice";
-import { isNullOrWhitespace } from "../../utils/helperFunctions";
+import { isNullOrWhitespace, sleepAsync } from "../../utils/helperFunctions";
 import {
   REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE,
   OPERATOR_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE,
@@ -123,11 +123,15 @@ const FiscalReceipts = () => {
 
   const handleExternalDatabaseArticleSaleFromSubmit = async (externalDatabaseArticleSaleFormData, { setSubmitting }) => {
     try {
-      const isFiscalReceiptOpened = await fp.ReadStatus().Opened_Fiscal_Receipt;
+      const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
+      
+      let isFiscalReceiptOpeningHandled = false;
 
-      if (!isFiscalReceiptOpened) {
+      if (!openedFiscalReceiptStatusEntry) {
         if (!await handleFiscalReceiptOpening()) {
           return;
+        } else {
+          isFiscalReceiptOpeningHandled = true;
         }
       }
 
@@ -152,6 +156,10 @@ const FiscalReceipts = () => {
 
       const externalDatabaseArticleDepartmentNumber = !isNullOrWhitespace(departmentNumber) ? departmentNumber : null;
 
+      if (isFiscalReceiptOpeningHandled) {
+        await sleepAsync(200);
+      }
+
       await fp.SellPLUwithSpecifiedVAT(
         externalDatabaseArticleName,
         externalDatabaseArticleVATGroup,
@@ -170,9 +178,9 @@ const FiscalReceipts = () => {
 
   const handleOpenFiscalReceiptClick = async () => {
     try {
-      const isFiscalReceiptOpened = await fp.ReadStatus().Opened_Fiscal_Receipt;
+      const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
-      if (!isFiscalReceiptOpened) {
+      if (!openedFiscalReceiptStatusEntry) {
         await handleFiscalReceiptOpening();
       } else {
         toast.error(FISCAL_RECEIPT_ALREADY_OPENED_ERROR_MESSAGE);
@@ -184,9 +192,9 @@ const FiscalReceipts = () => {
 
   const handleAutomaticReceiptClosingClick = async () => {
     try {
-      const isFiscalReceiptOpened = await fp.ReadStatus().Opened_Fiscal_Receipt;
+      const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
-      if (isFiscalReceiptOpened) {
+      if (openedFiscalReceiptStatusEntry) {
         await executeFPOperationWithLoading(dispatch, async () => {
           try {
             await fp.CashPayCloseReceipt();

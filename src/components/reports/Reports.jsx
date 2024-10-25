@@ -80,7 +80,7 @@ const Reports = () => {
       try {
         await fp.ReadEJByZBlocks(Number(startingZReportNumber), Number(endingZReportNumber));
 
-        const rawReadBytes = this.fp.RawRead(0, "@");
+        const rawReadBytes = fp.RawRead(0, "@");
 
         let electronicJournalReportLines = rawReadBytes.toUnicodeString().split("\n");
         let formattedElectronictJournalReportResultString = "";
