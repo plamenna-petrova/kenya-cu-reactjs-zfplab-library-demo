@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Formik } from "formik";
 import { H3 } from '../layout/typography-elements/TypographyElements';
 import { useDispatch } from "react-redux";
@@ -5,8 +6,9 @@ import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
-import { 
-  PRINT_DAILY_X_REPORT_LOADING_MESSAGE, 
+import { isNullOrWhitespace } from "../../utils/helperFunctions";
+import {
+  PRINT_DAILY_X_REPORT_LOADING_MESSAGE,
   PRINT_DAILY_Z_REPORT_LOADING_MESSAGE,
   READING_ELECTRONIC_JOURNAL_REPORT_BY_Z_REPORT_NUMBERS_LOADING_MESSAGE,
   REQUIRED_ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_ERROR_MESSAGE,
@@ -14,7 +16,11 @@ import {
   ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE,
   REQUIRED_ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_ERROR_MESSAGE,
   ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE,
-  ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE
+  ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE,
+  ELECTRONIC_JOUNRAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE,
+  ELECTRONIC_JOUNRAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE,
+  ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_ENDING_NUMBER_ERROR_MESSAGE,
+  NO_REPORT_CONTENT_ERROR_MESSAGE
 } from '../../utils/constants';
 import * as Yup from "yup";
 import Box from '@mui/material/Box';
@@ -23,10 +29,31 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Paper from '@mui/material/Paper';
+import Draggable from 'react-draggable';
 import TextField from '@mui/material/TextField';
 import Tremol from "../../assets/js/fp";
 
+const DraggableReadReportContentDialogPaperWrapper = (props) => {
+  return (
+    <Draggable
+      handle="#draggable-report-content-dialog-title"
+      cancel={'[class*="MuiDialogContent-root"]'}
+    >
+      <Paper {...props} />
+    </Draggable>
+  )
+}
+
 const Reports = () => {
+  const [isReadReportDraggableDialogOpen, setIsReadReportDraggableDialogOpen] = useState(false);
+  const [readReportDraggableDialogTitle, setReadReportDraggableDialogTitle] = useState('');
+  const [readReportDraggableDialogContent, setReadReportDraggableDialogContent] = useState('');
   const dispatch = useDispatch();
   const fp = useFP();
 
@@ -40,13 +67,13 @@ const Reports = () => {
       .number()
       .required(REQUIRED_ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_ERROR_MESSAGE)
       .typeError(ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE)
-      .positive("Positive")
+      .positive(ELECTRONIC_JOUNRAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE)
       .test("startingZReportNumberLength", ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, value => value && value.toString().length <= 4),
     endingZReportNumber: Yup
       .number()
       .required(REQUIRED_ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_ERROR_MESSAGE)
       .typeError(ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE)
-      .positive("Positive")
+      .positive(ELECTRONIC_JOUNRAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE)
       .test("endingZReportNumberLength", ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, value => value && value.toString().length <= 4),
   })
 
@@ -72,30 +99,63 @@ const Reports = () => {
 
   const readElectronicJournalReportByZReportNumbers = async ({ startingZReportNumber, endingZReportNumber }, { setSubmitting }) => {
     if (Number(startingZReportNumber) > Number(endingZReportNumber)) {
-      toast.error("The starting Z report number is greater than the ending Z report number");
+      toast.error(ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_ENDING_NUMBER_ERROR_MESSAGE);
       return;
     }
 
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fp.ReadEJByZBlocks(Number(startingZReportNumber), Number(endingZReportNumber));
+        const electronicJournalReportByZReportNumbersContent = await rawReadAndFormatBytesToString();
 
-        const rawReadBytes = fp.RawRead(0, "@");
-
-        let electronicJournalReportLines = rawReadBytes.toUnicodeString().split("\n");
-        let formattedElectronictJournalReportResultString = "";
-
-        electronicJournalReportLines.forEach((line) => {
-          formattedElectronictJournalReportResultString += `${line.substring(4, line.length - 2)}\r\n`;
-        });
-
-        console.log(formattedElectronictJournalReportResultString);
+        if (!isNullOrWhitespace(electronicJournalReportByZReportNumbersContent)) {
+          handleReadReportDraggableDialogOpen(
+            `EJ Report By Z Report Numbers (${startingZReportNumber}, ${endingZReportNumber})`, 
+            electronicJournalReportByZReportNumbersContent
+          );
+        } else {
+          toast.error(NO_REPORT_CONTENT_ERROR_MESSAGE);
+        }
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
       } finally {
         setSubmitting(false);
       }
-    }, READING_ELECTRONIC_JOURNAL_REPORT_BY_Z_REPORT_NUMBERS_LOADING_MESSAGE );
+    }, READING_ELECTRONIC_JOURNAL_REPORT_BY_Z_REPORT_NUMBERS_LOADING_MESSAGE);
+  }
+
+  const rawReadAndFormatBytesToString = async () => {
+    try {
+      const rawReadBytes = await fp.RawRead(0, "@");
+      const decodedLines = new TextDecoder("windows-1252").decode(rawReadBytes).split("\n");
+
+      let formattedResultString = "";
+
+      for (let i = 0; i < decodedLines.length - 1; i++) {
+        if (decodedLines[i] === "@") {
+          continue;
+        }
+
+        let currentLineToProcess = decodedLines[i].slice(4, -2).replace(/\x7f/g, '.');
+
+        formattedResultString += currentLineToProcess + "\r\n";
+      }
+
+      return formattedResultString;
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+      return null;
+    }
+  }
+
+  const handleReadReportDraggableDialogOpen = (draggableDialogTitle, draggableDialogContent) => {
+    setReadReportDraggableDialogTitle(draggableDialogTitle);
+    setReadReportDraggableDialogContent(draggableDialogContent);
+    setIsReadReportDraggableDialogOpen(true);
+  }
+
+  const handleReadReportDraggableDialogClose = () => {
+    setIsReadReportDraggableDialogOpen(false);
   }
 
   return (
@@ -188,6 +248,24 @@ const Reports = () => {
           </Card>
         </Grid>
       </Grid>
+      <Dialog
+        open={isReadReportDraggableDialogOpen}
+        onClose={handleReadReportDraggableDialogClose}
+        PaperComponent={DraggableReadReportContentDialogPaperWrapper}
+        aria-labelledby="draggable-report-content-dialog-title"
+      >
+        <DialogTitle style={{ cursor: 'move' }} id="draggable-report-content-dialog-title">
+          {readReportDraggableDialogTitle}
+        </DialogTitle>
+        <DialogContent sx={{ maxHeight: '600px', overflowY: 'auto' }}>
+          <DialogContentText sx={{ display: 'flex', justifyContent: 'center' }}>
+            <pre>{readReportDraggableDialogContent}</pre>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleReadReportDraggableDialogClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

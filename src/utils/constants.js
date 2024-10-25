@@ -120,11 +120,19 @@ export const ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERR
 
 export const ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE = "The starting Z report number can't be longer than 4 characters";
 
+export const ELECTRONIC_JOUNRAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE = "The starting Z report number must have a postive value";
+
 export const REQUIRED_ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_ERROR_MESSAGE = "The ending Z report number is required";
 
 export const ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE = "The provided ending Z report value must be a number";
 
 export const ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE = "The ending Z report number can't be longer than 4 characters";
+
+export const ELECTRONIC_JOUNRAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE = "The ending Z report number must have a postive value";
+
+export const ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_ENDING_NUMBER_ERROR_MESSAGE = "The starting Z report number is greater than the ending Z report number";
+
+export const NO_REPORT_CONTENT_ERROR_MESSAGE = "No report content";
 
 // Success Messages
 
