@@ -66,7 +66,7 @@ const rowContent = (_index, row) => {
       {columns.map((column) => (
         <TableCell key={column.dataKey} align="left">
           {column.dataKey === 'statusEntryValue' ? (
-            row[column.dataKey] ? <EmojiObjectsIcon style={{ fill: 'orange' }} /> : 'Off'
+            row[column.dataKey] ? <EmojiObjectsIcon style={{ fill: 'orange' }} /> : <EmojiObjectsIcon style={{ fill: 'grey' }} />
           ) : (
             row[column.dataKey]
           )}
