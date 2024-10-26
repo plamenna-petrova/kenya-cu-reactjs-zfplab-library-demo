@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
-import NavigationDrawer from "../components/navigation-drawer/NavigationDrawer";
-import BackdropLoading from '../components/backdrop-loading/BackdropLoading';
+import NavigationDrawer from "../../components/navigation-drawer/NavigationDrawer";
+import BackdropLoading from '../../components/backdrop-loading/BackdropLoading';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
