@@ -36,7 +36,6 @@ import FiscalDeviceConnectionCard from '../layout/zfp-connection-card/ZFPConnect
 import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Grid from '@mui/material/Grid2';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -300,58 +299,65 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
 
               return (
                 <form onSubmit={handleSubmit}>
-                  <Grid container spacing={2} justifyContent="center" alignItems="center">
-                    <Grid size={{ xs: 12, md: 6 }} textAlign="center">
-                      <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
-                        <Paragraph fontSize={14}>Serial Port</Paragraph>
-                        <Autocomplete
-                          name="serialPort"
-                          size="small"
-                          value={values.serialPort}
-                          onChange={(_, newValue) => {
-                            setFieldValue("serialPort", newValue || "");
-                          }}
-                          inputValue={values.serialPort}
-                          onInputChange={(_, newInputValue) => {
-                            setFieldValue("serialPort", newInputValue || "");
-                          }}
-                          onBlur={(event) => {
-                            if (event.relatedTarget && event.relatedTarget.getAttribute("role") === "combobox") {
-                              return;
-                            }
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{
+                      display: 'flex',
+                      flexDirection: { xs: 'column', md: 'row' },
+                      justifyContent: { xs: 'center', md: 'space-between' },
+                      gap: 2
+                    }}>
+                      <Box textAlign="left" sx={{ width: '100%' }}>
+                        <FormControl fullWidth size="small">
+                          <Paragraph fontSize={14}>Serial Port</Paragraph>
+                          <Autocomplete
+                            name="serialPort"
+                            size="small"
+                            value={values.serialPort}
+                            onChange={(_, newValue) => {
+                              setFieldValue("serialPort", newValue || "");
+                            }}
+                            inputValue={values.serialPort}
+                            onInputChange={(_, newInputValue) => {
+                              setFieldValue("serialPort", newInputValue || "");
+                            }}
+                            onBlur={(event) => {
+                              if (event.relatedTarget && event.relatedTarget.getAttribute("role") === "combobox") {
+                                return;
+                              }
 
-                            handleBlur(event);
-                          }}
-                          options={serialPorts}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              name="serialPort"
-                              onBlur={handleBlur}
-                              error={Boolean(touched.serialPort && errors.serialPort)}
-                            />
-                          )}
-                        />
-                      </FormControl>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6 }} textAlign="center">
-                      <FormControl fullWidth size="small" sx={{ textAlign: 'left' }}>
-                        <Paragraph fontSize={14}>Baud Rate</Paragraph>
-                        <Select
-                          name="baudRate"
-                          value={values.baudRate}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          MenuProps={FiscalDeviceConnectionMenuProps}
-                        >
-                          {BAUD_RATES.map((baudRate, index) => (
-                            <MenuItem key={index} value={baudRate}>{baudRate}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
+                              handleBlur(event);
+                            }}
+                            options={serialPorts}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                name="serialPort"
+                                onBlur={handleBlur}
+                                error={Boolean(touched.serialPort && errors.serialPort)}
+                              />
+                            )}
+                          />
+                        </FormControl>
+                      </Box>
+                      <Box textAlign="left" sx={{ width: '100%' }}>
+                        <FormControl fullWidth size="small">
+                          <Paragraph fontSize={14}>Baud Rate</Paragraph>
+                          <Select
+                            name="baudRate"
+                            value={values.baudRate}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            MenuProps={FiscalDeviceConnectionMenuProps}
+                          >
+                            {BAUD_RATES.map((baudRate, index) => (
+                              <MenuItem key={index} value={baudRate}>{baudRate}</MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
+                    </Box>
                     {serialPortOrUSBConnectionState &&
-                      <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 0 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
                         <Collapse in={!!serialPortOrUSBConnectionState} sx={{ width: '100%' }}>
                           <Alert
                             variant="outlined"
@@ -372,7 +378,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                         </Collapse>
                       </Box>
                     }
-                    <Box sx={{ display: 'flex', justifyContent: 'center', ml: { xs: '0px', sm: '36px' } }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', ml: { xs: '0px', sm: '36px' }, mt: 2 }}>
                       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                         <Button
                           variant="contained"
@@ -386,7 +392,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                         </Button>
                       </Stack>
                     </Box>
-                  </Grid>
+                  </Box>
                 </form>
               )
             }}
@@ -423,11 +429,11 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
               return (
                 <form onSubmit={handleSubmit}>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ 
-                      display: 'flex', 
-                      flexDirection: { xs: 'column', md: 'row' }, 
-                      justifyContent: { xs: 'center', md: 'space-between'}, 
-                      gap: 2 
+                    <Box sx={{
+                      display: 'flex',
+                      flexDirection: { xs: 'column', md: 'row' },
+                      justifyContent: { xs: 'center', md: 'space-between' },
+                      gap: 2
                     }}>
                       <Box textAlign="left" sx={{ width: '100%' }}>
                         <Paragraph fontSize={14}>Fiscal Device IP Address</Paragraph>

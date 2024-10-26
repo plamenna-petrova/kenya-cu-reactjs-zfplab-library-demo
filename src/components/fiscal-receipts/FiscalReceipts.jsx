@@ -373,7 +373,7 @@ const FiscalReceipts = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, lg: 4 }}>
+        <Grid size={{ xs: 12, lg: 3 }}>
           <Formik
             initialValues={externalDatabaseArticleSaleInitialFormValues}
             validationSchema={externalDatabaseArticleSaleValidationSchema}
