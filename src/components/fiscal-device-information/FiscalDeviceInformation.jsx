@@ -129,6 +129,7 @@ const StatusEntriesFilterBar = ({
         size="small"
         value={statusEntriesSearchTerm}
         onChange={(changeEvent) => onStatusEntriesSearch(changeEvent.target.value)}
+        sx={{ flexGrow: { xs: 0, lg: 0.3 } }}
       />
       <FormGroup row>
         <FormControlLabel
