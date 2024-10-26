@@ -286,16 +286,22 @@ export const NavigationDrawer = () => {
       if (isNavigationDrawerMounted) {
         const savedZFPLabServerAddress = localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS;
 
-        await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress).then(async () => {
-          setTimeout(async () => {
-            const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
+        try {
+          await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress);
 
-            if (configuredFiscalDeviceConnectionSettings && isNavigationDrawerMounted) {
-              const { connectionType, ...connectionParameters } = getConfiguredFiscalDeviceConnectionSettings();
-              await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
-            }
-          }, 300);
-        });
+          if (isNavigationDrawerMounted) {
+            setTimeout(async () => {
+              const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
+
+              if (configuredFiscalDeviceConnectionSettings && isNavigationDrawerMounted) {
+                const { connectionType, ...connectionParameters } = getConfiguredFiscalDeviceConnectionSettings();
+                await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
+              }
+            }, 300);
+          }
+        } catch(error) {
+          console.log(error);
+        }
       }
     };
 
