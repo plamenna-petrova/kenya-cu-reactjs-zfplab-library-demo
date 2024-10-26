@@ -360,7 +360,7 @@ export const NavigationDrawer = () => {
               >
                 <Avatar
                   variant="square"
-                  src="/assets/images/tremol-s21-removebg-preview.png"
+                  src="/assets/images/tremol-s21.png"
                   sx={{ bgcolor: !fiscalDeviceConnectionState.isConnected ? red[600] : 'transparent' }}
                 ></Avatar>
                 {fiscalDeviceConnectionState.isSearching && (

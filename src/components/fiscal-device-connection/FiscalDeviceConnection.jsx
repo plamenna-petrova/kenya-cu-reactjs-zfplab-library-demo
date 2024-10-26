@@ -210,7 +210,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
         }
 
         localStorage.removeItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
-        
+
         toast.error(handleZFPLabServerError(error));
         dispatch(setFiscalDeviceConnectionState({ isConnected: false, connectionStateMessage: FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE }));
       } finally {
@@ -422,41 +422,48 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
 
               return (
                 <form onSubmit={handleSubmit}>
-                  <Grid container spacing={2} justifyContent="center" alignItems="center">
-                    <Grid size={{ xs: 12, md: 6 }} textAlign="left">
-                      <Paragraph fontSize={14}>Fiscal Device IP Address</Paragraph>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        type="text"
-                        name="fiscalDeviceIPAddress"
-                        variant="outlined"
-                        placeholder="Example - 192.168.0.1"
-                        onBlur={handleBlur}
-                        value={values.fiscalDeviceIPAddress}
-                        onChange={handleChange}
-                        helperText={touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress}
-                        error={Boolean(touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress)}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6 }} textAlign="left">
-                      <Paragraph fontSize={14}>Network Password</Paragraph>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        type="text"
-                        name="lanOrWifiPassword"
-                        variant="outlined"
-                        placeholder="Example - 1234"
-                        onBlur={handleBlur}
-                        value={values.lanOrWifiPassword}
-                        onChange={handleChange}
-                        helperText={touched.lanOrWifiPassword && errors.lanOrWifiPassword}
-                        error={Boolean(touched.lanOrWifiPassword && errors.lanOrWifiPassword)}
-                      />
-                    </Grid>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      flexDirection: { xs: 'column', md: 'row' }, 
+                      justifyContent: { xs: 'center', md: 'space-between'}, 
+                      gap: 2 
+                    }}>
+                      <Box textAlign="left" sx={{ width: '100%' }}>
+                        <Paragraph fontSize={14}>Fiscal Device IP Address</Paragraph>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          type="text"
+                          name="fiscalDeviceIPAddress"
+                          variant="outlined"
+                          placeholder="Example - 192.168.0.1"
+                          onBlur={handleBlur}
+                          value={values.fiscalDeviceIPAddress}
+                          onChange={handleChange}
+                          helperText={touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress}
+                          error={Boolean(touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress)}
+                        />
+                      </Box>
+                      <Box textAlign="left" sx={{ width: '100%' }}>
+                        <Paragraph fontSize={14}>Network Password</Paragraph>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          type="text"
+                          name="lanOrWifiPassword"
+                          variant="outlined"
+                          placeholder="Example - 1234"
+                          onBlur={handleBlur}
+                          value={values.lanOrWifiPassword}
+                          onChange={handleChange}
+                          helperText={touched.lanOrWifiPassword && errors.lanOrWifiPassword}
+                          error={Boolean(touched.lanOrWifiPassword && errors.lanOrWifiPassword)}
+                        />
+                      </Box>
+                    </Box>
                     {lanOrWifiConnectionState &&
-                      <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 0 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
                         <Collapse in={!!lanOrWifiConnectionState} sx={{ width: '100%' }}>
                           <Alert
                             variant="outlined"
@@ -477,12 +484,12 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                         </Collapse>
                       </Box>
                     }
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                       <Button type="submit" variant="contained" startIcon={<NetworkPingIcon />}>
                         Connect
                       </Button>
                     </Box>
-                  </Grid>
+                  </Box>
                 </form>
               )
             }}
