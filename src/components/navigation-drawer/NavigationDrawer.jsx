@@ -299,7 +299,7 @@ export const NavigationDrawer = () => {
               }
             }, 300);
           }
-        } catch(error) {
+        } catch (error) {
           console.log(error);
         }
       }
@@ -446,53 +446,59 @@ export const NavigationDrawer = () => {
         <List>
           {sidebarMenuItems.map((sidebarMenuItem, index) => (
             <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={[
-                  {
-                    minHeight: 48,
-                    px: 2.5,
-                  },
-                  isNavigationDrawerOpen
-                    ? {
-                      justifyContent: 'initial',
-                    }
-                    : {
-                      justifyContent: 'center',
-                    },
-                ]}
-                onClick={() => showSection(sidebarMenuItem.title)}
-                disabled={!zfpLabServerConnectionState.isConnected || !fiscalDeviceConnectionState.isConnected}
+              <Tooltip
+                title={<Paragraph>{sidebarMenuItem.title}</Paragraph>}
+                placement="right"
+                disableHoverListener={isNavigationDrawerOpen}
               >
-                <ListItemIcon
+                <ListItemButton
                   sx={[
                     {
-                      minWidth: 0,
-                      justifyContent: 'center',
+                      minHeight: 48,
+                      px: 2.5,
                     },
                     isNavigationDrawerOpen
                       ? {
-                        mr: 3,
+                        justifyContent: 'initial',
                       }
                       : {
-                        mr: 'auto',
+                        justifyContent: 'center',
                       },
                   ]}
+                  onClick={() => showSection(sidebarMenuItem.title)}
+                  disabled={!zfpLabServerConnectionState.isConnected || !fiscalDeviceConnectionState.isConnected}
                 >
-                  {sidebarMenuItem.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={sidebarMenuItem.title}
-                  sx={[
-                    isNavigationDrawerOpen
-                      ? {
-                        opacity: 1,
-                      }
-                      : {
-                        opacity: 0,
+                  <ListItemIcon
+                    sx={[
+                      {
+                        minWidth: 0,
+                        justifyContent: 'center',
                       },
-                  ]}
-                />
-              </ListItemButton>
+                      isNavigationDrawerOpen
+                        ? {
+                          mr: 3,
+                        }
+                        : {
+                          mr: 'auto',
+                        },
+                    ]}
+                  >
+                    {sidebarMenuItem.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={sidebarMenuItem.title}
+                    sx={[
+                      isNavigationDrawerOpen
+                        ? {
+                          opacity: 1,
+                        }
+                        : {
+                          opacity: 0,
+                        },
+                    ]}
+                  />
+                </ListItemButton>
+              </Tooltip>
             </ListItem>
           ))}
         </List>
