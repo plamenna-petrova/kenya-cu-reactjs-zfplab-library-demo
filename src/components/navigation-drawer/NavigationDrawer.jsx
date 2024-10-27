@@ -299,8 +299,8 @@ export const NavigationDrawer = () => {
               }
             }, 300);
           }
-        } catch (error) {
-          console.log(error);
+        } catch { 
+          /* ignored exception */ 
         }
       }
     };

@@ -130,9 +130,9 @@ const FiscalReceipts = () => {
       if (!openedFiscalReceiptStatusEntry) {
         if (!await handleFiscalReceiptOpening()) {
           return;
-        } else {
-          isFiscalReceiptOpeningHandled = true;
-        }
+        } 
+
+        isFiscalReceiptOpeningHandled = true;
       }
 
       const {
