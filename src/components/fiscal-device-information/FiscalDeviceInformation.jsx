@@ -35,18 +35,18 @@ const STATUS_ENTRY_VALUE_DATA_KEY = "statusEntryValue";
 
 const statusEntriesColumns = [
   {
-    width: 100,
+    width: 80,
     label: STATUS_ENTRY_NAME_LABEL,
     dataKey: STATUS_ENTRY_NAME_DATA_KEY,
   },
   {
-    width: 50,
+    width: 30,
     label: STATUS_ENTRY_VALUE_LABEL,
     dataKey: STATUS_ENTRY_VALUE_DATA_KEY,
   }
 ];
 
-const VirtuosoTableComponents = {
+const StatusEntriesVirtuosoTableComponents = {
   Scroller: forwardRef((props, ref) => (
     <TableContainer component={Paper} {...props} ref={ref} />
   )),
@@ -225,7 +225,7 @@ const FiscalDeviceInformation = () => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid size={{ xs: 12, lg: 6 }}>
+          <Grid size={{ xs: 12, lg: 5 }}>
             <StatusEntriesFilterBar
               statusEntrySearchTerm={statusEntrySearchTerm}
               onStatusEntriesSearch={setStatusEntriesSearchTerm}
@@ -240,7 +240,7 @@ const FiscalDeviceInformation = () => {
               <Paper style={{ height: '600px', width: '100%' }}>
                 <TableVirtuoso
                   data={filteredStatusEntries}
-                  components={VirtuosoTableComponents}
+                  components={StatusEntriesVirtuosoTableComponents}
                   fixedHeaderContent={getFixedStatusEntriesHeaderContent}
                   itemContent={statusEntriesRowContent}
                 />

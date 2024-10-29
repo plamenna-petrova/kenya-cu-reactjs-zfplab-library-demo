@@ -314,7 +314,7 @@ const FiscalReceipts = () => {
   return (
     <Box sx={{ width: '100%', height: '100%', px: 2 }}>
       <Grid container spacing={2}>
-        <Grid size={{ xs: 12, lg: 3 }}>
+        <Grid size={{ xs: 12, lg: 2 }}>
           <Card>
             <CardContent>
               <H3 sx={{ color: 'text.secondary' }}>
