@@ -1,4 +1,4 @@
-// Labels
+// Labels / Titles
 
 export const ZFP_LAB_SERVER_CONNECTION = "ZFPLabServer Connection";
 
@@ -17,6 +17,10 @@ export const SERIAL_PORT_OR_USB_CONNECTION_TAB_LABEL = "Connection by Serial Por
 export const LAN_OR_WIFI_CONNECTION_MOBILE_TAB_LABEL = "LAN/WiFi";
 
 export const LAN_OR_WIFI_CONNECTION_TAB_LABEL = "Connection by LAN / WiFi";
+
+export const VERSION_DRAGGABLE_DIALOG_TITLE = "Version";
+
+export const DATE_AND_TIME_DRAGGABLE_DIALOG_TITLE = "Date and time";
 
 // Loading Messages
 
@@ -39,6 +43,8 @@ export const PRINT_DAILY_Z_REPORT_LOADING_MESSAGE = "Printing daily report with 
 export const READING_ELECTRONIC_JOURNAL_REPORT_BY_Z_REPORT_NUMBERS_LOADING_MESSAGE = "Reading electronic journal report by Z report numbers...";
 
 export const READING_STATUS_ENTRIES_LOADING_MESSAGE = "Reading status entries...";
+
+export const PRINTING_DIAGNOSTICS_LOADING_MESSAGE = "Printing diagnostics...";
 
 // UI
 

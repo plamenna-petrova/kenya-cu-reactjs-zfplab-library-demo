@@ -7,7 +7,12 @@ import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
-import { READING_STATUS_ENTRIES_LOADING_MESSAGE } from '../../utils/constants';
+import { 
+  READING_STATUS_ENTRIES_LOADING_MESSAGE, 
+  VERSION_DRAGGABLE_DIALOG_TITLE,
+  DATE_AND_TIME_DRAGGABLE_DIALOG_TITLE,
+  PRINTING_DIAGNOSTICS_LOADING_MESSAGE 
+} from '../../utils/constants';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import Card from '@mui/material/Card';
@@ -25,8 +30,10 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import DraggableDetailsDialog from '../layout/draggable-details-dialog/DraggableDetailsDialog';
 import PropTypes from 'prop-types';
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import Tremol from "../../assets/js/fp";
 
 const STATUS_ENTRY_NAME_LABEL = "Name";
 
@@ -172,6 +179,9 @@ StatusEntriesFilterBar.propTypes = {
 };
 
 const FiscalDeviceInformation = () => {
+  const [isFiscalDeviceInformationDraggableDialogOpen, setIsFiscalDeviceInformationDraggableDialogOpen] = useState(false);
+  const [fiscalDeviceInformationDraggableDialogTitle, setFiscalDeviceInformationDraggableDialogTitle] = useState('');
+  const [fiscalDeviceInformationDraggableDialogContent, setFiscalDeviceInformationDraggableDialogContent] = useState('');
   const [statusEntriesToFill, setStatusEntriesToFill] = useState([]);
   const [statusEntriesSearchTermForFiltering, setStatusEntriesSearchTermForFiltering] = useState('');
   const [statusEntriesToToggle, setStatusEntriesToToggle] = useState({ onStatusEntries: true, offStatusEntries: true });
@@ -184,7 +194,7 @@ const FiscalDeviceInformation = () => {
         if (statusEntriesSearchTermForFiltering !== '') {
           setStatusEntriesSearchTermForFiltering('');
         }
-      
+
         if (!statusEntriesToToggle.onStatusEntries || !statusEntriesToToggle.offStatusEntries) {
           setStatusEntriesToToggle({ onStatusEntries: true, offStatusEntries: true });
         }
@@ -201,6 +211,45 @@ const FiscalDeviceInformation = () => {
         toast.error(handleZFPLabServerError(error));
       }
     }, READING_STATUS_ENTRIES_LOADING_MESSAGE);
+  }
+
+  const handleReadVersionClick = async () => {
+    try {
+      const version = await fp.ReadVersion().Version;
+      handleFiscalDeviceInformationDraggableDialogOpen(VERSION_DRAGGABLE_DIALOG_TITLE, version);
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    }
+  }
+
+  const handleReadDateTimeClick = async () => {
+    try {
+      const readDateTime = await fp.ReadDateTime();
+      const formattedDateTime = readDateTime.toStringWithFormat("dd.MM.yyyy hh:mm");
+      handleFiscalDeviceInformationDraggableDialogOpen(DATE_AND_TIME_DRAGGABLE_DIALOG_TITLE, formattedDateTime);
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    }
+  }
+
+  const handlePrintDiagnosticsClick = async () => {
+    await executeFPOperationWithLoading(dispatch, async () => {
+      try {
+        await fp.PrintDiagnostics();
+      } catch (error) {
+        toast.error(handleZFPLabServerError(error));
+      }
+    }, PRINTING_DIAGNOSTICS_LOADING_MESSAGE);
+  }
+
+  const handleFiscalDeviceInformationDraggableDialogOpen = (draggableDialogTitle, draggableDialogContent) => {
+    setFiscalDeviceInformationDraggableDialogTitle(draggableDialogTitle);
+    setFiscalDeviceInformationDraggableDialogContent(draggableDialogContent);
+    setIsFiscalDeviceInformationDraggableDialogOpen(true);
+  }
+
+  const handleFiscalDeviceInformationDraggableDialogClose = () => {
+    setIsFiscalDeviceInformationDraggableDialogOpen(false);
   }
 
   const filteredStatusEntries = useMemo(() => {
@@ -233,13 +282,13 @@ const FiscalDeviceInformation = () => {
                   <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadStatusEntries}>
                     Read Status
                   </Button>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }}>
+                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadVersionClick}>
                     Version
                   </Button>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }}>
+                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadDateTimeClick}>
                     Date / Time
                   </Button>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }}>
+                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handlePrintDiagnosticsClick}>
                     Diagnostics
                   </Button>
                 </Stack>
@@ -269,7 +318,13 @@ const FiscalDeviceInformation = () => {
             )}
           </Grid>
         </Grid>
-      </Box >
+        <DraggableDetailsDialog
+          isDraggableDialogOpen={isFiscalDeviceInformationDraggableDialogOpen}
+          onDraggableDialogClose={handleFiscalDeviceInformationDraggableDialogClose}
+          draggableDialogTitle={fiscalDeviceInformationDraggableDialogTitle}
+          draggableDialogContent={fiscalDeviceInformationDraggableDialogContent}
+        />
+      </Box>
     </>
   );
 }

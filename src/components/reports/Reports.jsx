@@ -80,7 +80,7 @@ const Reports = () => {
     }, PRINT_DAILY_Z_REPORT_LOADING_MESSAGE)
   }
 
-  const readElectronicJournalReportByZReportNumbers = async ({ startingZReportNumber, endingZReportNumber }, { setSubmitting }) => {
+  const handleReadElectronicJournalReportByZReportNumbers = async ({ startingZReportNumber, endingZReportNumber }, { setSubmitting }) => {
     if (Number(startingZReportNumber) > Number(endingZReportNumber)) {
       toast.error(ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_ENDING_NUMBER_ERROR_MESSAGE);
       return;
@@ -180,7 +180,7 @@ const Reports = () => {
               <Formik
                 initialValues={electronicJournalReportByZReportNumbersInitialFormValues}
                 validationSchema={electronicJournalReportByZReportNumbersValidationSchema}
-                onSubmit={readElectronicJournalReportByZReportNumbers}
+                onSubmit={handleReadElectronicJournalReportByZReportNumbers}
               >
                 {({
                   values,
