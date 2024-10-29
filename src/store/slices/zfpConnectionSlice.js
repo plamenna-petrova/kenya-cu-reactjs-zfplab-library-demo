@@ -1,5 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE } from '../../utils/constants';
+import { 
+    ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE, 
+    FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE 
+} from '../../utils/constants';
 
 const zfpConnectionInitialState = {
     zfpLabServerConnectionState: {

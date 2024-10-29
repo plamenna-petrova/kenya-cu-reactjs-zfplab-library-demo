@@ -1,4 +1,10 @@
-import { SERIAL_PORT_CONNECTION, DEFAULT_SERIAL_PORT, BAUD_RATES, FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, TCP_CONNECTION } from "./constants";
+import { 
+  SERIAL_PORT_CONNECTION, 
+  DEFAULT_SERIAL_PORT, 
+  BAUD_RATES, 
+  FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, 
+  TCP_CONNECTION 
+} from "./constants";
 
 export const getInitialFiscalDeviceConnectionFormValues = (requestedConnectionType) => {
   const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
