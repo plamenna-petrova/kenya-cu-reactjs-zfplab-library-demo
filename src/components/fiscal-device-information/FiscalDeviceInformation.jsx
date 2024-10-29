@@ -3,8 +3,11 @@ import { forwardRef, Fragment, useState, useEffect, useMemo } from 'react';
 import { H3 } from '../layout/typography-elements/TypographyElements';
 import { TableVirtuoso } from 'react-virtuoso';
 import { useFP } from '../../hooks/useFP';
+import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
+import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
+import { READING_STATUS_ENTRIES_LOADING_MESSAGE } from '../../utils/constants';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import Card from '@mui/material/Card';
@@ -95,12 +98,19 @@ const statusEntriesRowContent = (_index, statusEntryRow) => {
 }
 
 const StatusEntriesFilterBar = ({
-  statusEntriesSearchTerm,
+  statusEntriesSearchTermForFiltering,
   onStatusEntriesSearch,
   statusEntriesToToggle,
   onToggleStatusEntriesFilterChange
 }) => {
+  const [statusEntriesSearchTerm, setStatusEntriesSearchTerm] = useState(statusEntriesSearchTermForFiltering);
   const [checkedOnOrOffStatusEntries, setCheckedOnOrOffStatusEntries] = useState(statusEntriesToToggle);
+
+  const handleStatusEntriesSearch = (changeEvent) => {
+    const enteredSearchTerm = changeEvent.target.value;
+    setStatusEntriesSearchTerm(enteredSearchTerm);
+    onStatusEntriesSearch(enteredSearchTerm);
+  }
 
   const handleOnOrOffCheckedStatusEntriesChange = (changeEvent) => {
     const mergedOnOrOffStatusEntries = {
@@ -113,6 +123,11 @@ const StatusEntriesFilterBar = ({
   };
 
   const { onStatusEntries, offStatusEntries } = checkedOnOrOffStatusEntries;
+
+  useEffect(() => {
+    setStatusEntriesSearchTerm(statusEntriesSearchTermForFiltering);
+    setCheckedOnOrOffStatusEntries(statusEntriesToToggle);
+  }, [statusEntriesSearchTermForFiltering, statusEntriesToToggle]);
 
   return (
     <Box sx={{
@@ -128,7 +143,7 @@ const StatusEntriesFilterBar = ({
         variant="outlined"
         size="small"
         value={statusEntriesSearchTerm}
-        onChange={(changeEvent) => onStatusEntriesSearch(changeEvent.target.value)}
+        onChange={handleStatusEntriesSearch}
         sx={{ flexGrow: { xs: 0, lg: 0.3 } }}
       />
       <FormGroup row>
@@ -158,20 +173,39 @@ StatusEntriesFilterBar.propTypes = {
 
 const FiscalDeviceInformation = () => {
   const [statusEntriesToFill, setStatusEntriesToFill] = useState([]);
-  const [statusEntrySearchTerm, setStatusEntriesSearchTerm] = useState('');
+  const [statusEntriesSearchTermForFiltering, setStatusEntriesSearchTermForFiltering] = useState('');
   const [statusEntriesToToggle, setStatusEntriesToToggle] = useState({ onStatusEntries: true, offStatusEntries: true });
+  const dispatch = useDispatch();
   const fp = useFP();
 
-  const getRandomBoolean = () => Math.random() >= 0.5;
+  const handleReadStatusEntries = async () => {
+    await executeFPOperationWithLoading(dispatch, async () => {
+      try {
+        if (statusEntriesSearchTermForFiltering !== '') {
+          setStatusEntriesSearchTermForFiltering('');
+        }
+      
+        if (!statusEntriesToToggle.onStatusEntries || !statusEntriesToToggle.offStatusEntries) {
+          setStatusEntriesToToggle({ onStatusEntries: true, offStatusEntries: true });
+        }
 
-  const generateRandomString = () => {
-    let generatedRandomString = (Math.random() + 1).toString(36).substring(7);
-    return generatedRandomString;
+        const readStatusEntries = fp.ReadStatus();
+
+        const mappedStatusEntries = Object.entries(readStatusEntries).map(([key, value]) => ({
+          statusEntryName: key.replaceAll("_", " "),
+          statusEntryValue: value
+        }));
+
+        setStatusEntriesToFill(mappedStatusEntries);
+      } catch (error) {
+        toast.error(handleZFPLabServerError(error));
+      }
+    }, READING_STATUS_ENTRIES_LOADING_MESSAGE);
   }
 
   const filteredStatusEntries = useMemo(() => {
     return statusEntriesToFill.filter((x) => {
-      const matchesStatusEntrySearchTerm = x.statusEntryName.toLowerCase().includes(statusEntrySearchTerm.toLowerCase());
+      const matchesStatusEntrySearchTerm = x.statusEntryName.toLowerCase().includes(statusEntriesSearchTermForFiltering.toLowerCase());
       const showAllStatusEntries = (statusEntriesToToggle.onStatusEntries && statusEntriesToToggle.offStatusEntries) ||
         (!statusEntriesToToggle.onStatusEntries && !statusEntriesToToggle.offStatusEntries);
       const matchesStatusEntriesToggle = showAllStatusEntries ||
@@ -179,23 +213,10 @@ const FiscalDeviceInformation = () => {
         (statusEntriesToToggle.offStatusEntries && !x.statusEntryValue);
       return matchesStatusEntrySearchTerm && matchesStatusEntriesToggle;
     });
-  }, [statusEntriesToFill, statusEntrySearchTerm, statusEntriesToToggle]);
+  }, [statusEntriesToFill, statusEntriesSearchTermForFiltering, statusEntriesToToggle]);
 
   useEffect(() => {
-    try {
-      const readStatusEntries = fp.ReadStatus();
-
-      const mappedStatusEntries = Object.entries(readStatusEntries).map(([key, value]) => ({
-        statusEntryName: key.replaceAll("_", " "),
-        statusEntryValue: value
-      }));
-
-      setStatusEntriesToFill(mappedStatusEntries);
-    } catch (error) {
-      toast.error(handleZFPLabServerError(error));
-      const fallbackStatusEntries = new Array(40).fill().map(() => ({ statusEntryName: generateRandomString(), statusEntryValue: getRandomBoolean() }))
-      setStatusEntriesToFill(fallbackStatusEntries);
-    }
+    handleReadStatusEntries();
   }, []);
 
   return (
@@ -209,7 +230,7 @@ const FiscalDeviceInformation = () => {
                   Information
                 </H3>
                 <Stack spacing={2} sx={{ mt: 3 }}>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }}>
+                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadStatusEntries}>
                     Read Status
                   </Button>
                   <Button size="medium" variant="contained" sx={{ width: '100%' }}>
@@ -227,8 +248,8 @@ const FiscalDeviceInformation = () => {
           </Grid>
           <Grid size={{ xs: 12, lg: 5 }}>
             <StatusEntriesFilterBar
-              statusEntrySearchTerm={statusEntrySearchTerm}
-              onStatusEntriesSearch={setStatusEntriesSearchTerm}
+              statusEntriesSearchTermForFiltering={statusEntriesSearchTermForFiltering}
+              onStatusEntriesSearch={setStatusEntriesSearchTermForFiltering}
               statusEntriesToToggle={statusEntriesToToggle}
               onToggleStatusEntriesFilterChange={setStatusEntriesToToggle}
             />

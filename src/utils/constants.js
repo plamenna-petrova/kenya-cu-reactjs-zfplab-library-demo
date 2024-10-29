@@ -38,6 +38,8 @@ export const PRINT_DAILY_Z_REPORT_LOADING_MESSAGE = "Printing daily report with 
 
 export const READING_ELECTRONIC_JOURNAL_REPORT_BY_Z_REPORT_NUMBERS_LOADING_MESSAGE = "Reading electronic journal report by Z report numbers...";
 
+export const READING_STATUS_ENTRIES_LOADING_MESSAGE = "Reading status entries...";
+
 // UI
 
 export const SELECT_MENU_ITEM_HEIGHT = 48;

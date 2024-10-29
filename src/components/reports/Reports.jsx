@@ -29,33 +29,14 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import Paper from '@mui/material/Paper';
-import Draggable from 'react-draggable';
 import TextField from '@mui/material/TextField';
+import DraggableDetailsDialog from "../layout/draggable-details-dialog/DraggableDetailsDialog";
 import Tremol from "../../assets/js/fp";
 
-const DraggableReadReportContentDialogPaperWrapper = (props) => {
-  const draggableReadReportContentDialogPaper = useRef(null);
-
-  return (
-    <Draggable
-      nodeRef={draggableReadReportContentDialogPaper}
-      handle="#draggable-report-content-dialog-title"
-      cancel={'[class*="MuiDialogContent-root"]'}
-    >
-      <Paper ref={draggableReadReportContentDialogPaper} {...props} />
-    </Draggable>
-  )
-}
-
 const Reports = () => {
-  const [isReadReportDraggableDialogOpen, setIsReadReportDraggableDialogOpen] = useState(false);
-  const [readReportDraggableDialogTitle, setReadReportDraggableDialogTitle] = useState('');
-  const [readReportDraggableDialogContent, setReadReportDraggableDialogContent] = useState('');
+  const [isReadElectronicJournalReportDraggableDialogOpen, setIsReadElectronicJournalReportDraggableDialogOpen] = useState(false);
+  const [readElectronicJournalReportDraggableDialogTitle, setReadElectronicJournalReportDraggableDialogTitle] = useState('');
+  const [readElectronicJournalReportDraggableDialogContent, setReadElectronicJournalReportDraggableDialogContent] = useState('');
   const dispatch = useDispatch();
   const fp = useFP();
 
@@ -151,13 +132,13 @@ const Reports = () => {
   }
 
   const handleReadReportDraggableDialogOpen = (draggableDialogTitle, draggableDialogContent) => {
-    setReadReportDraggableDialogTitle(draggableDialogTitle);
-    setReadReportDraggableDialogContent(draggableDialogContent);
-    setIsReadReportDraggableDialogOpen(true);
+    setReadElectronicJournalReportDraggableDialogTitle(draggableDialogTitle);
+    setReadElectronicJournalReportDraggableDialogContent(draggableDialogContent);
+    setIsReadElectronicJournalReportDraggableDialogOpen(true);
   }
 
   const handleReadReportDraggableDialogClose = () => {
-    setIsReadReportDraggableDialogOpen(false);
+    setIsReadElectronicJournalReportDraggableDialogOpen(false);
   }
 
   return (
@@ -250,24 +231,12 @@ const Reports = () => {
           </Card>
         </Grid>
       </Grid>
-      <Dialog
-        open={isReadReportDraggableDialogOpen}
-        onClose={handleReadReportDraggableDialogClose}
-        PaperComponent={DraggableReadReportContentDialogPaperWrapper}
-        aria-labelledby="draggable-report-content-dialog-title"
-      >
-        <DialogTitle style={{ cursor: 'move' }} id="draggable-report-content-dialog-title">
-          {readReportDraggableDialogTitle}
-        </DialogTitle>
-        <DialogContent sx={{ maxHeight: '600px', overflowY: 'auto' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <pre>{readReportDraggableDialogContent}</pre>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleReadReportDraggableDialogClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      <DraggableDetailsDialog
+        isDraggableDialogOpen={isReadElectronicJournalReportDraggableDialogOpen}
+        onDraggableDialogClose={handleReadReportDraggableDialogClose}
+        draggableDialogTitle={readElectronicJournalReportDraggableDialogTitle}
+        draggableDialogContent={readElectronicJournalReportDraggableDialogContent} 
+      />
     </Box>
   )
 }
