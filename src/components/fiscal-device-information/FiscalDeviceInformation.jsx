@@ -172,7 +172,7 @@ const StatusEntriesFilterBar = ({
 }
 
 StatusEntriesFilterBar.propTypes = {
-  statusEntriesSearchTerm: PropTypes.string,
+  statusEntriesSearchTermForFiltering: PropTypes.string,
   onStatusEntriesSearch: PropTypes.func.isRequired,
   statusEntriesToToggle: PropTypes.object,
   onToggleStatusEntriesFilterChange: PropTypes.func
