@@ -9,8 +9,8 @@ import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { 
   READING_STATUS_ENTRIES_LOADING_MESSAGE, 
-  VERSION_DRAGGABLE_DIALOG_TITLE,
-  DATE_AND_TIME_DRAGGABLE_DIALOG_TITLE,
+  VERSION_INFO_ALERT_DIALOG_TITLE,
+  DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE,
   PRINTING_DIAGNOSTICS_LOADING_MESSAGE 
 } from '../../utils/constants';
 import Box from '@mui/material/Box';
@@ -30,8 +30,8 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import DraggableDetailsDialog from '../layout/draggable-details-dialog/DraggableDetailsDialog';
 import PropTypes from 'prop-types';
+import InfoAlertDialog from '../layout/info-alert-dialog/InfoAlertDialog';
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import Tremol from "../../assets/js/fp";
 
@@ -156,13 +156,21 @@ const StatusEntriesFilterBar = ({
       <FormGroup row>
         <FormControlLabel
           control={
-            <Checkbox name="onStatusEntries" checked={onStatusEntries} onChange={handleOnOrOffCheckedStatusEntriesChange} />
+            <Checkbox 
+              name="onStatusEntries" 
+              checked={onStatusEntries} 
+              onChange={handleOnOrOffCheckedStatusEntriesChange} 
+            />
           }
           label="On"
         />
         <FormControlLabel
           control={
-            <Checkbox name="offStatusEntries" checked={offStatusEntries} onChange={handleOnOrOffCheckedStatusEntriesChange} />
+            <Checkbox 
+              name="offStatusEntries" 
+              checked={offStatusEntries} 
+              onChange={handleOnOrOffCheckedStatusEntriesChange} 
+            />
           }
           label="Off"
         />
@@ -179,9 +187,9 @@ StatusEntriesFilterBar.propTypes = {
 };
 
 const FiscalDeviceInformation = () => {
-  const [isFiscalDeviceInformationDraggableDialogOpen, setIsFiscalDeviceInformationDraggableDialogOpen] = useState(false);
-  const [fiscalDeviceInformationDraggableDialogTitle, setFiscalDeviceInformationDraggableDialogTitle] = useState('');
-  const [fiscalDeviceInformationDraggableDialogContent, setFiscalDeviceInformationDraggableDialogContent] = useState('');
+  const [isFiscalDeviceInformationAlertDialogOpen, setIsFiscalDeviceInformationAlertDialogOpen] = useState(false);
+  const [fiscalDeviceInformationAlertDialogTitle, setFiscalDeviceInformationAlertDialogTitle] = useState('');
+  const [fiscalDeviceInformationAlertDialogContent, setFiscalDeviceInformationAlertDialogContent] = useState('');
   const [statusEntriesToFill, setStatusEntriesToFill] = useState([]);
   const [statusEntriesSearchTermForFiltering, setStatusEntriesSearchTermForFiltering] = useState('');
   const [statusEntriesToToggle, setStatusEntriesToToggle] = useState({ onStatusEntries: true, offStatusEntries: true });
@@ -216,7 +224,7 @@ const FiscalDeviceInformation = () => {
   const handleReadVersionClick = async () => {
     try {
       const version = await fp.ReadVersion().Version;
-      handleFiscalDeviceInformationDraggableDialogOpen(VERSION_DRAGGABLE_DIALOG_TITLE, version);
+      handleFiscalDeviceInformationAlertDialogOpen(VERSION_INFO_ALERT_DIALOG_TITLE, version);
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
     }
@@ -226,7 +234,7 @@ const FiscalDeviceInformation = () => {
     try {
       const readDateTime = await fp.ReadDateTime();
       const formattedDateTime = readDateTime.toStringWithFormat("dd.MM.yyyy hh:mm");
-      handleFiscalDeviceInformationDraggableDialogOpen(DATE_AND_TIME_DRAGGABLE_DIALOG_TITLE, formattedDateTime);
+      handleFiscalDeviceInformationAlertDialogOpen(DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE, formattedDateTime);
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
     }
@@ -242,14 +250,14 @@ const FiscalDeviceInformation = () => {
     }, PRINTING_DIAGNOSTICS_LOADING_MESSAGE);
   }
 
-  const handleFiscalDeviceInformationDraggableDialogOpen = (draggableDialogTitle, draggableDialogContent) => {
-    setFiscalDeviceInformationDraggableDialogTitle(draggableDialogTitle);
-    setFiscalDeviceInformationDraggableDialogContent(draggableDialogContent);
-    setIsFiscalDeviceInformationDraggableDialogOpen(true);
+  const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {
+    setFiscalDeviceInformationAlertDialogTitle(infoAlertDialogTitle);
+    setFiscalDeviceInformationAlertDialogContent(infoAlertDialogContent);
+    setIsFiscalDeviceInformationAlertDialogOpen(true);
   }
 
-  const handleFiscalDeviceInformationDraggableDialogClose = () => {
-    setIsFiscalDeviceInformationDraggableDialogOpen(false);
+  const handleFiscalDeviceInformationAlertDialogClose = () => {
+    setIsFiscalDeviceInformationAlertDialogOpen(false);
   }
 
   const filteredStatusEntries = useMemo(() => {
@@ -318,11 +326,11 @@ const FiscalDeviceInformation = () => {
             )}
           </Grid>
         </Grid>
-        <DraggableDetailsDialog
-          isDraggableDialogOpen={isFiscalDeviceInformationDraggableDialogOpen}
-          onDraggableDialogClose={handleFiscalDeviceInformationDraggableDialogClose}
-          draggableDialogTitle={fiscalDeviceInformationDraggableDialogTitle}
-          draggableDialogContent={fiscalDeviceInformationDraggableDialogContent}
+        <InfoAlertDialog
+          isInfoAlertDialogOpen={isFiscalDeviceInformationAlertDialogOpen}
+          onInfoAlertDialogClose={handleFiscalDeviceInformationAlertDialogClose}
+          infoAlertDialogTitle={fiscalDeviceInformationAlertDialogTitle}
+          infoAlertDialogContent={fiscalDeviceInformationAlertDialogContent} 
         />
       </Box>
     </>

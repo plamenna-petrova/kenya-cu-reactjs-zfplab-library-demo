@@ -18,9 +18,9 @@ export const LAN_OR_WIFI_CONNECTION_MOBILE_TAB_LABEL = "LAN/WiFi";
 
 export const LAN_OR_WIFI_CONNECTION_TAB_LABEL = "Connection by LAN / WiFi";
 
-export const VERSION_DRAGGABLE_DIALOG_TITLE = "Version";
+export const VERSION_INFO_ALERT_DIALOG_TITLE = "Version";
 
-export const DATE_AND_TIME_DRAGGABLE_DIALOG_TITLE = "Date and time";
+export const DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE = "Date and time";
 
 // Loading Messages
 
