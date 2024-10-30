@@ -10,7 +10,13 @@ import PropTypes from 'prop-types';
 const InfoAlertDialog = ({ isInfoAlertDialogOpen, onInfoAlertDialogClose, infoAlertDialogTitle, infoAlertDialogContent }) => {
   const infoAlertStyles = {
     "& .MuiAlert-icon": {
-      fontSize: 40
+      fontSize: 40,
+      alignSelf: 'start'
+    },
+    "& .MuiAlert-message": {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     }
   };
 

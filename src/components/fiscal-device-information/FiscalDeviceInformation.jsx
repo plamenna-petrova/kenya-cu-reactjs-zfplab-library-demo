@@ -7,11 +7,13 @@ import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
-import { 
-  READING_STATUS_ENTRIES_LOADING_MESSAGE, 
+import {
+  READING_STATUS_ENTRIES_LOADING_MESSAGE,
   VERSION_INFO_ALERT_DIALOG_TITLE,
   DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE,
-  PRINTING_DIAGNOSTICS_LOADING_MESSAGE 
+  PRINTING_DIAGNOSTICS_LOADING_MESSAGE,
+  READING_GS_INFO_LOADING_MESSAGE,
+  GS_INFO_ALERT_DIALOG_TITLE
 } from '../../utils/constants';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
@@ -156,20 +158,20 @@ const StatusEntriesFilterBar = ({
       <FormGroup row>
         <FormControlLabel
           control={
-            <Checkbox 
-              name="onStatusEntries" 
-              checked={onStatusEntries} 
-              onChange={handleOnOrOffCheckedStatusEntriesChange} 
+            <Checkbox
+              name="onStatusEntries"
+              checked={onStatusEntries}
+              onChange={handleOnOrOffCheckedStatusEntriesChange}
             />
           }
           label="On"
         />
         <FormControlLabel
           control={
-            <Checkbox 
-              name="offStatusEntries" 
-              checked={offStatusEntries} 
-              onChange={handleOnOrOffCheckedStatusEntriesChange} 
+            <Checkbox
+              name="offStatusEntries"
+              checked={offStatusEntries}
+              onChange={handleOnOrOffCheckedStatusEntriesChange}
             />
           }
           label="Off"
@@ -221,6 +223,16 @@ const FiscalDeviceInformation = () => {
     }, READING_STATUS_ENTRIES_LOADING_MESSAGE);
   }
 
+  const handlePrintDiagnosticsClick = async () => {
+    await executeFPOperationWithLoading(dispatch, async () => {
+      try {
+        await fp.PrintDiagnostics();
+      } catch (error) {
+        toast.error(handleZFPLabServerError(error));
+      }
+    }, PRINTING_DIAGNOSTICS_LOADING_MESSAGE);
+  }
+
   const handleReadVersionClick = async () => {
     try {
       const version = await fp.ReadVersion().Version;
@@ -240,14 +252,47 @@ const FiscalDeviceInformation = () => {
     }
   }
 
-  const handlePrintDiagnosticsClick = async () => {
+  const handleReadGSInfoClick = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        await fp.PrintDiagnostics();
+        await fp.RawWrite(new Uint8Array([0x1d, 0x49]));
+        const inputBytes = new Uint8Array([0x0a]);
+        const decodedBytes = new TextDecoder().decode(inputBytes);
+        const rawReadBytes = fp.RawRead(0, decodedBytes);
+        const windows1252Decoder = new TextDecoder('windows-1252');
+        const gsInfoDecodedBytes = windows1252Decoder.decode(new Uint8Array([...rawReadBytes]));
+        const gsInfoArray = gsInfoDecodedBytes.toString().split(';');
+
+        let gsInfoAlertContent;
+
+        const printableCharacersPerLine = gsInfoArray[0].slice(1);
+        const articlesNumber = gsInfoArray[1];
+        const departmentsNumber = gsInfoArray[2];
+        const operatorsNumber = gsInfoArray[3];
+        const vatGroupsNumber = gsInfoArray[4];
+        const headerAndFooterLines = gsInfoArray[5];
+        const paymentsNumber = gsInfoArray[6];
+        const logosNumber = gsInfoArray[7];
+        const receiptTransactionNumber = gsInfoArray[9];
+        const clientsNumber = gsInfoArray[10].trim();
+
+        gsInfoAlertContent =
+          `Printable characters per line: ${printableCharacersPerLine}\n` +
+          `Articles number: ${articlesNumber}\n` +
+          `Departments number: ${departmentsNumber}\n` +
+          `Operators number: ${operatorsNumber}\n` +
+          `VAT groups number: ${vatGroupsNumber}\n` +
+          `Header/Footer lines: ${headerAndFooterLines}\n` +
+          `Payments number: ${paymentsNumber}\n` +
+          `Logos number: ${logosNumber}\n` +
+          `Receipt transaction number: ${receiptTransactionNumber}\n` +
+          `Clients number: ${clientsNumber}\n`;
+
+          handleFiscalDeviceInformationAlertDialogOpen(GS_INFO_ALERT_DIALOG_TITLE, gsInfoAlertContent);
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
       }
-    }, PRINTING_DIAGNOSTICS_LOADING_MESSAGE);
+    }, READING_GS_INFO_LOADING_MESSAGE);
   }
 
   const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {
@@ -290,14 +335,17 @@ const FiscalDeviceInformation = () => {
                   <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadStatusEntries}>
                     Read Status
                   </Button>
+                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handlePrintDiagnosticsClick}>
+                    Diagnostics
+                  </Button>
                   <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadVersionClick}>
                     Version
                   </Button>
                   <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadDateTimeClick}>
                     Date / Time
                   </Button>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handlePrintDiagnosticsClick}>
-                    Diagnostics
+                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadGSInfoClick}>
+                    GS Info
                   </Button>
                 </Stack>
               </CardContent>
@@ -330,7 +378,7 @@ const FiscalDeviceInformation = () => {
           isInfoAlertDialogOpen={isFiscalDeviceInformationAlertDialogOpen}
           onInfoAlertDialogClose={handleFiscalDeviceInformationAlertDialogClose}
           infoAlertDialogTitle={fiscalDeviceInformationAlertDialogTitle}
-          infoAlertDialogContent={fiscalDeviceInformationAlertDialogContent} 
+          infoAlertDialogContent={fiscalDeviceInformationAlertDialogContent}
         />
       </Box>
     </>

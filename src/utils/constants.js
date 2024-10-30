@@ -22,6 +22,8 @@ export const VERSION_INFO_ALERT_DIALOG_TITLE = "Version";
 
 export const DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE = "Date and time";
 
+export const GS_INFO_ALERT_DIALOG_TITLE = "GS Info";
+
 // Loading Messages
 
 export const DEFAULT_LOADING_MESSAGE = "Loading...";
@@ -45,6 +47,8 @@ export const READING_ELECTRONIC_JOURNAL_REPORT_BY_Z_REPORT_NUMBERS_LOADING_MESSA
 export const READING_STATUS_ENTRIES_LOADING_MESSAGE = "Reading status entries...";
 
 export const PRINTING_DIAGNOSTICS_LOADING_MESSAGE = "Printing diagnostics...";
+
+export const READING_GS_INFO_LOADING_MESSAGE = "Reading GS Info...";
 
 // UI
 
