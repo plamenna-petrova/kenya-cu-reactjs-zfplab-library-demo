@@ -24,6 +24,8 @@ export const DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE = "Date and time";
 
 export const GS_INFO_ALERT_DIALOG_TITLE = "GS Info";
 
+export const CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE = "Clear Direct Command Result";
+
 // Loading Messages
 
 export const DEFAULT_LOADING_MESSAGE = "Loading...";
@@ -38,6 +40,8 @@ export const FISCAL_RECEIPT_OPENING_LOADING_MESSAGE = "Opening fiscal receipt...
 
 export const FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE = "Closing the fiscal receipt automatically in cash...";
 
+export const FISCAL_RECEIPT_CLOSING_LOADING_MESSAGE = "Closing the fiscal receipt...";
+
 export const PRINT_DAILY_X_REPORT_LOADING_MESSAGE = "Printing daily report without zeroing...";
 
 export const PRINT_DAILY_Z_REPORT_LOADING_MESSAGE = "Printing daily report with zeroing...";
@@ -49,6 +53,8 @@ export const READING_STATUS_ENTRIES_LOADING_MESSAGE = "Reading status entries...
 export const PRINTING_DIAGNOSTICS_LOADING_MESSAGE = "Printing diagnostics...";
 
 export const READING_GS_INFO_LOADING_MESSAGE = "Reading GS Info...";
+
+export const SENDING_DIRECT_COMMAND_LOADING_MESSAGE = "Sending direct command...";
 
 // UI
 

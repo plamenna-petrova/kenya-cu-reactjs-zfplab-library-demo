@@ -33,6 +33,7 @@ import {
   FISCAL_RECEIPT_OPENING_ERROR_MESSAGE,
   FISCAL_RECEIPT_ALREADY_OPENED_ERROR_MESSAGE,
   FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE,
+  FISCAL_RECEIPT_CLOSING_LOADING_MESSAGE,
   FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE
 } from "../../utils/constants";
 import * as Yup from "yup";
@@ -121,16 +122,16 @@ const FiscalReceipts = () => {
       .test("departmentNumberLength", DEPARTMENT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, value => !value || value.toString().length <= 2)
   });
 
-  const handleExternalDatabaseArticleSaleFromSubmit = async (externalDatabaseArticleSaleFormData, { setSubmitting }) => {
+  const handleExternalDatabaseArticleSaleFormSubmit = async (externalDatabaseArticleSaleFormData, { setSubmitting }) => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
-      
+
       let isFiscalReceiptOpeningHandled = false;
 
       if (!openedFiscalReceiptStatusEntry) {
         if (!await handleFiscalReceiptOpening()) {
           return;
-        } 
+        }
 
         isFiscalReceiptOpeningHandled = true;
       }
@@ -180,11 +181,28 @@ const FiscalReceipts = () => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
-      if (!openedFiscalReceiptStatusEntry) {
-        await handleFiscalReceiptOpening();
-      } else {
+      if (openedFiscalReceiptStatusEntry) {
         toast.error(FISCAL_RECEIPT_ALREADY_OPENED_ERROR_MESSAGE);
+        return;
       }
+
+      await handleFiscalReceiptOpening();
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    }
+  }
+
+  const handleCalculateSubtotalClick = async () => {
+    try {
+      await fp.Subtotal(Tremol.Enums.OptionPrinting, Tremol.Enums.OptionDisplay, null, null);
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    }
+  }
+
+  const handlePayExactSumClick = async () => {
+    try {
+      await fp.PayExactSum(Tremol.Enums.OptionPaymentType.Cash);
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
     }
@@ -194,18 +212,39 @@ const FiscalReceipts = () => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
-      if (openedFiscalReceiptStatusEntry) {
-        await executeFPOperationWithLoading(dispatch, async () => {
-          try {
-            await fp.CashPayCloseReceipt();
-          } catch (error) {
-            toast.error(handleZFPLabServerError(error));
-          }
-        }, FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE);
-      }
-      else {
+      if (!openedFiscalReceiptStatusEntry) {
         toast.error(FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE);
+        return;
       }
+
+      await executeFPOperationWithLoading(dispatch, async () => {
+        try {
+          await fp.CashPayCloseReceipt();
+        } catch (error) {
+          toast.error(handleZFPLabServerError(error));
+        }
+      }, FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE);
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    }
+  }
+
+  const handleCloseFiscalReceiptClick = async () => {
+    try {
+      const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
+
+      if (openedFiscalReceiptStatusEntry) {
+        toast.error(FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE);
+        return;
+      }
+
+      await executeFPOperationWithLoading(dispatch, async () => {
+        try {
+          await fp.CloseReceipt();
+        } catch (error) {
+          toast.error(handleZFPLabServerError(error));
+        }
+      }, FISCAL_RECEIPT_CLOSING_LOADING_MESSAGE);
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
     }
@@ -377,7 +416,7 @@ const FiscalReceipts = () => {
           <Formik
             initialValues={externalDatabaseArticleSaleInitialFormValues}
             validationSchema={externalDatabaseArticleSaleValidationSchema}
-            onSubmit={handleExternalDatabaseArticleSaleFromSubmit}
+            onSubmit={handleExternalDatabaseArticleSaleFormSubmit}
           >
             {({
               values,
@@ -521,21 +560,20 @@ const FiscalReceipts = () => {
                 Fiscal Receipt Operations
               </H3>
               <Stack spacing={2} sx={{ mt: 3 }}>
-                <Button 
-                  size="medium" 
-                  variant="contained" 
-                  sx={{ width: '100%' }} 
-                  onClick={handleOpenFiscalReceiptClick}
-                >
+                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleOpenFiscalReceiptClick}>
                   Open Receipt
                 </Button>
-                <Button 
-                  size="medium" 
-                  variant="contained" 
-                  sx={{ width: '100%' }} 
-                  onClick={handleAutomaticReceiptClosingClick}
-                >
+                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleCalculateSubtotalClick}>
+                  Subtotal
+                </Button>
+                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handlePayExactSumClick}>
+                  Pay exact sum
+                </Button>
+                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleAutomaticReceiptClosingClick}>
                   Close In Cash
+                </Button>
+                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleCloseFiscalReceiptClick}>
+                  Close fiscal Receipt
                 </Button>
               </Stack>
             </CardContent>

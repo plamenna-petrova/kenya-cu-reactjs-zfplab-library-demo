@@ -1,10 +1,11 @@
 /* eslint-disable react/display-name */
 import { forwardRef, Fragment, useState, useEffect, useMemo } from 'react';
-import { H3 } from '../layout/typography-elements/TypographyElements';
+import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import { TableVirtuoso } from 'react-virtuoso';
 import { useFP } from '../../hooks/useFP';
 import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
+import { Formik } from "formik";
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import {
@@ -13,8 +14,11 @@ import {
   DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE,
   PRINTING_DIAGNOSTICS_LOADING_MESSAGE,
   READING_GS_INFO_LOADING_MESSAGE,
-  GS_INFO_ALERT_DIALOG_TITLE
+  GS_INFO_ALERT_DIALOG_TITLE,
+  SENDING_DIRECT_COMMAND_LOADING_MESSAGE,
+  CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE
 } from '../../utils/constants';
+import * as Yup from "yup";
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import Card from '@mui/material/Card';
@@ -32,9 +36,12 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import PropTypes from 'prop-types';
 import InfoAlertDialog from '../layout/info-alert-dialog/InfoAlertDialog';
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import ClearIcon from '@mui/icons-material/Clear';
 import Tremol from "../../assets/js/fp";
 
 const STATUS_ENTRY_NAME_LABEL = "Name";
@@ -153,7 +160,7 @@ const StatusEntriesFilterBar = ({
         size="small"
         value={statusEntriesSearchTerm}
         onChange={handleStatusEntriesSearch}
-        sx={{ flexGrow: { xs: 0, lg: 0.3 } }}
+        sx={{ flexGrow: { xs: 0, lg: 1 } }}
       />
       <FormGroup row>
         <FormControlLabel
@@ -197,6 +204,15 @@ const FiscalDeviceInformation = () => {
   const [statusEntriesToToggle, setStatusEntriesToToggle] = useState({ onStatusEntries: true, offStatusEntries: true });
   const dispatch = useDispatch();
   const fp = useFP();
+
+  const directCommandInitialFormValues = {
+    directCommandInput: "",
+    directCommandResult: ""
+  };
+
+  const directCommandValidationSchema = Yup.object().shape({
+    directCommandInput: Yup.string().required("The direct command input is required")
+  });
 
   const handleReadStatusEntries = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -288,7 +304,7 @@ const FiscalDeviceInformation = () => {
           `Receipt transaction number: ${receiptTransactionNumber}\n` +
           `Clients number: ${clientsNumber}\n`;
 
-          handleFiscalDeviceInformationAlertDialogOpen(GS_INFO_ALERT_DIALOG_TITLE, gsInfoAlertContent);
+        handleFiscalDeviceInformationAlertDialogOpen(GS_INFO_ALERT_DIALOG_TITLE, gsInfoAlertContent);
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
       }
@@ -303,6 +319,27 @@ const FiscalDeviceInformation = () => {
 
   const handleFiscalDeviceInformationAlertDialogClose = () => {
     setIsFiscalDeviceInformationAlertDialogOpen(false);
+  }
+
+  const handleDirectCommandFormSubmit = async (directCommandFormData, { setFieldValue, setSubmitting }) => {
+    await executeFPOperationWithLoading(dispatch, async () => {
+      try {
+        if (directCommandFormData.directCommandResult.trim() !== '') {
+          setFieldValue("directCommandResult", '');
+        }
+
+        const directCommandResult = await fp.DirectCommand(directCommandFormData.directCommandInput);
+        console.log(directCommandResult);
+      } catch (error) {
+        toast.error(handleZFPLabServerError(error));
+      } finally {
+        setSubmitting(false);
+      }
+    }, SENDING_DIRECT_COMMAND_LOADING_MESSAGE);
+  }
+
+  const clearDirectCommandResult = (setFieldValue) => {
+    setFieldValue("directCommandResult", '');
   }
 
   const filteredStatusEntries = useMemo(() => {
@@ -325,7 +362,7 @@ const FiscalDeviceInformation = () => {
     <>
       <Box sx={{ width: '100%', height: '100%', px: 2 }}>
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, lg: 3 }}>
+          <Grid size={{ xs: 12, lg: 2 }}>
             <Card>
               <CardContent>
                 <H3 sx={{ color: 'text.secondary' }}>
@@ -372,6 +409,83 @@ const FiscalDeviceInformation = () => {
                 />
               </Paper>
             )}
+          </Grid>
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <Card>
+              <CardContent>
+                <H3 sx={{ color: 'text.secondary' }}>
+                  Direct Commands Sending
+                </H3>
+                <Box sx={{ display: 'flex', mt: 2 }}>
+                  <Formik
+                    initialValues={directCommandInitialFormValues}
+                    validationSchema={directCommandValidationSchema}
+                    onSubmit={handleDirectCommandFormSubmit}
+                  >
+                    {({
+                      values,
+                      errors,
+                      touched,
+                      setFieldValue,
+                      handleChange,
+                      handleBlur,
+                      handleSubmit
+                    }) => {
+                      return (
+                        <form onSubmit={handleSubmit}>
+                          <Grid container spacing={2}>
+                            <Grid size={{ xs: 12, lg: 6 }}>
+                              <TextField
+                                label="Direct Command"
+                                fullWidth
+                                size="small"
+                                type="text"
+                                name="directCommandInput"
+                                variant="outlined"
+                                onBlur={handleBlur}
+                                value={values.directCommandInput}
+                                onChange={handleChange}
+                                helperText={touched.directCommandInput && errors.directCommandInput}
+                                error={Boolean(touched.directCommandInput && errors.directCommandInput)}
+                              />
+                            </Grid>
+                            <Grid size={{ xs: 12, lg: 6 }}>
+                              <Stack direction="row" spacing={1}>
+                                <Button type="submit" size="medium" variant="contained" sx={{ width: '100%' }}>Send</Button>
+                                <Tooltip title={<Paragraph>{CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE}</Paragraph>}>
+                                  <IconButton 
+                                    aria-label={CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE} 
+                                    onClick={() => clearDirectCommandResult(setFieldValue)}>
+                                    <ClearIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
+                            </Grid>
+                            <Grid size={{ xs: 12 }}>
+                              <TextField
+                                fullWidth
+                                size="small"
+                                type="text"
+                                name="directCommandResult"
+                                variant="outlined"
+                                multiline
+                                rows={4}
+                                onBlur={handleBlur}
+                                value={values.directCommandResult}
+                                onChange={handleChange}
+                                helperText={touched.directCommandResult && errors.directCommandResult}
+                                error={Boolean(touched.directCommandResult && errors.directCommandResult)}
+                                sx={{ width: '100%' }}
+                              />
+                            </Grid>
+                          </Grid>
+                        </form>
+                      )
+                    }}
+                  </Formik>
+                </Box>
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
         <InfoAlertDialog
