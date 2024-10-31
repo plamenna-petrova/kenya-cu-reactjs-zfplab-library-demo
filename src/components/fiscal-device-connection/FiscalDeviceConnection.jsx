@@ -28,7 +28,7 @@ import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
-import { getInitialFiscalDeviceConnectionFormValues } from '../../utils/connectionUtils';
+import { getInitialFiscalDeviceConnectionFormValues, getConfiguredFiscalDeviceConnectionSettings } from '../../utils/connectionUtils';
 import { setFiscalDeviceConnectionState, setIsSearchingForFiscalDevice } from '../../store/slices/zfpConnectionSlice';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
@@ -237,13 +237,31 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
   };
 
   useEffect(() => {
-    let sampleSerialPorts = [];
+    let serialPortsOptions = [];
 
-    for (let i = 0; i < 15; i++) {
-      sampleSerialPorts.push(`COM${i + 1}`);
+    for (let i = 0; i < 4; i++) {
+      serialPortsOptions.push(`COM${i + 1}`);
     }
 
-    setSerialPorts([...sampleSerialPorts]);
+    const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
+
+    if (configuredFiscalDeviceConnectionSettings.connectionType === SERIAL_PORT_CONNECTION &&
+      !serialPortsOptions.includes(configuredFiscalDeviceConnectionSettings.serialPort)) {
+      const updatedSerialPorts = [...serialPortsOptions, configuredFiscalDeviceConnectionSettings.serialPort];
+
+      const comPorts = updatedSerialPorts.filter(serialPort => serialPort.startsWith("COM"));
+      const otherPorts = updatedSerialPorts.filter(serialPort => !serialPort.startsWith("COM"));
+
+      const sortedCOMPorts = comPorts.sort((a, b) => {
+        const firstCOMPortNumberToCompare = parseInt(a.replace(/\D/g, ""), 10);
+        const secondCOMPortNumberToCompare = parseInt(b.replace(/\D/g, ""), 10);
+        return firstCOMPortNumberToCompare - secondCOMPortNumberToCompare;
+      });
+
+      serialPortsOptions = [...sortedCOMPorts, ...otherPorts];
+    }
+
+    setSerialPorts(serialPortsOptions);
   }, []);
 
   return (
