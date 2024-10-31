@@ -1,11 +1,10 @@
 /* eslint-disable react/display-name */
 import { forwardRef, Fragment, useState, useEffect, useMemo } from 'react';
-import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
+import { H3 } from '../layout/typography-elements/TypographyElements';
 import { TableVirtuoso } from 'react-virtuoso';
 import { useFP } from '../../hooks/useFP';
 import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
-import { Formik } from "formik";
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import {
@@ -14,12 +13,8 @@ import {
   DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE,
   PRINTING_DIAGNOSTICS_LOADING_MESSAGE,
   READING_GS_INFO_LOADING_MESSAGE,
-  GS_INFO_ALERT_DIALOG_TITLE,
-  SENDING_DIRECT_COMMAND_LOADING_MESSAGE,
-  CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE,
-  REQUIRED_DIRECT_COMMAND_INPUT_ERROR_MESSAGE
+  GS_INFO_ALERT_DIALOG_TITLE
 } from '../../utils/constants';
-import * as Yup from "yup";
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import Card from '@mui/material/Card';
@@ -33,13 +28,10 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import InfoAlertDialog from '../layout/info-alert-dialog/InfoAlertDialog';
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
-import ClearIcon from '@mui/icons-material/Clear';
 import StatusEntriesFilterBar from './status-entries-filter-bar/StatusEntriesFilterBar';
+import DirectCommands from './direct-commands/DirectCommands';
 import Tremol from "../../assets/js/fp";
 
 const STATUS_ENTRY_NAME_LABEL = "Name";
@@ -121,15 +113,6 @@ const FiscalDeviceInformation = () => {
   const dispatch = useDispatch();
   const fp = useFP();
 
-  const directCommandInitialFormValues = {
-    directCommandInput: "",
-    directCommandResult: ""
-  };
-
-  const directCommandValidationSchema = Yup.object().shape({
-    directCommandInput: Yup.string().required(REQUIRED_DIRECT_COMMAND_INPUT_ERROR_MESSAGE)
-  });
-
   const handleReadStatusEntries = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
@@ -190,12 +173,11 @@ const FiscalDeviceInformation = () => {
         await fp.RawWrite(new Uint8Array([0x1d, 0x49]));
         const inputBytes = new Uint8Array([0x0a]);
         const decodedBytes = new TextDecoder().decode(inputBytes);
+
         const rawReadBytes = fp.RawRead(0, decodedBytes);
         const windows1252Decoder = new TextDecoder('windows-1252');
         const gsInfoDecodedBytes = windows1252Decoder.decode(new Uint8Array([...rawReadBytes]));
         const gsInfoArray = gsInfoDecodedBytes.toString().split(';');
-
-        let gsInfoAlertContent;
 
         const printableCharacersPerLine = gsInfoArray[0].slice(1);
         const articlesNumber = gsInfoArray[1];
@@ -208,7 +190,7 @@ const FiscalDeviceInformation = () => {
         const receiptTransactionNumber = gsInfoArray[9];
         const clientsNumber = gsInfoArray[10].trim();
 
-        gsInfoAlertContent =
+        const gsInfoAlertContent =
           `Printable characters per line: ${printableCharacersPerLine}\n` +
           `Articles number: ${articlesNumber}\n` +
           `Departments number: ${departmentsNumber}\n` +
@@ -225,29 +207,6 @@ const FiscalDeviceInformation = () => {
         toast.error(handleZFPLabServerError(error));
       }
     }, READING_GS_INFO_LOADING_MESSAGE);
-  }
-
-  const handleDirectCommandFormSubmit = async (directCommandFormData, { setFieldValue, setSubmitting }) => {
-    await executeFPOperationWithLoading(dispatch, async () => {
-      try {
-        if (directCommandFormData.directCommandResult.trim() !== '') {
-          setFieldValue("directCommandResult", '');
-        }
-
-        const directCommandResult = await fp.DirectCommand(directCommandFormData.directCommandInput);
-        console.log(directCommandResult);
-
-        setFieldValue("directCommandResult", directCommandResult);
-      } catch (error) {
-        toast.error(handleZFPLabServerError(error));
-      } finally {
-        setSubmitting(false);
-      }
-    }, SENDING_DIRECT_COMMAND_LOADING_MESSAGE);
-  }
-
-  const clearDirectCommandResult = (setFieldValue) => {
-    setFieldValue("directCommandResult", '');
   }
 
   const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {
@@ -306,81 +265,7 @@ const FiscalDeviceInformation = () => {
                   </Stack>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent>
-                  <H3 sx={{ color: 'text.secondary' }}>
-                    Direct Commands Sending
-                  </H3>
-                  <Box sx={{ display: 'flex', width: '100%', mt: 2 }}>
-                    <Formik
-                      initialValues={directCommandInitialFormValues}
-                      validationSchema={directCommandValidationSchema}
-                      onSubmit={handleDirectCommandFormSubmit}
-                    >
-                      {({
-                        values,
-                        errors,
-                        touched,
-                        setFieldValue,
-                        handleChange,
-                        handleBlur,
-                        handleSubmit
-                      }) => {
-                        return (
-                          <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-                            <Grid container spacing={2}>
-                              <Grid size={{ xs: 12, xl: 6 }}>
-                                <TextField
-                                  label="Direct Command"
-                                  fullWidth
-                                  size="small"
-                                  type="text"
-                                  name="directCommandInput"
-                                  variant="outlined"
-                                  onBlur={handleBlur}
-                                  value={values.directCommandInput}
-                                  onChange={handleChange}
-                                  helperText={touched.directCommandInput && errors.directCommandInput}
-                                  error={Boolean(touched.directCommandInput && errors.directCommandInput)}
-                                />
-                              </Grid>
-                              <Grid size={{ xs: 12, xl: 6 }}>
-                                <Stack direction="row" spacing={1}>
-                                  <Button type="submit" size="medium" variant="contained" sx={{ width: '100%' }}>Send</Button>
-                                  <Tooltip title={<Paragraph>{CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE}</Paragraph>}>
-                                    <IconButton
-                                      aria-label={CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE}
-                                      onClick={() => clearDirectCommandResult(setFieldValue)}>
-                                      <ClearIcon />
-                                    </IconButton>
-                                  </Tooltip>
-                                </Stack>
-                              </Grid>
-                              <Grid size={{ xs: 12 }}>
-                                <TextField
-                                  fullWidth
-                                  size="small"
-                                  type="text"
-                                  name="directCommandResult"
-                                  variant="outlined"
-                                  multiline
-                                  rows={4}
-                                  onBlur={handleBlur}
-                                  value={values.directCommandResult}
-                                  onChange={handleChange}
-                                  helperText={touched.directCommandResult && errors.directCommandResult}
-                                  error={Boolean(touched.directCommandResult && errors.directCommandResult)}
-                                  sx={{ width: '100%' }}
-                                />
-                              </Grid>
-                            </Grid>
-                          </form>
-                        )
-                      }}
-                    </Formik>
-                  </Box>
-                </CardContent>
-              </Card>
+              <DirectCommands />
             </Box>
           </Grid>
           <Grid size={{ xs: 12, lg: 5 }}>
@@ -404,9 +289,6 @@ const FiscalDeviceInformation = () => {
                 />
               </Paper>
             )}
-          </Grid>
-          <Grid size={{ xs: 12, lg: 4 }}>
-
           </Grid>
         </Grid>
         <InfoAlertDialog
