@@ -41,13 +41,11 @@ const SaveElectronicJournalReportButton = ({ electronicJournalReportContent }) =
     const windows1252Encoder = new TextEncoder("windows-1252");
     const encodedElectronicJournalReportContent = windows1252Encoder.encode(electronicJournalReportContent);
     const blob = new Blob([encodedElectronicJournalReportContent], { type: 'text/plain;charset=windows-1252' });
-    
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = generateExportFileName('EJ_Report', '.txt');
     anchor.click();
-    
     URL.revokeObjectURL(url);
   }
 
