@@ -312,16 +312,6 @@ const FiscalDeviceInformation = () => {
     }, READING_GS_INFO_LOADING_MESSAGE);
   }
 
-  const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {
-    setFiscalDeviceInformationAlertDialogTitle(infoAlertDialogTitle);
-    setFiscalDeviceInformationAlertDialogContent(infoAlertDialogContent);
-    setIsFiscalDeviceInformationAlertDialogOpen(true);
-  }
-
-  const handleFiscalDeviceInformationAlertDialogClose = () => {
-    setIsFiscalDeviceInformationAlertDialogOpen(false);
-  }
-
   const handleDirectCommandFormSubmit = async (directCommandFormData, { setFieldValue, setSubmitting }) => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
@@ -343,6 +333,16 @@ const FiscalDeviceInformation = () => {
 
   const clearDirectCommandResult = (setFieldValue) => {
     setFieldValue("directCommandResult", '');
+  }
+
+  const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {
+    setFiscalDeviceInformationAlertDialogTitle(infoAlertDialogTitle);
+    setFiscalDeviceInformationAlertDialogContent(infoAlertDialogContent);
+    setIsFiscalDeviceInformationAlertDialogOpen(true);
+  }
+
+  const handleFiscalDeviceInformationAlertDialogClose = () => {
+    setIsFiscalDeviceInformationAlertDialogOpen(false);
   }
 
   const filteredStatusEntries = useMemo(() => {
