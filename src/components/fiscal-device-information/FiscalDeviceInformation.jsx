@@ -16,7 +16,8 @@ import {
   READING_GS_INFO_LOADING_MESSAGE,
   GS_INFO_ALERT_DIALOG_TITLE,
   SENDING_DIRECT_COMMAND_LOADING_MESSAGE,
-  CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE
+  CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE,
+  REQUIRED_DIRECT_COMMAND_INPUT_ERROR_MESSAGE
 } from '../../utils/constants';
 import * as Yup from "yup";
 import Box from '@mui/material/Box';
@@ -211,7 +212,7 @@ const FiscalDeviceInformation = () => {
   };
 
   const directCommandValidationSchema = Yup.object().shape({
-    directCommandInput: Yup.string().required("The direct command input is required")
+    directCommandInput: Yup.string().required(REQUIRED_DIRECT_COMMAND_INPUT_ERROR_MESSAGE)
   });
 
   const handleReadStatusEntries = async () => {
@@ -330,6 +331,8 @@ const FiscalDeviceInformation = () => {
 
         const directCommandResult = await fp.DirectCommand(directCommandFormData.directCommandInput);
         console.log(directCommandResult);
+
+        setFieldValue("directCommandResult", directCommandResult);
       } catch (error) {
         toast.error(handleZFPLabServerError(error));
       } finally {
