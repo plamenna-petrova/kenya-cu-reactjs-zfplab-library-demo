@@ -194,7 +194,7 @@ const FiscalReceipts = () => {
 
   const handleCalculateSubtotalClick = async () => {
     try {
-      await fp.Subtotal(Tremol.Enums.OptionPrinting, Tremol.Enums.OptionDisplay, null, null);
+      await fp.Subtotal(Tremol.Enums.OptionPrinting.Yes, Tremol.Enums.OptionDisplay.No, null, null);
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
     }
@@ -233,7 +233,7 @@ const FiscalReceipts = () => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
-      if (openedFiscalReceiptStatusEntry) {
+      if (!openedFiscalReceiptStatusEntry) {
         toast.error(FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE);
         return;
       }

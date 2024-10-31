@@ -154,7 +154,7 @@ export const ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_END
 
 export const NO_REPORT_CONTENT_ERROR_MESSAGE = "No report content";
 
-export const REQUIRED_DIRECT_COMMAND_INPUT_ERROR_MESSAGE = "The direct command input is required";
+export const REQUIRED_DIRECT_COMMAND_INPUT_ERROR_MESSAGE = "Required input";
 
 // Success Messages
 

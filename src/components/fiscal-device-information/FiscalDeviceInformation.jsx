@@ -279,32 +279,109 @@ const FiscalDeviceInformation = () => {
   return (
     <>
       <Box sx={{ width: '100%', height: '100%', px: 2 }}>
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 12, lg: 2 }}>
-            <Card>
-              <CardContent>
-                <H3 sx={{ color: 'text.secondary' }}>
-                  Information
-                </H3>
-                <Stack spacing={2} sx={{ mt: 3 }}>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadStatusEntries}>
-                    Read Status
-                  </Button>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handlePrintDiagnosticsClick}>
-                    Diagnostics
-                  </Button>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadVersionClick}>
-                    Version
-                  </Button>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadDateTimeClick}>
-                    Date / Time
-                  </Button>
-                  <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadGSInfoClick}>
-                    GS Info
-                  </Button>
-                </Stack>
-              </CardContent>
-            </Card>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, lg: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Card>
+                <CardContent>
+                  <H3 sx={{ color: 'text.secondary' }}>
+                    Information
+                  </H3>
+                  <Stack spacing={2} sx={{ mt: 3 }}>
+                    <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadStatusEntries}>
+                      Read Status
+                    </Button>
+                    <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handlePrintDiagnosticsClick}>
+                      Diagnostics
+                    </Button>
+                    <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadVersionClick}>
+                      Version
+                    </Button>
+                    <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadDateTimeClick}>
+                      Date / Time
+                    </Button>
+                    <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadGSInfoClick}>
+                      GS Info
+                    </Button>
+                  </Stack>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <H3 sx={{ color: 'text.secondary' }}>
+                    Direct Commands Sending
+                  </H3>
+                  <Box sx={{ display: 'flex', width: '100%', mt: 2 }}>
+                    <Formik
+                      initialValues={directCommandInitialFormValues}
+                      validationSchema={directCommandValidationSchema}
+                      onSubmit={handleDirectCommandFormSubmit}
+                    >
+                      {({
+                        values,
+                        errors,
+                        touched,
+                        setFieldValue,
+                        handleChange,
+                        handleBlur,
+                        handleSubmit
+                      }) => {
+                        return (
+                          <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+                            <Grid container spacing={2}>
+                              <Grid size={{ xs: 12, xl: 6 }}>
+                                <TextField
+                                  label="Direct Command"
+                                  fullWidth
+                                  size="small"
+                                  type="text"
+                                  name="directCommandInput"
+                                  variant="outlined"
+                                  onBlur={handleBlur}
+                                  value={values.directCommandInput}
+                                  onChange={handleChange}
+                                  helperText={touched.directCommandInput && errors.directCommandInput}
+                                  error={Boolean(touched.directCommandInput && errors.directCommandInput)}
+                                />
+                              </Grid>
+                              <Grid size={{ xs: 12, xl: 6 }}>
+                                <Stack direction="row" spacing={1}>
+                                  <Button type="submit" size="medium" variant="contained" sx={{ width: '100%' }}>Send</Button>
+                                  <Tooltip title={<Paragraph>{CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE}</Paragraph>}>
+                                    <IconButton
+                                      aria-label={CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE}
+                                      onClick={() => clearDirectCommandResult(setFieldValue)}>
+                                      <ClearIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Stack>
+                              </Grid>
+                              <Grid size={{ xs: 12 }}>
+                                <TextField
+                                  fullWidth
+                                  size="small"
+                                  type="text"
+                                  name="directCommandResult"
+                                  variant="outlined"
+                                  multiline
+                                  rows={4}
+                                  onBlur={handleBlur}
+                                  value={values.directCommandResult}
+                                  onChange={handleChange}
+                                  helperText={touched.directCommandResult && errors.directCommandResult}
+                                  error={Boolean(touched.directCommandResult && errors.directCommandResult)}
+                                  sx={{ width: '100%' }}
+                                />
+                              </Grid>
+                            </Grid>
+                          </form>
+                        )
+                      }}
+                    </Formik>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Box>
           </Grid>
           <Grid size={{ xs: 12, lg: 5 }}>
             <StatusEntriesFilterBar
@@ -329,81 +406,7 @@ const FiscalDeviceInformation = () => {
             )}
           </Grid>
           <Grid size={{ xs: 12, lg: 4 }}>
-            <Card>
-              <CardContent>
-                <H3 sx={{ color: 'text.secondary' }}>
-                  Direct Commands Sending
-                </H3>
-                <Box sx={{ display: 'flex', mt: 2 }}>
-                  <Formik
-                    initialValues={directCommandInitialFormValues}
-                    validationSchema={directCommandValidationSchema}
-                    onSubmit={handleDirectCommandFormSubmit}
-                  >
-                    {({
-                      values,
-                      errors,
-                      touched,
-                      setFieldValue,
-                      handleChange,
-                      handleBlur,
-                      handleSubmit
-                    }) => {
-                      return (
-                        <form onSubmit={handleSubmit}>
-                          <Grid container spacing={2}>
-                            <Grid size={{ xs: 12, lg: 6 }}>
-                              <TextField
-                                label="Direct Command"
-                                fullWidth
-                                size="small"
-                                type="text"
-                                name="directCommandInput"
-                                variant="outlined"
-                                onBlur={handleBlur}
-                                value={values.directCommandInput}
-                                onChange={handleChange}
-                                helperText={touched.directCommandInput && errors.directCommandInput}
-                                error={Boolean(touched.directCommandInput && errors.directCommandInput)}
-                              />
-                            </Grid>
-                            <Grid size={{ xs: 12, lg: 6 }}>
-                              <Stack direction="row" spacing={1}>
-                                <Button type="submit" size="medium" variant="contained" sx={{ width: '100%' }}>Send</Button>
-                                <Tooltip title={<Paragraph>{CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE}</Paragraph>}>
-                                  <IconButton 
-                                    aria-label={CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE} 
-                                    onClick={() => clearDirectCommandResult(setFieldValue)}>
-                                    <ClearIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              </Stack>
-                            </Grid>
-                            <Grid size={{ xs: 12 }}>
-                              <TextField
-                                fullWidth
-                                size="small"
-                                type="text"
-                                name="directCommandResult"
-                                variant="outlined"
-                                multiline
-                                rows={4}
-                                onBlur={handleBlur}
-                                value={values.directCommandResult}
-                                onChange={handleChange}
-                                helperText={touched.directCommandResult && errors.directCommandResult}
-                                error={Boolean(touched.directCommandResult && errors.directCommandResult)}
-                                sx={{ width: '100%' }}
-                              />
-                            </Grid>
-                          </Grid>
-                        </form>
-                      )
-                    }}
-                  </Formik>
-                </Box>
-              </CardContent>
-            </Card>
+
           </Grid>
         </Grid>
         <InfoAlertDialog
