@@ -28,6 +28,8 @@ export const CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE = "Clear Direct Command R
 
 export const SAVE_ELECTRONIC_JOURNAL_REPORT_TOOLTIP_TITLE = "Save Report to a .txt file";
 
+export const LIBRARY_INFORMATION_ALERT_DIALOG_TITLE = "Library Information";
+
 // Loading Messages
 
 export const DEFAULT_LOADING_MESSAGE = "Loading...";

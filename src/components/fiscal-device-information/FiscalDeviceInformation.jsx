@@ -13,7 +13,8 @@ import {
   DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE,
   PRINTING_DIAGNOSTICS_LOADING_MESSAGE,
   READING_GS_INFO_LOADING_MESSAGE,
-  GS_INFO_ALERT_DIALOG_TITLE
+  GS_INFO_ALERT_DIALOG_TITLE,
+  LIBRARY_INFORMATION_ALERT_DIALOG_TITLE
 } from '../../utils/constants';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
@@ -209,6 +210,17 @@ const FiscalDeviceInformation = () => {
     }, READING_GS_INFO_LOADING_MESSAGE);
   }
 
+  const handleGetLibraryInformationClick = async () => {
+    const coreVersion = await fp.GetVersionCore();
+    const libraryDefinitions = await fp.GetVersionDefinitions().toString();
+
+    const libraryDefinitionsAlertContent =
+      `Core Version: ${coreVersion}\n` +
+      `Library Definitions: ${libraryDefinitions}`;
+
+    handleFiscalDeviceInformationAlertDialogOpen(LIBRARY_INFORMATION_ALERT_DIALOG_TITLE, libraryDefinitionsAlertContent);
+  }
+
   const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {
     setFiscalDeviceInformationAlertDialogTitle(infoAlertDialogTitle);
     setFiscalDeviceInformationAlertDialogContent(infoAlertDialogContent);
@@ -261,6 +273,9 @@ const FiscalDeviceInformation = () => {
                     </Button>
                     <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadGSInfoClick}>
                       GS Info
+                    </Button>
+                    <Button size="medium" variant="contained" sx={{ width: '100%'}} onClick={handleGetLibraryInformationClick}>
+                      Library Definitions
                     </Button>
                   </Stack>
                 </CardContent>

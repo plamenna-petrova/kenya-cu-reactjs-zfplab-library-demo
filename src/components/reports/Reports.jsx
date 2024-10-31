@@ -189,19 +189,10 @@ const Reports = () => {
                 Reports
               </H3>
               <Stack spacing={2} sx={{ mt: 3 }}>
-                <Button
-                  size="medium"
-                  variant="contained"
-                  sx={{ width: '100%' }}
-                  onClick={handlePrintDailyXReportClick}
-                >
+                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handlePrintDailyXReportClick}>
                   Daily X Report
                 </Button>
-                <Button
-                  size="medium"
-                  variant="contained"
-                  sx={{ width: '100%' }}
-                  onClick={handlePrintDailyZReportClick}
+                <Button size="medium" variant="contained" sx={{ width: '100%' }}onClick={handlePrintDailyZReportClick}
                 >
                   Daily Z Report
                 </Button>
