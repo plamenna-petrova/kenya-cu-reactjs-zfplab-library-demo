@@ -1,6 +1,9 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+import { useEffect } from "react";
 import { Formik } from "formik";
 import { useSelector, useDispatch } from "react-redux";
 import { setOperatorData } from "../../../store/slices/operatorDataSlice";
+import { H3 } from "../../layout/typography-elements/TypographyElements";
 import {
   REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE,
   OPERATOR_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE,
@@ -13,6 +16,8 @@ import {
 import * as Yup from "yup";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
 
 const OperatorData = () => {
   const operatorData = useSelector((state) => state.operatorData);

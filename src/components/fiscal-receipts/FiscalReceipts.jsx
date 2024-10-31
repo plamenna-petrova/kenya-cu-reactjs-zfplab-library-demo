@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { useState, useEffect } from "react";
 import { Formik } from "formik";
 import { H3, Paragraph } from "../layout/typography-elements/TypographyElements";
@@ -125,9 +124,9 @@ const FiscalReceipts = () => {
         isDiscountOrAdditionInPercentage,
         discountOrAddition,
         departmentNumber,
-      } = externalDatabaseArticleSaleFormData
+      } = externalDatabaseArticleSaleFormData;
 
-      const externalDatabaseArticlePrice = withCorrection ? price * -1 : price;
+      const externalDatabaseArticlePrice = withCorrection && price > 0 ? -price : price;
 
       const externalDatabaseArticleQuantity = !isNullOrWhitespace(quantity) ? quantity : null;
 
