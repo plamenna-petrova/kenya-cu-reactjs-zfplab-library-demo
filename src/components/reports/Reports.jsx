@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Formik } from "formik";
-import { H3 } from '../layout/typography-elements/TypographyElements';
+import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import { useDispatch } from "react-redux";
 import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
-import { isNullOrWhitespace } from "../../utils/helperFunctions";
+import { isNullOrWhitespace, generateExportFileName  } from "../../utils/helperFunctions";
 import {
   PRINT_DAILY_X_REPORT_LOADING_MESSAGE,
   PRINT_DAILY_Z_REPORT_LOADING_MESSAGE,
@@ -20,7 +20,8 @@ import {
   ELECTRONIC_JOUNRAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE,
   ELECTRONIC_JOUNRAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE,
   ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_ENDING_NUMBER_ERROR_MESSAGE,
-  NO_REPORT_CONTENT_ERROR_MESSAGE
+  NO_REPORT_CONTENT_ERROR_MESSAGE,
+  SAVE_ELECTRONIC_JOURNAL_REPORT_TOOLTIP_TITLE 
 } from '../../utils/constants';
 import * as Yup from "yup";
 import Box from '@mui/material/Box';
@@ -30,8 +31,47 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import DraggableDetailsDialog from "../layout/draggable-details-dialog/DraggableDetailsDialog";
+import SaveIcon from '@mui/icons-material/Save';
 import Tremol from "../../assets/js/fp";
+
+const SaveElectronicJournalReportButton = ({ electronicJournalReportContent }) => {  
+  const saveElectronicJournalReportToTXTFile = () => {
+    const windows1252Encoder = new TextEncoder("windows-1252");
+    const encodedElectronicJournalReportContent = windows1252Encoder.encode(electronicJournalReportContent);
+    const blob = new Blob([encodedElectronicJournalReportContent], { type: 'text/plain;charset=windows-1252' });
+    
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = generateExportFileName('EJ_Report', '.txt');
+    anchor.click();
+    
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <Tooltip 
+      title={<Paragraph>{SAVE_ELECTRONIC_JOURNAL_REPORT_TOOLTIP_TITLE}</Paragraph>} 
+      placement="top"
+      slotProps={{
+        popper: {
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: [0, -5]
+              }
+            }
+          ]
+        }
+      }}
+    >
+      <Button startIcon={<SaveIcon />} onClick={saveElectronicJournalReportToTXTFile}>Save Report</Button>
+    </Tooltip>
+  )
+}
 
 const Reports = () => {
   const [isReadElectronicJournalReportDraggableDialogOpen, setIsReadElectronicJournalReportDraggableDialogOpen] = useState(false);
@@ -58,7 +98,7 @@ const Reports = () => {
       .typeError(ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE)
       .positive(ELECTRONIC_JOUNRAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE)
       .test("endingZReportNumberLength", ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, value => value && value.toString().length <= 4),
-  })
+  });
 
   const handlePrintDailyXReportClick = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -235,7 +275,10 @@ const Reports = () => {
         isDraggableDialogOpen={isReadElectronicJournalReportDraggableDialogOpen}
         onDraggableDialogClose={handleReadReportDraggableDialogClose}
         draggableDialogTitle={readElectronicJournalReportDraggableDialogTitle}
-        draggableDialogContent={readElectronicJournalReportDraggableDialogContent} 
+        draggableDialogContent={readElectronicJournalReportDraggableDialogContent}
+        draggableDialogActionNode={
+          <SaveElectronicJournalReportButton electronicJournalReportContent={readElectronicJournalReportDraggableDialogContent} />
+        }
       />
     </Box>
   )

@@ -484,7 +484,7 @@ const FiscalReceipts = () => {
               </H3>
               <Stack spacing={2} sx={{ mt: 3 }}>
                 <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleOpenFiscalReceiptClick}>
-                  Open Receipt
+                  Open Fiscal Receipt
                 </Button>
                 <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleCalculateSubtotalClick}>
                   Subtotal
@@ -493,7 +493,7 @@ const FiscalReceipts = () => {
                   Pay exact sum
                 </Button>
                 <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleAutomaticReceiptClosingClick}>
-                  Close In Cash
+                  Close Fiscal Receipt In Cash
                 </Button>
                 <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleCloseFiscalReceiptClick}>
                   Close fiscal Receipt

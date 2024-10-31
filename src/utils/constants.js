@@ -26,6 +26,8 @@ export const GS_INFO_ALERT_DIALOG_TITLE = "GS Info";
 
 export const CLEAR_DIRECT_COMMAND_RESULT_TOOLTIP_TITLE = "Clear Direct Command Result";
 
+export const SAVE_ELECTRONIC_JOURNAL_REPORT_TOOLTIP_TITLE = "Save Report to a .txt file";
+
 // Loading Messages
 
 export const DEFAULT_LOADING_MESSAGE = "Loading...";

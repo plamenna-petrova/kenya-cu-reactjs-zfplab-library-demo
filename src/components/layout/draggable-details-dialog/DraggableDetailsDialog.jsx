@@ -23,7 +23,13 @@ const DraggableDialogPaperWrapper = (props) => {
   )
 }
 
-const DraggableDetailsDialog = ({ isDraggableDialogOpen, onDraggableDialogClose, draggableDialogTitle, draggableDialogContent }) => {
+const DraggableDetailsDialog = ({ 
+  isDraggableDialogOpen, 
+  onDraggableDialogClose, 
+  draggableDialogTitle, 
+  draggableDialogContent, 
+  draggableDialogActionNode
+}) => {
   return (
     <Dialog
       open={isDraggableDialogOpen}
@@ -40,6 +46,7 @@ const DraggableDetailsDialog = ({ isDraggableDialogOpen, onDraggableDialogClose,
         </Box>
       </DialogContent>
       <DialogActions>
+        {draggableDialogActionNode}
         <Button onClick={onDraggableDialogClose}>Close</Button>
       </DialogActions>
     </Dialog>
@@ -50,7 +57,8 @@ DraggableDetailsDialog.propTypes = {
   isDraggableDialogOpen: PropTypes.bool.isRequired,
   onDraggableDialogClose: PropTypes.func.isRequired,
   draggableDialogTitle: PropTypes.string.isRequired,
-  draggableDialogContent: PropTypes.string.isRequired
+  draggableDialogContent: PropTypes.string.isRequired,
+  draggableDialogActionNode: PropTypes.node
 }
 
 export default DraggableDetailsDialog;
