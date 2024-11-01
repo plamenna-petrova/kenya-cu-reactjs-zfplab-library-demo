@@ -18,7 +18,9 @@ import {
   CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE,
   INFORMATION,
   APPLICATION_VIEW_IN_FULLSCREEN_MODE_TOOLTIP_TITLE,
-  EXIT_FULLSCREEN_MODE_TOOLTIP_TITLE
+  EXIT_FULLSCREEN_MODE_TOOLTIP_TITLE,
+  ENTER_FULLSCREEN_LABEL,
+  EXIT_FULLSCREEN_LABEL
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { useSelector, useDispatch } from 'react-redux';
@@ -206,9 +208,6 @@ export const NavigationDrawer = () => {
       try {
         sendZFPLabServerConnectionState(false, ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE);
         await connectToZFPLabServer(zfpLabServerAddress);
-      } catch (error) {
-        toast.error(handleZFPLabServerError(error));
-        sendZFPLabServerConnectionState(false, ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE);
       } finally {
         dispatch(setIsConnectingToZFPLabServer(false));
       }
@@ -234,9 +233,6 @@ export const NavigationDrawer = () => {
       try {
         sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
         await connectToFiscalDevice(fiscalDeviceConnectionSettings, connectionType);
-      } catch (error) {
-        toast.error(handleZFPLabServerError(error));
-        sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
       } finally {
         dispatch(setIsSearchingForFiscalDevice(false));
       }
@@ -332,12 +328,19 @@ export const NavigationDrawer = () => {
 
               if (configuredFiscalDeviceConnectionSettings && isNavigationDrawerMounted) {
                 const { connectionType, ...connectionParameters } = getConfiguredFiscalDeviceConnectionSettings();
-                await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
+
+                try {
+                  await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
+                } catch (error) {
+                  toast.error(handleZFPLabServerError(error), { toastId: 'fiscalDeviceAutomaticConnectionToast' });
+                } 
               }
             }, 300);
           }
-        } catch {
-          /* ignored exception */
+        } catch(error) {
+          console.log("error", error);
+          toast.error(handleZFPLabServerError(error), { toastId: 'zfpLabServerAutomaticConnectionToast' });
+          isNavigationDrawerMounted = false;
         }
       }
     };
@@ -437,14 +440,14 @@ export const NavigationDrawer = () => {
                 size="large"
                 aria-label="Fullscreen Mode"
                 color="inherit"
-                sx={{ border: 'none', px: 2, py: 0 }}
+                sx={{ border: 'none', textTransform: 'capitalize', px: 2, py: 0 }}
                 onClick={toggleFullscreen}
                 startIcon={isFullscreen 
                   ? <CloseFullscreenIcon fontSize="inherit" sx={{ color: 'primary.main', transform: 'scale(1.3)' }} /> 
                   : <FullscreenIcon fontSize="inherit" sx={{ color: 'primary.main', transform: 'scale(1.4)' }} />
                 }
               >
-                {isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+                {isFullscreen ? EXIT_FULLSCREEN_LABEL : ENTER_FULLSCREEN_LABEL}
               </Button>
             </Tooltip>
             <Divider orientation="vertical" flexItem />

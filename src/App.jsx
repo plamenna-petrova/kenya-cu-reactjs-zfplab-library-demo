@@ -32,7 +32,7 @@ const demoPrimaryTheme = createTheme({
         contained: {
           backgroundColor: '#1f4788',
           '&:hover': {
-            backgroundColor: '#355993'
+            backgroundColor: '#2555a3'
           }
         }
       }
@@ -70,7 +70,7 @@ const fullscreenTheme = createTheme({
         contained: {
           backgroundColor: '#1f4788',
           '&:hover': {
-            backgroundColor: '#355993'
+            backgroundColor: '#2555a3'
           }
         }
       }
