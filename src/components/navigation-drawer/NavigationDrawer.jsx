@@ -151,7 +151,7 @@ export const NavigationDrawer = () => {
   const zfpLabServerConnectionState = useSelector((state) => state.zfpConnection.zfpLabServerConnectionState);
   const fiscalDeviceConnectionState = useSelector((state) => state.zfpConnection.fiscalDeviceConnectionState);
   const isFullscreen = useSelector((state) => state.fullscreen.isFullscreen);
-  const rootElement = document.getElementById('demo');
+  const demoContentElement = document.getElementById('demo');
   const theme = useTheme();
   const dispatch = useDispatch();
   const fp = useFP();
@@ -303,17 +303,17 @@ export const NavigationDrawer = () => {
         document.msExitFullscreen();
       }
     } else {
-      if (rootElement.requestFullscreen) {
-        rootElement.requestFullscreen();
-      } else if (rootElement.webkitRequestFullscreen) {
-        rootElement.webkitRequestFullscreen();
-      } else if (rootElement.mozRequestFullScreen) {
-        rootElement.mozRequestFullScreen();
-      } else if (rootElement.msRequestFullscreen) {
-        rootElement.msRequestFullscreen();
+      if (demoContentElement.requestFullscreen) {
+        demoContentElement.requestFullscreen();
+      } else if (demoContentElement.webkitRequestFullscreen) {
+        demoContentElement.webkitRequestFullscreen();
+      } else if (demoContentElement.mozRequestFullScreen) {
+        demoContentElement.mozRequestFullScreen();
+      } else if (demoContentElement.msRequestFullscreen) {
+        demoContentElement.msRequestFullscreen();
       }
     }
-  }, [isFullscreen, rootElement]);
+  }, [isFullscreen, demoContentElement]);
 
   useEffect(() => {
     let isNavigationDrawerMounted = true;
@@ -419,7 +419,6 @@ export const NavigationDrawer = () => {
                 </Paragraph>
               }
               placement="bottom"
-              container={isFullscreen ? rootElement : undefined}
               slotProps={{
                 popper: {
                   modifiers: [
