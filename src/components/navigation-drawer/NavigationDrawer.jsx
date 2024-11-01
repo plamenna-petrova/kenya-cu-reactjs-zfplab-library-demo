@@ -53,6 +53,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Button from '@mui/material/Button';
 import CircularProgress from "@mui/material/CircularProgress";
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -356,7 +357,7 @@ export const NavigationDrawer = () => {
         dispatch(enterFullscreen());
       } else {
         dispatch(exitFullscreen());
-      } 
+      }
     }
 
     let fullScreenEventName;
@@ -432,15 +433,19 @@ export const NavigationDrawer = () => {
                 }
               }}
             >
-              <IconButton
+              <Button  
                 size="large"
                 aria-label="Fullscreen Mode"
                 color="inherit"
-                sx={{ borderRadius: 0, py: 1, px: 2 }}
+                sx={{ border: 'none', px: 2, py: 0 }}
                 onClick={toggleFullscreen}
+                startIcon={isFullscreen 
+                  ? <CloseFullscreenIcon fontSize="inherit" sx={{ color: 'primary.main', transform: 'scale(1.3)' }} /> 
+                  : <FullscreenIcon fontSize="inherit" sx={{ color: 'primary.main', transform: 'scale(1.4)' }} />
+                }
               >
-                {isFullscreen ? <CloseFullscreenIcon fontSize="inherit" /> : <FullscreenIcon fontSize="large" />}
-              </IconButton>
+                {isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+              </Button>
             </Tooltip>
             <Divider orientation="vertical" flexItem />
             <Tooltip
@@ -592,7 +597,7 @@ export const NavigationDrawer = () => {
             display: 'flex',
             flexGrow: 1,
             justifyContent: isZFPLabServerOrFiscalDeviceConnectionSection() ? 'center' : 'flex-start',
-            alignItems: isZFPLabServerOrFiscalDeviceConnectionSection() ? 'center' : 'flext-start',
+            alignItems: isZFPLabServerOrFiscalDeviceConnectionSection() ? 'center' : 'flex-start',
             height: '100vh',
             flexDirection: 'column',
             bgcolor: '#fff',
