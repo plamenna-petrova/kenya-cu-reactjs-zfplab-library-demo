@@ -235,7 +235,8 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
 
     const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
 
-    if (configuredFiscalDeviceConnectionSettings.connectionType === SERIAL_PORT_CONNECTION &&
+    if (configuredFiscalDeviceConnectionSettings &&
+      configuredFiscalDeviceConnectionSettings.connectionType === SERIAL_PORT_CONNECTION &&
       !serialPortsOptions.includes(configuredFiscalDeviceConnectionSettings.serialPort)) {
       serialPortsOptions = updateSerialPorts(serialPortsOptions, configuredFiscalDeviceConnectionSettings.serialPort);
     }

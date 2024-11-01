@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
 import {
@@ -16,7 +16,9 @@ import {
   ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE,
   FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE,
   CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE,
-  INFORMATION
+  INFORMATION,
+  APPLICATION_VIEW_IN_FULLSCREEN_MODE_TOOLTIP_TITLE,
+  EXIT_FULLSCREEN_MODE_TOOLTIP_TITLE
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { useSelector, useDispatch } from 'react-redux';
@@ -28,6 +30,7 @@ import {
   setIsConnectingToZFPLabServer,
   setIsSearchingForFiscalDevice
 } from '../../store/slices/zfpConnectionSlice';
+import { enterFullscreen, exitFullscreen } from '../../store/slices/fullScreenSlice';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { getConfiguredFiscalDeviceConnectionSettings } from '../../utils/connectionUtils';
 import { toast } from 'react-toastify';
@@ -54,6 +57,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import InfoIcon from '@mui/icons-material/Info';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import ZFPLabServerConnection from '../zfp-lab-server-connection/ZFPLabServerConnection';
 import FiscalDeviceConnection from '../fiscal-device-connection/FiscalDeviceConnection';
 import FiscalReceipts from '../fiscal-receipts/FiscalReceipts';
@@ -141,9 +146,12 @@ const MiniVariantDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop 
 
 export const NavigationDrawer = () => {
   const [isNavigationDrawerOpen, setIsNavigationDrawerOpen] = useState(true);
+  const isFullscreenEventListenerAttached = useRef(false);
   const activeSection = useSelector((state) => state.appNavigation.activeSection);
   const zfpLabServerConnectionState = useSelector((state) => state.zfpConnection.zfpLabServerConnectionState);
   const fiscalDeviceConnectionState = useSelector((state) => state.zfpConnection.fiscalDeviceConnectionState);
+  const isFullscreen = useSelector((state) => state.fullscreen.isFullscreen);
+  const rootElement = document.getElementById('demo');
   const theme = useTheme();
   const dispatch = useDispatch();
   const fp = useFP();
@@ -280,6 +288,33 @@ export const NavigationDrawer = () => {
   const isZFPLabServerOrFiscalDeviceConnectionSection = () =>
     activeSection === ZFP_LAB_SERVER_CONNECTION || activeSection === FISCAL_DEVICE_CONNECTION;
 
+  const getFullscreenElement = () =>
+    document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+
+  const toggleFullscreen = useCallback(() => {
+    if (isFullscreen) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    } else {
+      if (rootElement.requestFullscreen) {
+        rootElement.requestFullscreen();
+      } else if (rootElement.webkitRequestFullscreen) {
+        rootElement.webkitRequestFullscreen();
+      } else if (rootElement.mozRequestFullScreen) {
+        rootElement.mozRequestFullScreen();
+      } else if (rootElement.msRequestFullscreen) {
+        rootElement.msRequestFullscreen();
+      }
+    }
+  }, [isFullscreen, rootElement]);
+
   useEffect(() => {
     let isNavigationDrawerMounted = true;
 
@@ -300,8 +335,8 @@ export const NavigationDrawer = () => {
               }
             }, 300);
           }
-        } catch { 
-          /* ignored exception */ 
+        } catch {
+          /* ignored exception */
         }
       }
     };
@@ -311,6 +346,41 @@ export const NavigationDrawer = () => {
     return () => {
       isNavigationDrawerMounted = false;
     }
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const fullscreenElement = getFullscreenElement();
+
+      if (fullscreenElement) {
+        dispatch(enterFullscreen());
+      } else {
+        dispatch(exitFullscreen());
+      } 
+    }
+
+    let fullScreenEventName;
+
+    if (!isFullscreenEventListenerAttached.current) {
+      fullScreenEventName =
+        'onfullscreenchange' in document ? 'fullscreenchange' :
+          'onwebkitfullscreenchange' in document ? 'webkitfullscreenchange' :
+            'onmozfullscreenchange' in document ? 'mozfullscreenchange' :
+              'onmsfullscreenchange' in document ? 'msfullscreenchange' :
+                null;
+
+      if (fullScreenEventName) {
+        document.addEventListener(fullScreenEventName, handleFullscreenChange);
+        isFullscreenEventListenerAttached.current = true;
+      }
+    }
+
+    return () => {
+      if (isFullscreenEventListenerAttached.current && fullScreenEventName) {
+        document.removeEventListener(fullScreenEventName, handleFullscreenChange);
+        isFullscreenEventListenerAttached.current = false;
+      }
+    };
   }, []);
 
   return (
@@ -327,7 +397,7 @@ export const NavigationDrawer = () => {
               {
                 marginRight: 5,
               },
-              isNavigationDrawerOpen && { display: 'none' },
+              isNavigationDrawerOpen && { display: 'none' }
             ]}
           >
             <MenuIcon />
@@ -338,9 +408,41 @@ export const NavigationDrawer = () => {
           <Box sx={{ flexGrow: 1 }} />
           <ButtonGroup
             size="medium"
-            aria-label="ZFPLabServer and Fiscal Device Connection Button Group"
+            aria-label="Fullscreen mode toggle, ZFPLabServer and Fiscal Device Connection Button Group"
             sx={{ minHeight: { xs: '56px', sm: '64px' } }}
           >
+            <Divider orientation="vertical" flexItem />
+            <Tooltip
+              title={
+                <Paragraph>
+                  {isFullscreen ? EXIT_FULLSCREEN_MODE_TOOLTIP_TITLE : APPLICATION_VIEW_IN_FULLSCREEN_MODE_TOOLTIP_TITLE}
+                </Paragraph>
+              }
+              placement="bottom"
+              container={isFullscreen ? rootElement : undefined}
+              slotProps={{
+                popper: {
+                  modifiers: [
+                    {
+                      name: 'offset',
+                      options: {
+                        offset: [0, -5]
+                      }
+                    }
+                  ]
+                }
+              }}
+            >
+              <IconButton
+                size="large"
+                aria-label="Fullscreen Mode"
+                color="inherit"
+                sx={{ borderRadius: 0, py: 1, px: 2 }}
+                onClick={toggleFullscreen}
+              >
+                {isFullscreen ? <CloseFullscreenIcon fontSize="inherit" /> : <FullscreenIcon fontSize="large" />}
+              </IconButton>
+            </Tooltip>
             <Divider orientation="vertical" flexItem />
             <Tooltip
               title={<Paragraph>{fiscalDeviceConnectionState.connectionStateMessage}</Paragraph>}
@@ -458,13 +560,7 @@ export const NavigationDrawer = () => {
                       minHeight: 48,
                       px: 2.5,
                     },
-                    isNavigationDrawerOpen
-                      ? {
-                        justifyContent: 'initial',
-                      }
-                      : {
-                        justifyContent: 'center',
-                      },
+                    isNavigationDrawerOpen ? { justifyContent: 'initial' } : { justifyContent: 'center' }
                   ]}
                   onClick={() => showSection(sidebarMenuItem.title)}
                   disabled={!zfpLabServerConnectionState.isConnected || !fiscalDeviceConnectionState.isConnected}
@@ -475,28 +571,14 @@ export const NavigationDrawer = () => {
                         minWidth: 0,
                         justifyContent: 'center',
                       },
-                      isNavigationDrawerOpen
-                        ? {
-                          mr: 3,
-                        }
-                        : {
-                          mr: 'auto',
-                        },
+                      isNavigationDrawerOpen ? { mr: 3 } : { mr: 'auto' }
                     ]}
                   >
                     {sidebarMenuItem.icon}
                   </ListItemIcon>
                   <ListItemText
                     primary={sidebarMenuItem.title}
-                    sx={[
-                      isNavigationDrawerOpen
-                        ? {
-                          opacity: 1,
-                        }
-                        : {
-                          opacity: 0,
-                        },
-                    ]}
+                    sx={[isNavigationDrawerOpen ? { opacity: 1 } : { opacity: 0 }]}
                   />
                 </ListItemButton>
               </Tooltip>
@@ -513,6 +595,7 @@ export const NavigationDrawer = () => {
           alignItems: isZFPLabServerOrFiscalDeviceConnectionSection() ? 'center' : 'flext-start',
           height: isZFPLabServerOrFiscalDeviceConnectionSection() ? '100vh' : 'auto',
           flexDirection: 'column',
+          bgcolor: '#fff',
           p: 2
         }}
       >

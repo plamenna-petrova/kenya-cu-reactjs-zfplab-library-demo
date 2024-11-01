@@ -30,6 +30,10 @@ export const SAVE_ELECTRONIC_JOURNAL_REPORT_TOOLTIP_TITLE = "Save Report to a .t
 
 export const LIBRARY_INFORMATION_ALERT_DIALOG_TITLE = "Library Information";
 
+export const APPLICATION_VIEW_IN_FULLSCREEN_MODE_TOOLTIP_TITLE = "Application view in fullscreen mode";
+
+export const EXIT_FULLSCREEN_MODE_TOOLTIP_TITLE = "Exit fullscreen mode";
+
 // Loading Messages
 
 export const DEFAULT_LOADING_MESSAGE = "Loading...";

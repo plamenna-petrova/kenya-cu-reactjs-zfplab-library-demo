@@ -8,7 +8,7 @@ const Demo = () => {
   const { isLoading, message: loadingMessageToSet } = useSelector((state) => state.loading);
 
   return (
-    <>
+    <div id="demo">
       <NavigationDrawer />
       <ToastContainer
         position="bottom-right"
@@ -23,7 +23,7 @@ const Demo = () => {
         theme="dark"
       />
       {isLoading && <BackdropLoading isBackdropLoadingOpen={isLoading} loadingMessage={loadingMessageToSet} />}
-    </>
+    </div>
   );
 }
 
