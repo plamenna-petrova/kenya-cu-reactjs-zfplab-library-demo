@@ -155,6 +155,7 @@ export const NavigationDrawer = () => {
   const fiscalDeviceConnectionState = useSelector((state) => state.zfpConnection.fiscalDeviceConnectionState);
   const isFullscreen = useSelector((state) => state.fullscreen.isFullscreen);
   const demoContentElement = document.getElementById('demo');
+  const hasShownAutomaticConnectionErrorToast = useRef(false);
   const theme = useTheme();
   const dispatch = useDispatch();
   const fp = useFP();
@@ -321,26 +322,32 @@ export const NavigationDrawer = () => {
 
         try {
           await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress);
+          hasShownAutomaticConnectionErrorToast.current = false;
 
           if (isNavigationDrawerMounted) {
             setTimeout(async () => {
               const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
 
               if (configuredFiscalDeviceConnectionSettings && isNavigationDrawerMounted) {
-                const { connectionType, ...connectionParameters } = getConfiguredFiscalDeviceConnectionSettings();
+                const { connectionType, ...connectionParameters } = configuredFiscalDeviceConnectionSettings;
 
                 try {
                   await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
                 } catch (error) {
-                  toast.error(handleZFPLabServerError(error), { toastId: 'fiscalDeviceAutomaticConnectionToast' });
-                } 
+                  if (!hasShownAutomaticConnectionErrorToast.current) {
+                    toast.error(handleZFPLabServerError(error));
+                    hasShownAutomaticConnectionErrorToast.current = true;
+                  }
+                }
               }
             }, 300);
           }
-        } catch(error) {
-          console.log("error", error);
-          toast.error(handleZFPLabServerError(error), { toastId: 'zfpLabServerAutomaticConnectionToast' });
-          isNavigationDrawerMounted = false;
+        } catch (error) {
+          if (!hasShownAutomaticConnectionErrorToast.current) {
+            console.log("error", error);
+            toast.error(handleZFPLabServerError(error));
+            hasShownAutomaticConnectionErrorToast.current = true;
+          }
         }
       }
     };
@@ -349,8 +356,8 @@ export const NavigationDrawer = () => {
 
     return () => {
       isNavigationDrawerMounted = false;
-    }
-  }, []);
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
