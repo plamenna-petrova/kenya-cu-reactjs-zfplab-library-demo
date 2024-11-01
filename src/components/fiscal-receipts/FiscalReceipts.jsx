@@ -458,7 +458,7 @@ const FiscalReceipts = () => {
                           label="Discount/Addition"
                           fullWidth
                           size="small"
-                          type="numbe"
+                          type="number"
                           name="discountOrAddition"
                           variant="outlined"
                           onBlur={handleBlur}

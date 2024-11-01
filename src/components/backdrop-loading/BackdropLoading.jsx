@@ -9,7 +9,7 @@ const BackdropLoading = ({ isBackdropLoadingOpen, loadingMessage = DEFAULT_LOADI
   return (
     <div>
       <Backdrop
-        aria-label="Loading"
+        aria-label="Backdrop Loading"
         sx={{
           color: '#000',
           zIndex: (theme) => theme.zIndex.drawer + 1,
