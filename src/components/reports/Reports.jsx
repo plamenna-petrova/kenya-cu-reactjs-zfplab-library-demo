@@ -32,15 +32,14 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
+import PropTypes from 'prop-types';
 import DraggableDetailsDialog from "../layout/draggable-details-dialog/DraggableDetailsDialog";
 import SaveIcon from '@mui/icons-material/Save';
 import Tremol from "../../assets/js/fp";
 
 const SaveElectronicJournalReportButton = ({ electronicJournalReportContent }) => {  
   const saveElectronicJournalReportToTXTFile = () => {
-    const windows1252Encoder = new TextEncoder("windows-1252");
-    const encodedElectronicJournalReportContent = windows1252Encoder.encode(electronicJournalReportContent);
-    const blob = new Blob([encodedElectronicJournalReportContent], { type: 'text/plain;charset=windows-1252' });
+    const blob = new Blob([electronicJournalReportContent], { type: 'text/plain;' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -70,6 +69,10 @@ const SaveElectronicJournalReportButton = ({ electronicJournalReportContent }) =
     </Tooltip>
   )
 }
+
+SaveElectronicJournalReportButton.propTypes = {
+  electronicJournalReportContent: PropTypes.string,
+};
 
 const Reports = () => {
   const [isReadElectronicJournalReportDraggableDialogOpen, setIsReadElectronicJournalReportDraggableDialogOpen] = useState(false);

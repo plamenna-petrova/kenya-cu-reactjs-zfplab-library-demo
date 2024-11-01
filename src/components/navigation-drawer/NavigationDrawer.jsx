@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import { red } from '@mui/material/colors';

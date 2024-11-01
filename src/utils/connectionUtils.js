@@ -40,4 +40,19 @@ export const getConfiguredFiscalDeviceConnectionSettings = () => {
   }
 
   return JSON.parse(savedFiscalDeviceConnectionSettingsJSON);
-} 
+}
+
+export const updateSerialPorts = (originalSerialPorts, serialPortToAdd) => {
+  const serialPortsToFilter = [...originalSerialPorts, serialPortToAdd];
+
+  const comPorts = serialPortsToFilter.filter(serialPort => serialPort.startsWith("COM"));
+  const otherPorts = serialPortsToFilter.filter(serialPort => !serialPort.startsWith("COM"));
+
+  const sortedCOMPorts = comPorts.sort((a, b) => {
+    const firstCOMPortNumberToCompare = parseInt(a.replace(/\D/g, ""), 10);
+    const secondCOMPortNumberToCompare = parseInt(b.replace(/\D/g, ""), 10);
+    return firstCOMPortNumberToCompare - secondCOMPortNumberToCompare;
+  });
+
+  return [...sortedCOMPorts, ...otherPorts];
+}

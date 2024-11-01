@@ -28,7 +28,7 @@ import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
-import { getInitialFiscalDeviceConnectionFormValues, getConfiguredFiscalDeviceConnectionSettings } from '../../utils/connectionUtils';
+import { getInitialFiscalDeviceConnectionFormValues, getConfiguredFiscalDeviceConnectionSettings, updateSerialPorts } from '../../utils/connectionUtils';
 import { setFiscalDeviceConnectionState, setIsSearchingForFiscalDevice } from '../../store/slices/zfpConnectionSlice';
 import * as Yup from "yup";
 import PropTypes from 'prop-types';
@@ -130,18 +130,8 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
           const { serialPort, baudRate } = foundDeviceSettings;
 
           if (!serialPorts.includes(serialPort)) {
-            const updatedSerialPorts = [...serialPorts, serialPort];
-
-            const comPorts = updatedSerialPorts.filter(serialPort => serialPort.startsWith("COM"));
-            const otherPorts = updatedSerialPorts.filter(serialPort => !serialPort.startsWith("COM"));
-
-            const sortedCOMPorts = comPorts.sort((a, b) => {
-              const firstCOMPortNumberToCompare = parseInt(a.replace(/\D/g, ""), 10);
-              const secondCOMPortNumberToCompare = parseInt(b.replace(/\D/g, ""), 10);
-              return firstCOMPortNumberToCompare - secondCOMPortNumberToCompare;
-            });
-
-            setSerialPorts([...sortedCOMPorts, ...otherPorts]);
+            const updatedSerialPorts = updateSerialPorts(serialPorts, serialPort);
+            setSerialPorts(updatedSerialPorts);
           }
 
           setFieldValue("serialPort", serialPort);
@@ -239,7 +229,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
   useEffect(() => {
     let serialPortsOptions = [];
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 15; i++) {
       serialPortsOptions.push(`COM${i + 1}`);
     }
 
@@ -247,18 +237,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
 
     if (configuredFiscalDeviceConnectionSettings.connectionType === SERIAL_PORT_CONNECTION &&
       !serialPortsOptions.includes(configuredFiscalDeviceConnectionSettings.serialPort)) {
-      const updatedSerialPorts = [...serialPortsOptions, configuredFiscalDeviceConnectionSettings.serialPort];
-
-      const comPorts = updatedSerialPorts.filter(serialPort => serialPort.startsWith("COM"));
-      const otherPorts = updatedSerialPorts.filter(serialPort => !serialPort.startsWith("COM"));
-
-      const sortedCOMPorts = comPorts.sort((a, b) => {
-        const firstCOMPortNumberToCompare = parseInt(a.replace(/\D/g, ""), 10);
-        const secondCOMPortNumberToCompare = parseInt(b.replace(/\D/g, ""), 10);
-        return firstCOMPortNumberToCompare - secondCOMPortNumberToCompare;
-      });
-
-      serialPortsOptions = [...sortedCOMPorts, ...otherPorts];
+      serialPortsOptions = updateSerialPorts(serialPortsOptions, configuredFiscalDeviceConnectionSettings.serialPort);
     }
 
     setSerialPorts(serialPortsOptions);

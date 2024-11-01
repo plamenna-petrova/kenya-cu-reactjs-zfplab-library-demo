@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/display-name */
 import { forwardRef, Fragment, useState, useEffect, useMemo } from 'react';
 import { H3 } from '../layout/typography-elements/TypographyElements';
@@ -33,6 +34,7 @@ import InfoAlertDialog from '../layout/info-alert-dialog/InfoAlertDialog';
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import StatusEntriesFilterBar from './status-entries-filter-bar/StatusEntriesFilterBar';
 import DirectCommands from './direct-commands/DirectCommands';
+// eslint-disable-next-line no-unused-vars
 import Tremol from "../../assets/js/fp";
 
 const STATUS_ENTRY_NAME_LABEL = "Name";
