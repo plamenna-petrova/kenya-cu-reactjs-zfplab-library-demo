@@ -30,6 +30,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import InfoAlertDialog from '../layout/info-alert-dialog/InfoAlertDialog';
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import StatusEntriesFilterBar from './status-entries-filter-bar/StatusEntriesFilterBar';
@@ -113,6 +114,7 @@ const FiscalDeviceInformation = () => {
   const [statusEntriesToFill, setStatusEntriesToFill] = useState([]);
   const [statusEntriesSearchTermForFiltering, setStatusEntriesSearchTermForFiltering] = useState('');
   const [statusEntriesToToggle, setStatusEntriesToToggle] = useState({ onStatusEntries: true, offStatusEntries: true });
+  const isDesktopScreen = useMediaQuery('(min-width:1200px)');
   const dispatch = useDispatch();
   const fp = useFP();
 
@@ -252,7 +254,7 @@ const FiscalDeviceInformation = () => {
   return (
     <>
       <Box sx={{ width: '100%', height: '100%', px: 2 }}>
-        <Grid container spacing={3}>
+        <Grid container spacing={3} sx={{ pb: !isDesktopScreen ? 2 : 0 }}>
           <Grid size={{ xs: 12, lg: 3 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Card>

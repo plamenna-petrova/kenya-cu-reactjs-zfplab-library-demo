@@ -45,12 +45,14 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from '@mui/material/Stack';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import OperatorData from "./operator-data/OperatorData";
 import Tremol from "../../assets/js/fp";
 
 const FiscalReceipts = () => {
   const [vatGroups, setVATGroups] = useState([]);
   const operatorData = useSelector((state) => state.operatorData);
+  const isDesktopScreen = useMediaQuery('(min-width:1200px)');
   const dispatch = useDispatch();
   const fp = useFP();
 
@@ -331,7 +333,7 @@ const FiscalReceipts = () => {
 
   return (
     <Box sx={{ width: '100%', height: '100%', px: 2 }}>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} sx={{ pb: !isDesktopScreen ? 2 : 0 }}>
         <Grid size={{ xs: 12, lg: 2 }}>
           <OperatorData />
         </Grid>

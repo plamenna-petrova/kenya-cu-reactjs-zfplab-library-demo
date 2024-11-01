@@ -34,6 +34,8 @@ export const APPLICATION_VIEW_IN_FULLSCREEN_MODE_TOOLTIP_TITLE = "Application vi
 
 export const EXIT_FULLSCREEN_MODE_TOOLTIP_TITLE = "Exit fullscreen mode";
 
+export const SAVED_EJ_REPORT_STARTING_FILE_NAME = "EJ_Report";
+
 // Loading Messages
 
 export const DEFAULT_LOADING_MESSAGE = "Loading...";

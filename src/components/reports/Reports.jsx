@@ -21,7 +21,8 @@ import {
   ELECTRONIC_JOUNRAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE,
   ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_ENDING_NUMBER_ERROR_MESSAGE,
   NO_REPORT_CONTENT_ERROR_MESSAGE,
-  SAVE_ELECTRONIC_JOURNAL_REPORT_TOOLTIP_TITLE 
+  SAVE_ELECTRONIC_JOURNAL_REPORT_TOOLTIP_TITLE,
+  SAVED_EJ_REPORT_STARTING_FILE_NAME 
 } from '../../utils/constants';
 import * as Yup from "yup";
 import Box from '@mui/material/Box';
@@ -41,10 +42,10 @@ const SaveElectronicJournalReportButton = ({ electronicJournalReportContent }) =
   const saveElectronicJournalReportToTXTFile = () => {
     const blob = new Blob([electronicJournalReportContent], { type: 'text/plain;' });
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = generateExportFileName('EJ_Report', '.txt');
-    anchor.click();
+    const anchorElement = document.createElement('a');
+    anchorElement.href = url;
+    anchorElement.download = generateExportFileName(SAVED_EJ_REPORT_STARTING_FILE_NAME , '.txt');
+    anchorElement.click();
     URL.revokeObjectURL(url);
   }
 

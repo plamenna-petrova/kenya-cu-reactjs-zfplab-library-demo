@@ -587,16 +587,19 @@ export const NavigationDrawer = () => {
       </MiniVariantDrawer>
       <Box
         component="main"
-        sx={{
-          display: 'flex',
-          flexGrow: 1,
-          justifyContent: isZFPLabServerOrFiscalDeviceConnectionSection() ? 'center' : 'flex-start',
-          alignItems: isZFPLabServerOrFiscalDeviceConnectionSection() ? 'center' : 'flext-start',
-          height: isZFPLabServerOrFiscalDeviceConnectionSection() ? '100vh' : 'auto',
-          flexDirection: 'column',
-          bgcolor: '#fff',
-          p: 2
-        }}
+        sx={[
+          {
+            display: 'flex',
+            flexGrow: 1,
+            justifyContent: isZFPLabServerOrFiscalDeviceConnectionSection() ? 'center' : 'flex-start',
+            alignItems: isZFPLabServerOrFiscalDeviceConnectionSection() ? 'center' : 'flext-start',
+            height: '100vh',
+            flexDirection: 'column',
+            bgcolor: '#fff',
+            p: 2
+          },
+          isFullscreen && { overflow: 'auto' }
+        ]}
       >
         <DrawerHeader />
         {activeSection === ZFP_LAB_SERVER_CONNECTION && (
