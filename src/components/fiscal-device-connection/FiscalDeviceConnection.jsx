@@ -311,12 +311,12 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                             name="serialPort"
                             size="small"
                             value={values.serialPort}
-                            onChange={(_, newValue) => {
-                              setFieldValue("serialPort", newValue || "");
+                            onChange={(_, newSerialPortValue) => {
+                              setFieldValue("serialPort", newSerialPortValue || "");
                             }}
                             inputValue={values.serialPort}
-                            onInputChange={(_, newInputValue) => {
-                              setFieldValue("serialPort", newInputValue || "");
+                            onInputChange={(_, newSerialPortInputValue) => {
+                              setFieldValue("serialPort", newSerialPortInputValue || "");
                             }}
                             onBlur={(event) => {
                               if (event.relatedTarget && event.relatedTarget.getAttribute("role") === "combobox") {
