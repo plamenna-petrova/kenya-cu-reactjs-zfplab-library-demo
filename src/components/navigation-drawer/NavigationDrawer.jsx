@@ -155,7 +155,7 @@ export const NavigationDrawer = () => {
   const fiscalDeviceConnectionState = useSelector((state) => state.zfpConnection.fiscalDeviceConnectionState);
   const isFullscreen = useSelector((state) => state.fullscreen.isFullscreen);
   const demoContentElement = document.getElementById('demo');
-  const hasShownAutomaticConnectionErrorToast = useRef(false);
+  const navigationDrawerInitialMountRef = useRef(true);
   const theme = useTheme();
   const dispatch = useDispatch();
   const fp = useFP();
@@ -314,49 +314,38 @@ export const NavigationDrawer = () => {
   }, [isFullscreen, demoContentElement]);
 
   useEffect(() => {
-    let isNavigationDrawerMounted = true;
-
+    if (!navigationDrawerInitialMountRef.current) {
+      return;
+    }
+  
+    navigationDrawerInitialMountRef.current = false;
+  
     const handleZFPLabServerAndFiscalDeviceAutomaticConnection = async () => {
-      if (isNavigationDrawerMounted) {
-        const savedZFPLabServerAddress = localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS;
-
-        try {
-          await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress);
-          hasShownAutomaticConnectionErrorToast.current = false;
-
-          if (isNavigationDrawerMounted) {
-            setTimeout(async () => {
-              const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
-
-              if (configuredFiscalDeviceConnectionSettings && isNavigationDrawerMounted) {
-                const { connectionType, ...connectionParameters } = configuredFiscalDeviceConnectionSettings;
-
-                try {
-                  await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
-                } catch (error) {
-                  if (!hasShownAutomaticConnectionErrorToast.current) {
-                    toast.error(handleZFPLabServerError(error));
-                    hasShownAutomaticConnectionErrorToast.current = true;
-                  }
-                }
-              }
-            }, 300);
+      const savedZFPLabServerAddress = localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS;
+  
+      try {
+        await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress);
+  
+        setTimeout(async () => {
+          const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
+  
+          if (configuredFiscalDeviceConnectionSettings) {
+            const { connectionType, ...connectionParameters } = configuredFiscalDeviceConnectionSettings;
+  
+            try {
+              await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
+            } catch (error) {
+              toast.error(handleZFPLabServerError(error));
+            }
           }
-        } catch (error) {
-          if (!hasShownAutomaticConnectionErrorToast.current) {
-            console.log("error", error);
-            toast.error(handleZFPLabServerError(error));
-            hasShownAutomaticConnectionErrorToast.current = true;
-          }
-        }
+        }, 300);
+      } catch (error) {
+        toast.error(handleZFPLabServerError(error));
       }
     };
-
+  
     handleZFPLabServerAndFiscalDeviceAutomaticConnection();
-
-    return () => {
-      isNavigationDrawerMounted = false;
-    };
+  
   }, [dispatch]);
 
   useEffect(() => {
@@ -443,14 +432,14 @@ export const NavigationDrawer = () => {
                 }
               }}
             >
-              <Button  
+              <Button
                 size="large"
                 aria-label="Fullscreen Mode"
                 color="inherit"
                 sx={{ border: 'none', textTransform: 'capitalize', px: 2, py: 0 }}
                 onClick={toggleFullscreen}
-                startIcon={isFullscreen 
-                  ? <CloseFullscreenIcon fontSize="inherit" sx={{ color: 'primary.main', transform: 'scale(1.3)' }} /> 
+                startIcon={isFullscreen
+                  ? <CloseFullscreenIcon fontSize="inherit" sx={{ color: 'primary.main', transform: 'scale(1.3)' }} />
                   : <FullscreenIcon fontSize="inherit" sx={{ color: 'primary.main', transform: 'scale(1.4)' }} />
                 }
               >
