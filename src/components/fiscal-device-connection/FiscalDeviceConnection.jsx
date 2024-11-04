@@ -99,8 +99,13 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
   const dispatch = useDispatch();
   const fp = useFP();
 
-  const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
-    setFiscalDeviceConnectionTabValue(newValue);
+  const FiscalDeviceConnectionMenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: SELECT_MENU_ITEM_HEIGHT * 4.5 + SELECT_MENU_ITEM_PADDING_TOP,
+        width: 250,
+      },
+    },
   };
 
   const serialPortOrUSBConnectionValidationSchema = Yup.object().shape({
@@ -119,7 +124,29 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
     lanOrWifiPassword: Yup.string().required(REQUIRED_NETWORK_PASSWORD_ERROR_MESSAGE)
   });
 
-  const handleFindDeviceClick = async (setFieldValue, setTouched, setErrors) => {
+  const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
+    setFiscalDeviceConnectionTabValue(newValue);
+  };
+
+  /**
+   * Finds a fiscal device and manages form and UI state based on the search result.
+   * - Initiates an asynchronous search operation with a loading indicator.
+   * - If a fiscal device is found:
+   *    - Displays a success alert.
+   *    - Updates form field values to reflect the detected fiscal device settings.
+   * - If a fiscal device is not found, displays a warning alert.
+   * - Adds the found serial port to the autocomplete options if not already included.
+   * - While the search is ongoing, displays a loading indicator in the UI.
+   * - If an error occurs during the search, displays an error alert.
+   * 
+   * @async
+   * @function handleFindFiscalDeviceClick
+   * @param {function} setFieldValue - Formik function to update specific form field values.
+   * @param {function} setTouched - Formik function to update the touched status of form fields.
+   * @param {function} setErrors - Formik function to set field errors in the form.
+   * @returns {Promise<void>} - A promise that resolves once the search operation completes.
+   */
+  const handleFindFiscalDeviceClick = async (setFieldValue, setTouched, setErrors) => {
     dispatch(setIsSearchingForFiscalDevice(true));
 
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -150,8 +177,6 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
           });
         }
       } catch (error) {
-        console.error(error);
-
         setSerialPortOrUSBConnectionState({
           severity: 'error',
           message: FISCAL_DEVICE_NOT_FOUND_ERROR_MESSAGE
@@ -162,6 +187,23 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
     }, SEARCHING_FOR_FISCAL_DEVICE_LOADING_MESSAGE);
   }
 
+  /**
+   * Connects to a fiscal device and manages local storage, Redux, and UI state based on the connection outcome.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - On a successful connection, stores the connection type and fiscal device connection settings in the local storage.
+   * - On connection failure:
+   *   - Displays an error alert and removes any existing connection settings from the local storage.
+   *   - Shows an error toast with the error message.
+   *   - Updates Redux with a "not connected" status and error message.
+   * 
+   * @async
+   * @function handleFiscalDeviceConnectionFormSubmit
+   * @param {Object} fiscalDeviceConnectionSettingsFormData - Contains connection settings based on the connection type, 
+   * either serial port and baud rate or IP address and LAN/WiFi password.
+   * @param {function} setSubmitting - Formik helper to control the submitting state of the form.
+   * @param {string} connectionType - Specifies the connection type for the fiscal device, either "Serial" or "TCP".
+   * @returns {Promise<void>} - A promise that resolves once the connection operation completes.
+   */
   const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData, setSubmitting, connectionType) => {
     dispatch(setIsSearchingForFiscalDevice(true));
 
@@ -187,15 +229,15 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
 
         localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
       } catch (error) {
-        const fiscalDevicefailedConnectionStatus = {
+        const fiscalDeviceFailedConnectionStatus = {
           severity: 'error',
           message: NOT_CONNECTED_TO_FISCAL_DEVICE_ERROR_MESSAGE,
         }
 
         if (connectionType == SERIAL_PORT_CONNECTION) {
-          setSerialPortOrUSBConnectionState(fiscalDevicefailedConnectionStatus);
+          setSerialPortOrUSBConnectionState(fiscalDeviceFailedConnectionStatus);
         } else {
-          setLanOrWifiConnectionState(fiscalDevicefailedConnectionStatus);
+          setLanOrWifiConnectionState(fiscalDeviceFailedConnectionStatus);
         }
 
         localStorage.removeItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
@@ -217,15 +259,16 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
     setLanOrWifiConnectionState(null);
   }
 
-  const FiscalDeviceConnectionMenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: SELECT_MENU_ITEM_HEIGHT * 4.5 + SELECT_MENU_ITEM_PADDING_TOP,
-        width: 250,
-      },
-    },
-  };
-
+  /**
+   * Populates the serial ports autocomplete options with a sample array.
+   * - Generates an array of example serial port identifiers (e.g., "COM1" through "COM15").
+   * - If saved fiscal device settings with a serial port connection type are found in the local storage:
+   *    - Checks if the saved serial port is included in the serial ports array.
+   *    - Adds the saved serial port to the array if it’s not already present.
+   * - Updates the serial ports state with the final version of the array.
+   *
+   * This effect runs once when the component mounts.
+   */
   useEffect(() => {
     let serialPortsOptions = [];
 
@@ -381,7 +424,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                         <Button
                           variant="contained"
                           startIcon={<SearchIcon />}
-                          onClick={() => handleFindDeviceClick(setFieldValue, setTouched, setErrors)}
+                          onClick={() => handleFindFiscalDeviceClick(setFieldValue, setTouched, setErrors)}
                         >
                           Find
                         </Button>
