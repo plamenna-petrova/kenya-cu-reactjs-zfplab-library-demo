@@ -198,7 +198,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
    * 
    * @async
    * @function handleFiscalDeviceConnectionFormSubmit
-   * @param {Object} fiscalDeviceConnectionSettingsFormData - Contains connection settings based on the connection type, 
+   * @param {object} fiscalDeviceConnectionSettingsFormData - Contains connection settings based on the connection type, 
    * either serial port and baud rate or IP address and LAN/WiFi password.
    * @param {function} setSubmitting - Formik helper to control the submitting state of the form.
    * @param {string} connectionType - Specifies the connection type for the fiscal device, either "Serial" or "TCP".
