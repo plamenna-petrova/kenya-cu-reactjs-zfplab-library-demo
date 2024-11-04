@@ -435,7 +435,7 @@ const FiscalReceipts = () => {
                           label="Department Number"
                           fullWidth
                           size="small"
-                          type="numbe"
+                          type="number"
                           name="departmentNumber"
                           variant="outlined"
                           onBlur={handleBlur}
@@ -458,7 +458,6 @@ const FiscalReceipts = () => {
                           label="Discount/Addition"
                           fullWidth
                           size="small"
-                          type="number"
                           name="discountOrAddition"
                           variant="outlined"
                           onBlur={handleBlur}

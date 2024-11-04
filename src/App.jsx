@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux';
+import Popper from '@mui/material/Popper';
 import Demo from './pages/demo/Demo';
 import NotFound from './pages/not-found/NotFound';
 
@@ -42,6 +43,10 @@ const demoPrimaryTheme = createTheme({
 
 const fullScreenContainer = () => document.fullscreenElement ?? document.body;
 
+const CustomPopper = (props) => (
+  <Popper {...props} container={fullScreenContainer} />
+);
+
 const fullscreenTheme = createTheme({
   palette: {
     primary: {
@@ -75,9 +80,16 @@ const fullscreenTheme = createTheme({
         }
       }
     },
+    MuiAutocomplete: {
+      defaultProps: {
+        PopperComponent: CustomPopper, 
+      },
+    },
     MuiMenu: {
       defaultProps: {
-        container: fullScreenContainer,
+        PopperProps: {
+          container: fullScreenContainer,
+        },
       },
     },
     MuiTooltip: {
