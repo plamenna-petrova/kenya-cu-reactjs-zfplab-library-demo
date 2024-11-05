@@ -306,10 +306,10 @@ const FiscalDeviceInformation = () => {
 
   /*
     Filters status entries based on the populated status entries, the search term, 
-    and toggle options for entry visibility.
+    and toggle options for status entries visibility.
     - When both toggle options are either true or false, all status entries are shown.
-    - Otherwise, entries are filtered based on the true/false value and the toggle settings.
-    - The filter considers entries that match the search term and satisfy the toggle options.
+    - Otherwise, status entries are filtered based on the true/false value and the toggle settings.
+    - The filter considers status entries that match the search term and satisfy the toggle options.
   */
   const filteredStatusEntries = useMemo(() => {
     return statusEntriesToFill.filter((x) => {
