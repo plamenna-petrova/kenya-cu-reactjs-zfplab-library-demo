@@ -128,7 +128,7 @@ const FiscalDeviceInformation = () => {
    * 
    * @async
    * @function handleReadStatusEntries
-   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleReadStatusEntries = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -163,7 +163,7 @@ const FiscalDeviceInformation = () => {
    * 
    * @async
    * @function handlePrintDiagnosticsClick
-   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handlePrintDiagnosticsClick = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -183,7 +183,7 @@ const FiscalDeviceInformation = () => {
    * 
    * @async
    * @function handleReadVersionClick
-   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleReadVersionClick = async () => {
     try {
@@ -204,7 +204,7 @@ const FiscalDeviceInformation = () => {
    * 
    * @async
    * @function handleReadDateTimeClick
-   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleReadDateTimeClick = async () => {
     try {
@@ -228,7 +228,7 @@ const FiscalDeviceInformation = () => {
    * 
    * @async
    * @function handleReadGSInfoClick
-   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleReadGSInfoClick = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -281,7 +281,7 @@ const FiscalDeviceInformation = () => {
    * 
    * @async
    * @function handleGetLibraryInformationClick
-   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleGetLibraryInformationClick = async () => {
     const coreVersion = await fp.GetVersionCore();

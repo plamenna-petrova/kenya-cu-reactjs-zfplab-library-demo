@@ -318,6 +318,14 @@ const FiscalReceipts = () => {
     return discountOrAdditionFillableArray;
   }
 
+  /**
+   * Maps and sets VAT class options from `Tremol.Enums.OptionVATClass`.
+   * The `Tremol.Enums.OptionVATClass` enum is processed the entries are transformed
+   * into a suitable format for use as options in a select component.
+   * 
+   * @function configureVATGroups
+   * @returns {void} This function does not return a value.
+   */
   const configureVATGroups = () => {
     const vatGroupOptionsToSet = Object.entries(Tremol.Enums.OptionVATClass).map(([key, value]) => ({
       name: key.replaceAll("_", ""),
