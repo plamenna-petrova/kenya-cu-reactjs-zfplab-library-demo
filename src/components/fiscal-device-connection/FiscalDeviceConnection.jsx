@@ -177,6 +177,8 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
           });
         }
       } catch (error) {
+        console.error(error);
+
         setSerialPortOrUSBConnectionState({
           severity: 'error',
           message: FISCAL_DEVICE_NOT_FOUND_ERROR_MESSAGE
