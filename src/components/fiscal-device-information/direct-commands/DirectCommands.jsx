@@ -35,6 +35,22 @@ const DirectCommands = () => {
     directCommandInput: Yup.string().required(REQUIRED_DIRECT_COMMAND_INPUT_ERROR_MESSAGE)
   });
 
+  /**
+   * Sends a direct command to the fiscal device.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - Clears the direct command result if it’s not empty.
+   * - Executes the direct command sending operation.
+   * - Appends the direct command result to the corresponding text field.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleDirectCommandFormSubmit
+   * @param {object} directCommandFormData - Data containing the direct command input and result.
+   * @param {object} formikHelperFunctions - Formik helpers for handling form state.
+   * @param {function} formikHelperFunctions.setFieldValue - Formik function to update specific form field values.
+   * @param {function} formikHelperFunctions.setSubmitting - Formik function to control the submitting state of the form.
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
+   */
   const handleDirectCommandFormSubmit = async (directCommandFormData, { setFieldValue, setSubmitting }) => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
