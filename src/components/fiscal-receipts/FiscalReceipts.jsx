@@ -320,7 +320,7 @@ const FiscalReceipts = () => {
 
   /**
    * Maps and sets VAT class options from `Tremol.Enums.OptionVATClass`.
-   * The `Tremol.Enums.OptionVATClass` enum is processed the entries are transformed
+   * The `Tremol.Enums.OptionVATClass` enum is processed and the entries are transformed
    * into a suitable format for use as options in a select component.
    * 
    * @function configureVATGroups
