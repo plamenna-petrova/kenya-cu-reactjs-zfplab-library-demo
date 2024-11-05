@@ -118,6 +118,18 @@ const FiscalDeviceInformation = () => {
   const dispatch = useDispatch();
   const fp = useFP();
 
+  /**
+   * Reads status entries from the fiscal device and sets initial filters.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - Clears the search term for filtering if it’s currently set.
+   * - Sets toggle options for status entries visibility, defaulting both to `on`.
+   * - Retrieves and maps status entries into a format suitable for display.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleReadStatusEntries
+   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   */
   const handleReadStatusEntries = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
@@ -143,6 +155,16 @@ const FiscalDeviceInformation = () => {
     }, READING_STATUS_ENTRIES_LOADING_MESSAGE);
   }
 
+  /**
+   * Prints fiscal device diagnostics.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - Executes the print diagnostics operation.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handlePrintDiagnosticsClick
+   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   */
   const handlePrintDiagnosticsClick = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
@@ -153,6 +175,16 @@ const FiscalDeviceInformation = () => {
     }, PRINTING_DIAGNOSTICS_LOADING_MESSAGE);
   }
 
+  /**
+   * Reads the version of the fiscal device.
+   * - Executes the read version operation.
+   * - Displays the fiscal device version in an alert dialog.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleReadVersionClick
+   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   */
   const handleReadVersionClick = async () => {
     try {
       const version = await fp.ReadVersion().Version;
@@ -162,6 +194,18 @@ const FiscalDeviceInformation = () => {
     }
   }
 
+  /**
+   * Reads the set date and time on the fiscal device
+   * - Executes the read date and time operation
+   * - Converts the read date and time into a specified format 
+   * (see fp_core.js for more details on the used function: toStringWithFormat).
+   * - Displays the formatted date and time in an alert dialog.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleReadDateTimeClick
+   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   */
   const handleReadDateTimeClick = async () => {
     try {
       const readDateTime = await fp.ReadDateTime();
@@ -172,6 +216,20 @@ const FiscalDeviceInformation = () => {
     }
   }
 
+  /**
+   * Reads and displays information about special fiscal device parameters.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - Sends a raw write command to the fiscal device and reads the response in bytes.
+   * - Decodes the bytes using `windows-1252` text encoding and splits the decoded string by `;`.
+   * - Maps the decoded information to the specific parameters.
+   * - Constructs a formatted string with details of each parameter and its value.
+   * - Displays the parameters information in an alert dialog.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleReadGSInfoClick
+   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   */
   const handleReadGSInfoClick = async () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
@@ -214,6 +272,17 @@ const FiscalDeviceInformation = () => {
     }, READING_GS_INFO_LOADING_MESSAGE);
   }
 
+  /**
+   * Retrieves and displays the core version and the library definitions.
+   * - Gets the core version and the library definitions version.
+   * - Constructs a formatted string with these details.
+   * - Displays the information in an alert dialog.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleGetLibraryInformationClick
+   * @returns {Promise<void>} - A promise that resolves once the operation completes.
+   */
   const handleGetLibraryInformationClick = async () => {
     const coreVersion = await fp.GetVersionCore();
     const libraryDefinitions = await fp.GetVersionDefinitions().toString();
@@ -235,6 +304,13 @@ const FiscalDeviceInformation = () => {
     setIsFiscalDeviceInformationAlertDialogOpen(false);
   }
 
+  /*
+    Filters status entries based on the populated status entries, the search term, 
+    and toggle options for entry visibility.
+    - When both toggle options are either true or false, all status entries are shown.
+    - Otherwise, entries are filtered based on the true/false value and the toggle settings.
+    - The filter considers entries that match the search term and satisfy the toggle options.
+  */
   const filteredStatusEntries = useMemo(() => {
     return statusEntriesToFill.filter((x) => {
       const matchesStatusEntrySearchTerm = x.statusEntryName.toLowerCase().includes(statusEntriesSearchTermForFiltering.toLowerCase());

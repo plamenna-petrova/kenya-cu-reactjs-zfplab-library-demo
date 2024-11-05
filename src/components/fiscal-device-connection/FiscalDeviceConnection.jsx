@@ -144,7 +144,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
    * @param {function} setFieldValue - Formik function to update specific form field values.
    * @param {function} setTouched - Formik function to update the touched status of form fields.
    * @param {function} setErrors - Formik function to set field errors in the form.
-   * @returns {Promise<void>} - A promise that resolves once the search operation completes.
+   * @returns {Promise<void>} A promise that resolves once the search operation completes.
    */
   const handleFindFiscalDeviceClick = async (setFieldValue, setTouched, setErrors) => {
     dispatch(setIsSearchingForFiscalDevice(true));
@@ -204,7 +204,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
    * either serial port and baud rate or IP address and LAN/WiFi password.
    * @param {function} setSubmitting - Formik helper to control the submitting state of the form.
    * @param {string} connectionType - Specifies the connection type for the fiscal device, either "Serial" or "TCP".
-   * @returns {Promise<void>} - A promise that resolves once the connection operation completes.
+   * @returns {Promise<void>} A promise that resolves once the connection operation completes.
    */
   const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData, setSubmitting, connectionType) => {
     dispatch(setIsSearchingForFiscalDevice(true));
@@ -261,16 +261,15 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
     setLanOrWifiConnectionState(null);
   }
 
-  /**
-   * Populates the serial ports autocomplete options with a sample array.
-   * - Generates an array of example serial port identifiers (e.g., "COM1" through "COM15").
-   * - If saved fiscal device settings with a serial port connection type are found in the local storage:
-   *    - Checks if the saved serial port is included in the serial ports array.
-   *    - Adds the saved serial port to the array if it’s not already present.
-   * - Updates the serial ports state with the final version of the array.
-   *
-   * This effect runs once when the component mounts.
-   */
+  /*
+    Populates the serial ports autocomplete options with a sample array.
+    - Generates an array of example serial port identifiers (e.g., "COM1" through "COM15").
+    - If saved fiscal device settings with a serial port connection type are found in the local storage:
+      - Checks if the saved serial port is included in the serial ports array.
+      - Adds the saved serial port to the array if it’s not already present.
+    - Updates the serial ports state with the final version of the array.
+    This effect runs once when the component mounts.
+  */
   useEffect(() => {
     let serialPortsOptions = [];
 
