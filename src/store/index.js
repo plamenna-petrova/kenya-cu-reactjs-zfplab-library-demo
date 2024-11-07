@@ -7,11 +7,11 @@ import operatorDataReducer from './slices/operatorDataSlice';
 import fullscreenReducer from './slices/fullScreenSlice';
 
 export const store = configureStore({
-    reducer: {
-        appNavigation: appNavigationReducer,
-        loading: loadingReducer,
-        zfpConnection: zfpConnectionReducer,
-        operatorData: operatorDataReducer,
-        fullscreen: fullscreenReducer
-    }
+  reducer: {
+    appNavigation: appNavigationReducer,
+    loading: loadingReducer,
+    zfpConnection: zfpConnectionReducer,
+    operatorData: operatorDataReducer,
+    fullscreen: fullscreenReducer
+  }
 });

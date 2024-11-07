@@ -5,17 +5,17 @@ import PropTypes from 'prop-types';
 const FPContext = createContext();
 
 export const FPProvider = ({ children }) => {
-    const fp = new Tremol.FP();
+  const fp = new Tremol.FP();
 
-    return (
-        <FPContext.Provider value={fp}>
-            {children}
-        </FPContext.Provider>
-    )
+  return (
+    <FPContext.Provider value={fp}>
+      {children}
+    </FPContext.Provider>
+  )
 }
 
 FPProvider.propTypes = {
-    children: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired,
 };
 
 export default FPContext;
