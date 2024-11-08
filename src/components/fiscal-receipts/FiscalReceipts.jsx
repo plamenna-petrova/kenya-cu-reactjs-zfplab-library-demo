@@ -103,6 +103,23 @@ const FiscalReceipts = () => {
       .test("departmentNumberLength", DEPARTMENT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, value => !value || value.toString().length <= 2)
   });
 
+  /**
+   * Executes an article sale or correction operation using `SellPLUwithSpecifiedVAT`, depending on the `withCorrection` value.
+   * Handles fiscal receipt opening beforehand if the `Opened_Fiscal_Receipt` status entry is not active.
+   * - If the fiscal receipt opening is unsuccessful, the `SellPLUwithSpecifiedVAT` operation will not execute.
+   * - The `price` is set to `externalDatabaseArticlePrice`; if `withCorrection` is `true`, the `price` is transformed to a negative value.
+   * - If `quantity` is provided (not `null` or whitespace), it is set as `externalDatabaseArticleQuantity`.
+   * - The discount or addition array is populated using `getDiscountOrAdditionValues`, set to `externalDatabaseArticleDiscountOrAdditionArray`.
+   * - If `departmentNumber` is provided (not `null` or whitespace), it is set as `externalDatabaseArticleDepartmentNumber`.
+   * - Waits 200ms to handle the next operation `SellPLUwithSpecifiedVAT` if the fiscal receipt opening is successful.
+   * 
+   * @async
+   * @function handleExternalDatabaseArticleSaleFormSubmit
+   * @param {object} externalDatabaseArticleSaleFormData - Article sale or correction data.
+   * @param {object} formikHelperFunctions - Formik helpers for handling form state.
+   * @param {function} formikHelperFunctions.setSubmitting - Formik function to control the form's submitting state.
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
+   */
   const handleExternalDatabaseArticleSaleFormSubmit = async (externalDatabaseArticleSaleFormData, { setSubmitting }) => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
@@ -158,6 +175,16 @@ const FiscalReceipts = () => {
     }
   }
 
+  /**
+   * Attempts to open a fiscal receipt if the `Opened_Fiscal_Receipt` status entry is not active.
+   * - If a fiscal receipt is already open, shows an error toast with a relevant message.
+   * - Executes the `handleFiscalReceiptOpening` operation.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleOpenFiscalReceiptClick
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
+   */
   const handleOpenFiscalReceiptClick = async () => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
@@ -173,6 +200,14 @@ const FiscalReceipts = () => {
     }
   }
 
+  /**
+   * Calculates the fiscal receipt subtotal with a specified printing option.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleCalculateSubtotalClick
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
+   */
   const handleCalculateSubtotalClick = async () => {
     try {
       await fp.Subtotal(Tremol.Enums.OptionPrinting.Yes, Tremol.Enums.OptionDisplay.No, null, null);
@@ -181,6 +216,14 @@ const FiscalReceipts = () => {
     }
   }
 
+  /**
+   * Pays the exact sum in cash for the fiscal receipt
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handlePayExactSumClick
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
+   */
   const handlePayExactSumClick = async () => {
     try {
       await fp.PayExactSum(Tremol.Enums.OptionPaymentType.Cash);
@@ -189,6 +232,17 @@ const FiscalReceipts = () => {
     }
   }
 
+  /**
+   * Attempts to close a fiscal receipt with cash payment if the `Opened_Fiscal_Receipt` status entry is active.
+   * - If a fiscal receipt is not open, shows an error toast with a relevant message.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - Executes the `CashPayCloseReceipt` operation.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleAutomaticReceiptClosingClick
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
+   */
   const handleAutomaticReceiptClosingClick = async () => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
@@ -210,6 +264,17 @@ const FiscalReceipts = () => {
     }
   }
 
+  /**
+   * Attempts to close a fiscal receipt if the `Opened_Fiscal_Receipt` status entry is active.
+   * - If a fiscal receipt is not open, shows an error toast with a relevant message.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - Executes the `CloseReceipt` operation.
+   * - If an error occurs, shows an error toast with the error message.
+   * 
+   * @async
+   * @function handleCloseFiscalReceiptClick
+   * @returns {Promise<void>} A promise that resolves once the operation completes.
+   */
   const handleCloseFiscalReceiptClick = async () => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
@@ -231,6 +296,15 @@ const FiscalReceipts = () => {
     }
   }
 
+  /**
+   * Attempts to open a fiscal receipt based on operator data, status validation, and the `OpenReceipt` operation.
+   * - Returns `false` if operator data or status validation fails, or if an error occurs during the operation.
+   * - Returns `true` if the `OpenReceipt` operation succeeds.
+   * 
+   * @async
+   * @function handleFiscalReceiptOpening
+   * @returns {Promise<boolean>} `true` if the fiscal receipt is successfully opened; otherwise, `false`.
+   */
   const handleFiscalReceiptOpening = async () => {
     let isReceiptOpeningSuccessful = false;
 
@@ -259,6 +333,15 @@ const FiscalReceipts = () => {
     return isReceiptOpeningSuccessful;
   };
 
+  /**
+   * Checks if the fiscal device is ready to open a receipt, based on specific status entries.
+   * - Returns `true` only if all required status entries indicate that the fiscal device is ready.
+   * - Returns `false` if any blocking status entry is `true` or if an error occurs.
+   * 
+   * @async
+   * @function checkStatusForReceiptOpening
+   * @returns {Promise<boolean>} `true` if all checked status entries are `false`; otherwise, `false`.
+   */
   const checkStatusForReceiptOpening = async () => {
     try {
       const status = await fp.ReadStatus();
@@ -285,6 +368,15 @@ const FiscalReceipts = () => {
     }
   }
 
+  /**
+   * Checks the validity of the operator's data based on the operator number and password.
+   * - Returns `false` if `operatorData.operatorNumber` is `null`, whitespace, or not a number (NaN).
+   * - Returns `false` if `operatorData.operatorPassword` is `null` or whitespace.
+   * - Otherwise, returns `true`.
+   * 
+   * @function isOperatorProvided
+   * @returns {boolean} `true` if both operator number and password are valid; otherwise, `false`.
+   */
   const isOperatorProvided = () => {
     if (isNullOrWhitespace(operatorData.operatorNumber)) {
       toast.error(`${FISCAL_RECEIPT_OPENING_ERROR_MESSAGE}. ${REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE}.`);
@@ -304,6 +396,18 @@ const FiscalReceipts = () => {
     return true;
   }
 
+  /**
+   * Populates an array with discount or addition values based on input parameters.
+   * - If `discountOrAdditionToCheck` is `null` or whitespace, the function returns an array with two `null` values.
+   * - If `discountOrAdditionToCheck` is a non-null, non-whitespace string:
+   *    - The value is parsed to a number and assigned to the first array element if `isDiscountOrAdditionInPercentage` is `true`.
+   *    - Otherwise, it is assigned to the second array element.
+   * 
+   * @function getDiscountOrAdditionValues
+   * @param {string} discountOrAdditionToCheck - The discount or addition value as a string.
+   * @param {boolean} isDiscountOrAdditionInPercentage - Indicates whether the value represents a percentage.
+   * @returns {(number | null)[]} An array with parsed discount or addition values, where the first element is used for percentage values and the second for absolute values.
+   */
   const getDiscountOrAdditionValues = (discountOrAdditionToCheck, isDiscountOrAdditionInPercentage) => {
     let discountOrAdditionFillableArray = [null, null];
 
