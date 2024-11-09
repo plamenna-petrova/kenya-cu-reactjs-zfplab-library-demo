@@ -202,6 +202,18 @@ export const NavigationDrawer = () => {
     dispatch(setActiveSection(sectionIdentifier));
   }
 
+  /**
+   * Attempts to connect to the ZFPLabServer automatically and updates the Redux state based on the connection result.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - Sets the initial connection state to "not connected".
+   * - Executes the `connectToZFPLabServer` operation.
+   * - On completion, updates the Redux state to reflect the end of the connection attempt.
+   * 
+   * @async
+   * @function handleZFPLabServerAutomaticConnection
+   * @param {string} zfpLabServerAddress - The address of the ZFPLabServer.
+   * @returns {Promise<void>} A promise that resolves once the connection attempt completes.
+   */
   const handleZFPLabServerAutomaticConnection = async (zfpLabServerAddress) => {
     dispatch(setIsConnectingToZFPLabServer(true));
 
@@ -215,6 +227,21 @@ export const NavigationDrawer = () => {
     }, CONNECTING_TO_ZFP_LAB_SERVER_LOADING_MESSAGE);
   }
 
+  /**
+   * Configures the ZFPLabServer connection settings and tests the connection state.
+   * - Executes the `ServerSetSettings` operation to set the server address.
+   * - Tests the connection by executing `ServerGetSettingsForConnectionTest`.
+   * - On successful connection:
+   *   - Saves the ZFPLabServer address to localStorage.
+   *   - Updates the Redux state with a "connected" status.
+   *   - Shows the `FISCAL_DEVICE_CONNECTION` section.
+   * - If the connection test fails, no state changes occur.
+   *
+   * @async
+   * @function connectToZFPLabServer
+   * @param {string} zfpLabServerAddress - The address of the ZFPLabServer.
+   * @returns {Promise<void>} A promise that resolves once the ZFPLabServer connection operation completes.
+   */
   const connectToZFPLabServer = async (zfpLabServerAddress) => {
     await fp.ServerSetSettings(zfpLabServerAddress);
 
@@ -227,6 +254,19 @@ export const NavigationDrawer = () => {
     }
   };
 
+  /**
+   * Attempts to connect to the fiscal device automatically and updates the Redux state based on the connection result.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - Sets the initial connection state to "not connected".
+   * - Executes the `connectToFiscalDevice` operation.
+   * - On completion, updates the Redux state to reflect the end of the connection attempt.
+   * 
+   * @async
+   * @function handleFiscalDeviceAutomaticConnection
+   * @param {object} fiscalDeviceConnectionSettings - Connection settings for the fiscal device.
+   * @param {string} connectionType - Type of the connection.
+   * @returns {Promise<void>} A promise that resolves once the connection attempt completes.
+   */
   const handleFiscalDeviceAutomaticConnection = async (fiscalDeviceConnectionSettings, connectionType) => {
     dispatch(setIsSearchingForFiscalDevice(true));
 
@@ -240,6 +280,29 @@ export const NavigationDrawer = () => {
     }, CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE);
   }
 
+  /**
+   * Connects to the fiscal device using `Serial` or `TCP` connection settings, applies client library definitions,
+   * checks the fiscal device status and updates the Redux state with information about 
+   * the connection type, the serial number and the model of the fiscal device.
+   * - For `Serial` connection, executes `ServerSetDeviceSerialSettings`, specifying the serial port and baud rate.
+   * - For `TCP` connection, executes `ServerSetDeviceTcpSettings`, specifying the IP address, 
+   * default TCP port, and LAN/WiFi password.
+   * - Upon a successful connection:
+   *   - Applies client library definitions with `ApplyClientLibraryDefinitions`.
+   *   - Checks the fiscal device's status via `ReadStatus`.
+   *   - Reads the fiscal device's serial number using `ReadSerialAndFiscalNums()` and model using `ReadVersion()`.
+   *   - Updates the Redux state with a formatted message based on the connection type.
+   *   - Shows the `FiscalReceipts` section.
+   *   - Shows a success toast message, confirming the succesful connection.
+   *
+   * @async
+   * @function connectToFiscalDevice
+   * @param {object} fiscalDeviceConnectionSettings - Connection settings for the fiscal device:
+   *    - If `Serial`, includes `{ serialPort: string, baudRate: number }`.
+   *    - If `TCP`, includes `{ fiscalDeviceIPAddress: string, lanOrWifiPassword: string }`.
+   * @param {string} connectionType - Type of the connection, either `SERIAL_PORT_CONNECTION` or `TCP_CONNECTION`.
+   * @returns {Promise<void>} A promise that resolves once the fiscal device connection operation completes.
+   */
   const connectToFiscalDevice = async (fiscalDeviceConnectionSettings, connectionType) => {
     let fiscalDeviceConnectionDetails = {};
 
@@ -317,21 +380,38 @@ export const NavigationDrawer = () => {
     if (!navigationDrawerInitialMountRef.current) {
       return;
     }
-  
+
     navigationDrawerInitialMountRef.current = false;
-  
+
+    /**
+     * Attempts to connect to both the ZFPLabServer and the fiscal device autonatically using settings found in local storage.
+     * - Retrieves `savedZFPLabServerAddress` from the local storage, or uses the default address `http://localhost:4444`, 
+     * if no saved ZFPLabServer address is found.
+     * - Executes `handleZFPLabServerAutomaticConnection` using the provided ZFPLabServer address.
+     * - Upon successful connection to the ZFPLabServer:
+     *    - Sets a 300ms timeout before proceeding.
+     *    - Attempts to retrieve fiscal device connection settings from the local storage.
+     *    - If fiscal device connection settings are available, executes `handleFiscalDeviceAutomaticConnection` 
+     * with specified `connectionParameters` and `connectionType`.
+     * - Shows an error toast with the error message if an error occurs during either the ZFPLabServer or the fiscal device connection attempt.
+     * - The function is executed once when the `NavigationDrawer` component mounts.
+     *
+     * @async
+     * @function handleZFPLabServerAndFiscalDeviceAutomaticConnection
+     * @returns {Promise<void>} A promise that resolves once the operation completes.
+     */
     const handleZFPLabServerAndFiscalDeviceAutomaticConnection = async () => {
       const savedZFPLabServerAddress = localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS;
-  
+
       try {
         await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress);
-  
+
         setTimeout(async () => {
           const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
-  
+
           if (configuredFiscalDeviceConnectionSettings) {
             const { connectionType, ...connectionParameters } = configuredFiscalDeviceConnectionSettings;
-  
+
             try {
               await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
             } catch (error) {
@@ -343,9 +423,9 @@ export const NavigationDrawer = () => {
         toast.error(handleZFPLabServerError(error));
       }
     };
-  
+
     handleZFPLabServerAndFiscalDeviceAutomaticConnection();
-  
+
   }, [dispatch]);
 
   useEffect(() => {
