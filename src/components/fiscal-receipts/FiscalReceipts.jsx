@@ -112,6 +112,7 @@ const FiscalReceipts = () => {
    * - The discount or addition array is populated using `getDiscountOrAdditionValues`, set to `externalDatabaseArticleDiscountOrAdditionArray`.
    * - If `departmentNumber` is provided (not `null` or whitespace), it is set as `externalDatabaseArticleDepartmentNumber`.
    * - Waits 200ms to handle the next operation `SellPLUwithSpecifiedVAT` if the fiscal receipt opening is successful.
+   * - If an error occurs, shows an error toast with the error message.
    * 
    * @async
    * @function handleExternalDatabaseArticleSaleFormSubmit
