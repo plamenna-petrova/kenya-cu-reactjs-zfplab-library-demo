@@ -39,6 +39,21 @@ const ZFPLabServerConnection = ({ zfpLabServerConnectionHandler }) => {
       )
   });
 
+  /**
+   * Connects to ZFPLabServer and updates Redux state based on the connection outcome.
+   * - Initiates an asynchronous operation with a loading indicator.
+   * - On connection failure:
+   *   - Shows an error toast with a relevant error message.
+   *   - Updates Redux with a "not connected" status and error message.
+   *
+   * @async
+   * @function handleZFPLabServerConnectionFormSubmit
+   * @param {object} zfpLabServerFormData - Data containing the ZFPLabServer connection details.
+   * @param {string} zfpLabServerFormData.zfpLabServerAddress - The address of the ZFPLabServer.
+   * @param {object} formikHelperFunctions - Formik helper functions for handling form state.
+   * @param {function} formikHelperFunctions.setSubmitting - Function to control the submitting state of the form.
+   * @returns {Promise<void>} A promise that resolves once the connection operation completes.
+   */
   const handleZFPLabServerConnectionFormSubmit = async ({ zfpLabServerAddress }, { setSubmitting }) => {
     dispatch(setIsConnectingToZFPLabServer(true));
 
