@@ -16,7 +16,7 @@ application occurs by consequently connecting to the ZFPLabServer and the fiscal
 A successful connection enables the additional sections of the applications and namely - Receipts, Reports and Information. In the Receipts section operations for
 setting the data of the current operator, sale / correction of an article from an external database, as well as fiscal receipts operations like opening a fiscal receipt, subtotal calculation,
 paying an exact sum for the receipt, closing the receipt or closing the receipt in cash can be executed. The Reports section handles operations such as printing a Daily report with / without zeroing
-and reading an electronic journal report by Z report numbers (the content of which can be visualised and saved to a .txt file). The Information section contains informative details about the fiscal device
+and reading an electronic journal report by Z report numbers (the content of which can be displayed and saved to a .txt file). The Information section contains details about the fiscal device
 in the form of the following operations: reading a status, printing diagnostics, reading the version of the fiscal device, reading the set date and time on the fiscal device, reading gs info for special
 parameters and reading library definitions. In addition, direct commands can be sent and the resulting status entries can be filtered, based on a search term and their boolean values. The application's logic
 is based on React JSX components with Redux state management, Material UI is used for the UI elements, the forms are made using Formik and are validated with Yup. A tremol library utitlity is integrated for
