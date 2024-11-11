@@ -1,4 +1,4 @@
-# Medieval-Scenery-ThreeJS-Coursework
+# Kosovo React.js ZFPLab Library Demo
 
 ## List of Contents
 
