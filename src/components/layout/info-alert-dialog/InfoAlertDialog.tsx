@@ -1,3 +1,4 @@
+import { FC } from "react";
 import { H2, H3 } from '../typography-elements/TypographyElements';
 import Dialog from '@mui/material/Dialog';
 import Box from '@mui/material/Box';
@@ -5,9 +6,20 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import PropTypes from 'prop-types';
 
-const InfoAlertDialog = ({ isInfoAlertDialogOpen, onInfoAlertDialogClose, infoAlertDialogTitle, infoAlertDialogContent }) => {
+type InfoAlertDialogProps = {
+  isInfoAlertDialogOpen: boolean;
+  onInfoAlertDialogClose: () => void;
+  infoAlertDialogTitle: string;
+  infoAlertDialogContent: string;
+}
+
+const InfoAlertDialog: FC<InfoAlertDialogProps> = ({ 
+  isInfoAlertDialogOpen, 
+  onInfoAlertDialogClose, 
+  infoAlertDialogTitle, 
+  infoAlertDialogContent 
+}) => {
   const infoAlertStyles = {
     "& .MuiAlert-icon": {
       fontSize: 40,
@@ -71,13 +83,6 @@ const InfoAlertDialog = ({ isInfoAlertDialogOpen, onInfoAlertDialogClose, infoAl
       </Box>
     </Dialog>
   )
-}
-
-InfoAlertDialog.propTypes = {
-  isInfoAlertDialogOpen: PropTypes.bool.isRequired,
-  onInfoAlertDialogClose: PropTypes.func.isRequired,
-  infoAlertDialogTitle: PropTypes.string.isRequired,
-  infoAlertDialogContent: PropTypes.string.isRequired
 }
 
 export default InfoAlertDialog;

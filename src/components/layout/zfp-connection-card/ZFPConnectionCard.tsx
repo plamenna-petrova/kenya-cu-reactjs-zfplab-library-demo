@@ -1,5 +1,5 @@
+import { ReactNode, FC } from 'react';
 import { styled } from '@mui/material/styles';
-import PropTypes from 'prop-types';
 import Card from '@mui/material/Card';
 
 const StyledCardWrapper = styled(Card)(({ theme }) => ({
@@ -20,16 +20,16 @@ const StyledCardWrapper = styled(Card)(({ theme }) => ({
   },
 }));
 
-const ZFPConnectionCard = ({ children }) => {
+type ZFPConnectionCardProps = {
+  children: ReactNode;
+}
+
+const ZFPConnectionCard: FC<ZFPConnectionCardProps> = ({ children }) => {
   return (
     <StyledCardWrapper>
       {children}
     </StyledCardWrapper>
   );
-};
-
-ZFPConnectionCard.propTypes = {
-  children: PropTypes.node.isRequired
 };
 
 export default ZFPConnectionCard;
