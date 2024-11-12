@@ -7,7 +7,7 @@ import { store } from './store';
 import { FPProvider } from './context/FPContext';
 import App from './App';
 
-const root = ReactDOM.createRoot(document.querySelector("#root"));
+const root = ReactDOM.createRoot(document.querySelector("#root") as HTMLElement);
 
 root.render(
   <React.StrictMode>
