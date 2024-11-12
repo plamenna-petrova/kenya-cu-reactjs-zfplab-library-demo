@@ -36,7 +36,7 @@ const DraggableDetailsDialog: FC<DraggableDetailsDialogProps> = ({
   draggableDialogTitle, 
   draggableDialogContent, 
   draggableDialogActionNode
-}: DraggableDetailsDialogProps) => {
+}) => {
   return (
     <Dialog
       open={isDraggableDialogOpen}

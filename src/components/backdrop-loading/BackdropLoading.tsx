@@ -10,10 +10,7 @@ type BackdropLoadingProps = {
   loadingMessage?: string;
 }
 
-const BackdropLoading: FC<BackdropLoadingProps> = ({ 
-  isBackdropLoadingOpen, 
-  loadingMessage = DEFAULT_LOADING_MESSAGE 
-}: BackdropLoadingProps) => {
+const BackdropLoading: FC<BackdropLoadingProps> = ({ isBackdropLoadingOpen, loadingMessage = DEFAULT_LOADING_MESSAGE }) => {
   return (
     <div>
       <Backdrop
