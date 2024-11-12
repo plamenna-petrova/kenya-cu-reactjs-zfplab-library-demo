@@ -4,7 +4,6 @@ import { DEFAULT_LOADING_MESSAGE } from "../../utils/constants";
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import CircularProgress from "@mui/material/CircularProgress";
-import PropTypes from 'prop-types';
 
 type BackdropLoadingProps = {
   isBackdropLoadingOpen: boolean;
