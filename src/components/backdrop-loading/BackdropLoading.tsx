@@ -1,3 +1,4 @@
+import { FC } from "react";
 import { H3 } from "../layout/typography-elements/TypographyElements";
 import { DEFAULT_LOADING_MESSAGE } from "../../utils/constants";
 import Backdrop from '@mui/material/Backdrop';
@@ -5,7 +6,15 @@ import Box from '@mui/material/Box';
 import CircularProgress from "@mui/material/CircularProgress";
 import PropTypes from 'prop-types';
 
-const BackdropLoading = ({ isBackdropLoadingOpen, loadingMessage = DEFAULT_LOADING_MESSAGE }) => {
+type BackdropLoadingProps = {
+  isBackdropLoadingOpen: boolean;
+  loadingMessage?: string;
+}
+
+const BackdropLoading: FC<BackdropLoadingProps> = ({ 
+  isBackdropLoadingOpen, 
+  loadingMessage = DEFAULT_LOADING_MESSAGE 
+}: BackdropLoadingProps) => {
   return (
     <div>
       <Backdrop
@@ -36,11 +45,6 @@ const BackdropLoading = ({ isBackdropLoadingOpen, loadingMessage = DEFAULT_LOADI
       </Backdrop>
     </div>
   );
-};
-
-BackdropLoading.propTypes = {
-  isBackdropLoadingOpen: PropTypes.bool.isRequired,
-  loadingMessage: PropTypes.string
 };
 
 export default BackdropLoading;
