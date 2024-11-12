@@ -30,11 +30,11 @@ type DraggableDetailsDialogProps = {
   draggableDialogActionNode?: ReactNode;
 }
 
-const DraggableDetailsDialog: FC<DraggableDetailsDialogProps> = ({ 
-  isDraggableDialogOpen, 
-  onDraggableDialogClose, 
-  draggableDialogTitle, 
-  draggableDialogContent, 
+const DraggableDetailsDialog: FC<DraggableDetailsDialogProps> = ({
+  isDraggableDialogOpen,
+  onDraggableDialogClose,
+  draggableDialogTitle,
+  draggableDialogContent,
   draggableDialogActionNode
 }) => {
   return (

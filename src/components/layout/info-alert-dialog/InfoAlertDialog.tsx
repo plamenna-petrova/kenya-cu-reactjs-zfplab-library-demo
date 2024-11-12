@@ -14,11 +14,11 @@ type InfoAlertDialogProps = {
   infoAlertDialogContent: string;
 }
 
-const InfoAlertDialog: FC<InfoAlertDialogProps> = ({ 
-  isInfoAlertDialogOpen, 
-  onInfoAlertDialogClose, 
-  infoAlertDialogTitle, 
-  infoAlertDialogContent 
+const InfoAlertDialog: FC<InfoAlertDialogProps> = ({
+  isInfoAlertDialogOpen,
+  onInfoAlertDialogClose,
+  infoAlertDialogTitle,
+  infoAlertDialogContent
 }) => {
   const infoAlertStyles = {
     "& .MuiAlert-icon": {
