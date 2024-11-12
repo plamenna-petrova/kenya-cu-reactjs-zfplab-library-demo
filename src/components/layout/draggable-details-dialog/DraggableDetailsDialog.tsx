@@ -1,16 +1,15 @@
-import { useRef } from "react";
+import { ReactNode, useRef, FC } from "react";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Paper from '@mui/material/Paper';
+import Paper, { PaperProps } from '@mui/material/Paper';
 import Draggable from 'react-draggable';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import PropTypes from 'prop-types';
 
-const DraggableDialogPaperWrapper = (props) => {
-  const draggableDialogPaperRef = useRef(null);
+const DraggableDialogPaperWrapper: FC<PaperProps> = (props: PaperProps) => {
+  const draggableDialogPaperRef = useRef<HTMLDivElement>(null);
 
   return (
     <Draggable
@@ -23,13 +22,21 @@ const DraggableDialogPaperWrapper = (props) => {
   )
 }
 
-const DraggableDetailsDialog = ({ 
+type DraggableDetailsDialogProps = {
+  isDraggableDialogOpen: boolean;
+  onDraggableDialogClose: () => void;
+  draggableDialogTitle: string;
+  draggableDialogContent: string;
+  draggableDialogActionNode?: ReactNode;
+}
+
+const DraggableDetailsDialog: FC<DraggableDetailsDialogProps> = ({ 
   isDraggableDialogOpen, 
   onDraggableDialogClose, 
   draggableDialogTitle, 
   draggableDialogContent, 
   draggableDialogActionNode
-}) => {
+}: DraggableDetailsDialogProps) => {
   return (
     <Dialog
       open={isDraggableDialogOpen}
@@ -46,19 +53,11 @@ const DraggableDetailsDialog = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        {draggableDialogActionNode}
+        {draggableDialogActionNode && <>{draggableDialogActionNode}</>}
         <Button onClick={onDraggableDialogClose}>Close</Button>
       </DialogActions>
     </Dialog>
   )
-}
-
-DraggableDetailsDialog.propTypes = {
-  isDraggableDialogOpen: PropTypes.bool.isRequired,
-  onDraggableDialogClose: PropTypes.func.isRequired,
-  draggableDialogTitle: PropTypes.string.isRequired,
-  draggableDialogContent: PropTypes.string.isRequired,
-  draggableDialogActionNode: PropTypes.node
 }
 
 export default DraggableDetailsDialog;
