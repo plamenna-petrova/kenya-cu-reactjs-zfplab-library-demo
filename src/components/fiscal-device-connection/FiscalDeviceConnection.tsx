@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useState, useEffect, ReactNode, FC, SyntheticEvent } from 'react';
-import { Formik } from "formik";
+import { Formik, FormikErrors, FormikHelpers, FormikTouched } from "formik";
 import { Paragraph } from '../layout/typography-elements/TypographyElements';
 import {
   BAUD_RATES,
@@ -30,6 +30,10 @@ import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { getInitialFiscalDeviceConnectionFormValues, getConfiguredFiscalDeviceConnectionSettings, updateSerialPorts } from '../../utils/connectionUtils';
 import { setFiscalDeviceConnectionState, setIsSearchingForFiscalDevice } from '../../store/slices/zfpConnectionSlice';
+import { SerialPortOrUSBConnectionSettings } from '../../interfaces/fiscal-device-connection-settings/SerialPortOrUSBConnectionSettings';
+import { LANOrWiFiConnectionSettings } from '../../interfaces/fiscal-device-connection-settings/LANOrWiFiConnectionSettings';
+import { FiscalDeviceAlertConnectionState } from '../../interfaces/fiscal-device-connection-state/FiscalDeviceAlertConnectionState';
+import { FiscalDeviceConnectionType, fiscalDeviceConnectionTypes } from '../../types/fiscal-device-connection/FiscalDeviceConnectionType';
 import * as Yup from "yup";
 import FiscalDeviceConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
@@ -53,6 +57,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
 import NetworkPingIcon from '@mui/icons-material/NetworkPing';
 import CloseIcon from '@mui/icons-material/Close';
+import { SerialPortOrUSBConnectionType } from '../../types/fiscal-device-connection/SerialPortOrUSBConnectionType';
+import { LANOrWiFiConnectionType } from '../../types/fiscal-device-connection/LANOrWiFiConnectionType';
 
 interface FiscalDeviceConnectionTabPanelProps {
   children?: ReactNode;
@@ -84,20 +90,29 @@ const a11yProps = (index: number) => {
 }
 
 interface FiscalDeviceConnectionProps {
-  fiscalDeviceConnectionHandler: (connectionSettings: any, connectionType: string) => void;
+  fiscalDeviceConnectionHandler: (
+    connectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+    connectionType: FiscalDeviceConnectionType
+  ) => Promise<void>;
 }
 
 const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceConnectionHandler }) => {
   const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState<number>(0);
   const [serialPorts, setSerialPorts] = useState<string[]>([]);
-  const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState<any>(getInitialFiscalDeviceConnectionFormValues(SERIAL_PORT_CONNECTION));
-  const [serialPortOrUSBConnectionFormTouched, setSerialPortOrUSBConnectionFormTouched] = useState<any>({});
-  const [serialPortOrUSBConnectionFormErrors, setSerialPortOrUSBConnectionFormErrors] = useState<any>({});
-  const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState<any>(getInitialFiscalDeviceConnectionFormValues(TCP_CONNECTION));
-  const [lanOrWifiConnectionFormTouched, setLANOrWifiConnectionFormTouched] = useState<any>({});
-  const [lanOrWifiConnectionFormErrors, setLANOrWifiConnectionFormErrors] = useState<any>({});
-  const [serialPortOrUSBConnectionState, setSerialPortOrUSBConnectionState] = useState<any>(null);
-  const [lanOrWifiConnectionState, setLanOrWifiConnectionState] = useState<any>(null);
+  const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState<SerialPortOrUSBConnectionSettings>(
+    getInitialFiscalDeviceConnectionFormValues(SERIAL_PORT_CONNECTION) as SerialPortOrUSBConnectionSettings
+  );
+  const [serialPortOrUSBConnectionFormTouched, setSerialPortOrUSBConnectionFormTouched] = 
+    useState<FormikTouched<SerialPortOrUSBConnectionSettings>>({});
+  const [serialPortOrUSBConnectionFormErrors, setSerialPortOrUSBConnectionFormErrors] = 
+  useState<FormikErrors<SerialPortOrUSBConnectionSettings>>({});
+  const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState<LANOrWiFiConnectionSettings>(
+    getInitialFiscalDeviceConnectionFormValues(TCP_CONNECTION) as LANOrWiFiConnectionSettings
+  );
+  const [lanOrWifiConnectionFormTouched, setLANOrWifiConnectionFormTouched] = useState<FormikTouched<LANOrWiFiConnectionSettings>>({});
+  const [lanOrWifiConnectionFormErrors, setLANOrWifiConnectionFormErrors] = useState<FormikErrors<LANOrWiFiConnectionSettings>>({});
+  const [serialPortOrUSBConnectionState, setSerialPortOrUSBConnectionState] = useState<FiscalDeviceAlertConnectionState | null>(null);
+  const [lanOrWifiConnectionState, setLanOrWifiConnectionState] = useState<FiscalDeviceAlertConnectionState | null>(null);
   const isMobileScreen: boolean = useMediaQuery('(max-width:480px)');
   const dispatch = useDispatch();
   const fp = useFP();
@@ -127,8 +142,8 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
     lanOrWifiPassword: Yup.string().required(REQUIRED_NETWORK_PASSWORD_ERROR_MESSAGE)
   });
 
-  const handleFiscalDeviceConnectionTabChange = (_: SyntheticEvent, newValue: number): void => {
-    setFiscalDeviceConnectionTabValue(newValue);
+  const handleFiscalDeviceConnectionTabChange = (_: SyntheticEvent, newFiscalDeviceConnectionTabValue: number): void => {
+    setFiscalDeviceConnectionTabValue(newFiscalDeviceConnectionTabValue);
   };
 
   /**
@@ -144,23 +159,27 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
    * 
    * @async
    * @function handleFindFiscalDeviceClick
-   * @param {function} setFieldValue - Formik function to update specific form field values.
-   * @param {function} setTouched - Formik function to update the touched status of form fields.
-   * @param {function} setErrors - Formik function to set field errors in the form.
+   * @param {FormikHelpers<SerialPortOrUSBConnectionSettings>['setFieldValue']} setFieldValue - Formik function to update specific form field values.
+   * @param {FormikHelpers<SerialPortOrUSBConnectionSettings>['setTouched']} setTouched - Formik function to update the touched status of form fields.
+   * @param {FormikHelpers<SerialPortOrUSBConnectionSettings>['setErrors']} setErrors - Formik function to set field errors in the form.
    * @returns {Promise<void>} A promise that resolves once the search operation completes.
    */
-  const handleFindFiscalDeviceClick = async (setFieldValue: any, setTouched: any, setErrors: any): Promise<void> => {
+  const handleFindFiscalDeviceClick = async (
+    setFieldValue: FormikHelpers<SerialPortOrUSBConnectionSettings>['setFieldValue'], 
+    setTouched: FormikHelpers<SerialPortOrUSBConnectionSettings>['setTouched'], 
+    setErrors: FormikHelpers<SerialPortOrUSBConnectionSettings>['setErrors']
+  ): Promise<void> => {
     dispatch(setIsSearchingForFiscalDevice(true));
 
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        const foundDeviceSettings = await fp.ServerFindDevice();
+        const foundDeviceSettings = await fp.ServerFindDevice() as SerialPortOrUSBConnectionSettings;
 
         if (foundDeviceSettings !== null) {
           const { serialPort, baudRate } = foundDeviceSettings;
 
           if (!serialPorts.includes(serialPort)) {
-            const updatedSerialPorts = updateSerialPorts(serialPorts, serialPort);
+            const updatedSerialPorts: string[] = updateSerialPorts(serialPorts, serialPort);
             setSerialPorts(updatedSerialPorts);
           }
 
@@ -179,7 +198,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
             message: FISCAL_DEVICE_NOT_FOUND_WARNING_MESSAGE
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error(error);
 
         setSerialPortOrUSBConnectionState({
@@ -203,39 +222,45 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
    * 
    * @async
    * @function handleFiscalDeviceConnectionFormSubmit
-   * @param {object} fiscalDeviceConnectionSettingsFormData - Contains connection settings based on the connection type, 
+   * @param {SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings} fiscalDeviceConnectionSettingsFormData - 
+   * Contains connection settings based on the connection type, 
    * either serial port and baud rate or IP address and LAN/WiFi password.
-   * @param {function} setSubmitting - Formik helper to control the submitting state of the form.
-   * @param {string} connectionType - Specifies the connection type for the fiscal device, either "Serial" or "TCP".
+   * @param {FormikHelpers<SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings>['setSubmitting']} setSubmitting - 
+   * Formik helper to control the submitting state of the form.
+   * @param {FiscalDeviceConnectionType} connectionType - Specifies the connection type for the fiscal device, either "Serial" or "TCP".
    * @returns {Promise<void>} A promise that resolves once the connection operation completes.
    */
-  const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData: any, setSubmitting: any, connectionType: any): Promise<void> => {
+  const handleFiscalDeviceConnectionFormSubmit = async (
+    fiscalDeviceConnectionSettingsFormData: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings,
+    setSubmitting: FormikHelpers<SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings>['setSubmitting'],
+    connectionType: FiscalDeviceConnectionType
+  ): Promise<void> => {
     dispatch(setIsSearchingForFiscalDevice(true));
 
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fiscalDeviceConnectionHandler(fiscalDeviceConnectionSettingsFormData, connectionType);
 
-        let connectedFiscalDeviceSettings = {};
+        let connectedFiscalDeviceSettings = {} as SerialPortOrUSBConnectionType | LANOrWiFiConnectionType;
 
         if (connectionType === SERIAL_PORT_CONNECTION) {
           connectedFiscalDeviceSettings = {
             connectionType,
-            serialPort: fiscalDeviceConnectionSettingsFormData.serialPort,
-            baudRate: fiscalDeviceConnectionSettingsFormData.baudRate,
+            serialPort: (fiscalDeviceConnectionSettingsFormData as SerialPortOrUSBConnectionSettings).serialPort,
+            baudRate: (fiscalDeviceConnectionSettingsFormData as SerialPortOrUSBConnectionSettings).baudRate,
           };
         } else {
           connectedFiscalDeviceSettings = {
             connectionType,
-            fiscalDeviceIPAddress: fiscalDeviceConnectionSettingsFormData.fiscalDeviceIPAddress,
-            lanOrWifiPassword: fiscalDeviceConnectionSettingsFormData.lanOrWifiPassword
+            fiscalDeviceIPAddress: (fiscalDeviceConnectionSettingsFormData as LANOrWiFiConnectionSettings).fiscalDeviceIPAddress,
+            lanOrWifiPassword: (fiscalDeviceConnectionSettingsFormData as LANOrWiFiConnectionSettings).lanOrWifiPassword
           };
         }
 
         localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
-      } catch (error) {
-        const fiscalDeviceFailedConnectionStatus = {
-          severity: 'error',
+      } catch (error: any) {
+        const fiscalDeviceFailedConnectionStatus: FiscalDeviceAlertConnectionState = {
+          severity: "error",
           message: NOT_CONNECTED_TO_FISCAL_DEVICE_ERROR_MESSAGE,
         }
 
@@ -276,16 +301,18 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
   useEffect(() => {
     let serialPortsOptions: string[] = [];
 
-    for (let i = 0; i < 15; i++) {
+    for (let i: number = 0; i < 15; i++) {
       serialPortsOptions.push(`COM${i + 1}`);
     }
 
     const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
 
     if (configuredFiscalDeviceConnectionSettings &&
-      configuredFiscalDeviceConnectionSettings.connectionType === SERIAL_PORT_CONNECTION &&
-      !serialPortsOptions.includes(configuredFiscalDeviceConnectionSettings.serialPort)) {
-      serialPortsOptions = updateSerialPorts(serialPortsOptions, configuredFiscalDeviceConnectionSettings.serialPort);
+      configuredFiscalDeviceConnectionSettings.connectionType === fiscalDeviceConnectionTypes.Serial &&
+      !serialPortsOptions.includes((configuredFiscalDeviceConnectionSettings as SerialPortOrUSBConnectionType).serialPort)) {
+      serialPortsOptions = updateSerialPorts(
+        serialPortsOptions, (configuredFiscalDeviceConnectionSettings as SerialPortOrUSBConnectionType).serialPort
+      );
     }
 
     setSerialPorts(serialPortsOptions);
@@ -317,7 +344,9 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
           <Formik
             initialValues={serialPortOrUSBConnectionFormValues}
             validationSchema={serialPortOrUSBConnectionValidationSchema}
-            onSubmit={(values, { setSubmitting }) => handleFiscalDeviceConnectionFormSubmit(values, setSubmitting, SERIAL_PORT_CONNECTION)}
+            onSubmit={(values, { setSubmitting }) =>
+              handleFiscalDeviceConnectionFormSubmit(values, setSubmitting, fiscalDeviceConnectionTypes.Serial)
+            }
             enableReinitialize={true}
           >
             {({
@@ -355,13 +384,14 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
                         <FormControl fullWidth size="small">
                           <Paragraph fontSize={14}>Serial Port</Paragraph>
                           <Autocomplete
+                            freeSolo
                             size="small"
                             value={values.serialPort}
-                            onChange={(_, newSerialPortValue) => {
+                            onChange={(_, newSerialPortValue: string | null) => {
                               setFieldValue("serialPort", newSerialPortValue || "");
                             }}
                             inputValue={values.serialPort}
-                            onInputChange={(_, newSerialPortInputValue) => {
+                            onInputChange={(_, newSerialPortInputValue: string) => {
                               setFieldValue("serialPort", newSerialPortInputValue || "");
                             }}
                             onBlur={(event) => {
@@ -446,7 +476,9 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
           <Formik
             initialValues={lanOrWifiConnectionFormValues}
             validationSchema={lanOrWifiConnectionValidationSchema}
-            onSubmit={(values, { setSubmitting }) => handleFiscalDeviceConnectionFormSubmit(values, setSubmitting, TCP_CONNECTION)}
+            onSubmit={(values, { setSubmitting }) =>
+              handleFiscalDeviceConnectionFormSubmit(values, setSubmitting, fiscalDeviceConnectionTypes.TCP)
+            }
             enableReinitialize={true}
           >
             {({
