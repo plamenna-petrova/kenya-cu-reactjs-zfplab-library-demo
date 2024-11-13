@@ -12,7 +12,7 @@ export const getInitialFiscalDeviceConnectionFormValues = (
 
   let initialFiscalDeviceConnectionFormValuesToSet: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings =
     requestedConnectionType === fiscalDeviceConnectionTypes.Serial
-      ? configuredFiscalDeviceConnectionSettings && 
+      ? configuredFiscalDeviceConnectionSettings &&
         configuredFiscalDeviceConnectionSettings.connectionType === fiscalDeviceConnectionTypes.Serial
         ? {
           serialPort: (configuredFiscalDeviceConnectionSettings as SerialPortOrUSBConnectionType).serialPort,
@@ -22,7 +22,7 @@ export const getInitialFiscalDeviceConnectionFormValues = (
           serialPort: DEFAULT_SERIAL_PORT,
           baudRate: BAUD_RATES[BAUD_RATES.length - 1]
         }
-      : configuredFiscalDeviceConnectionSettings && 
+      : configuredFiscalDeviceConnectionSettings &&
         configuredFiscalDeviceConnectionSettings.connectionType === fiscalDeviceConnectionTypes.TCP
         ? {
           fiscalDeviceIPAddress: (configuredFiscalDeviceConnectionSettings as LANOrWiFiConnectionType).fiscalDeviceIPAddress,
