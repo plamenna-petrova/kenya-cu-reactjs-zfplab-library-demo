@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/display-name */
-import { forwardRef, Fragment, useState, useEffect, useMemo } from 'react';
+import { forwardRef, Fragment, FC, useState, useEffect, useMemo } from 'react';
 import { H3 } from '../layout/typography-elements/TypographyElements';
-import { TableVirtuoso } from 'react-virtuoso';
+import { TableVirtuoso, TableComponents } from 'react-virtuoso';
 import { useFP } from '../../hooks/useFP';
 import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
@@ -37,16 +37,19 @@ import StatusEntriesFilterBar from './status-entries-filter-bar/StatusEntriesFil
 import DirectCommands from './direct-commands/DirectCommands';
 // eslint-disable-next-line no-unused-vars
 import Tremol from "../../assets/js/fp";
+import { StatusEntriesColumnData } from '../../interfaces/status/StatusEntriesColumnData';
+import { StatusEntriesRowData } from '../../interfaces/status/StatusEntriesRowData';
+import { ToggleableStatusEntries } from '../../interfaces/status/ToggleableStatusEntries';
 
-const STATUS_ENTRY_NAME_LABEL = "Name";
+const STATUS_ENTRY_NAME_LABEL: string = "Name";
 
-const STATUS_ENTRY_NAME_DATA_KEY = "statusEntryName";
+const STATUS_ENTRY_NAME_DATA_KEY: string = "statusEntryName";
 
-const STATUS_ENTRY_VALUE_LABEL = "Status";
+const STATUS_ENTRY_VALUE_LABEL: string = "Status";
 
-const STATUS_ENTRY_VALUE_DATA_KEY = "statusEntryValue";
+const STATUS_ENTRY_VALUE_DATA_KEY: string = "statusEntryValue";
 
-const statusEntriesColumns = [
+const statusEntriesColumns: StatusEntriesColumnData[] = [
   {
     width: 80,
     label: STATUS_ENTRY_NAME_LABEL,
@@ -59,19 +62,23 @@ const statusEntriesColumns = [
   }
 ];
 
-const StatusEntriesVirtuosoTableComponents = {
-  Scroller: forwardRef((props, ref) => (
+const StatusEntriesVirtuosoTableComponents: TableComponents<StatusEntriesRowData> = {
+  Scroller: forwardRef<HTMLDivElement>((props, ref) => (
     <TableContainer component={Paper} {...props} ref={ref} />
   )),
   Table: (props) => (
     <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
   ),
-  TableHead: forwardRef((props, ref) => <TableHead {...props} ref={ref} />),
+  TableHead: forwardRef<HTMLTableSectionElement>((props, ref) => (
+    <TableHead {...props} ref={ref} />
+  )),
   TableRow,
-  TableBody: forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
+  TableBody: forwardRef<HTMLTableSectionElement>((props, ref) => (
+    <TableBody {...props} ref={ref} />)
+  ),
 };
 
-const getFixedStatusEntriesHeaderContent = () => {
+const getFixedStatusEntriesHeaderContent = (): JSX.Element => {
   return (
     <TableRow>
       {statusEntriesColumns.map((statusEntryColumn) => (
@@ -89,7 +96,7 @@ const getFixedStatusEntriesHeaderContent = () => {
   );
 }
 
-const statusEntriesRowContent = (_index, statusEntryRow) => {
+const statusEntriesRowContent = (_index: number, statusEntryRow: any): JSX.Element => {
   return (
     <Fragment>
       {statusEntriesColumns.map((statusEntryColumn) => (
@@ -107,14 +114,14 @@ const statusEntriesRowContent = (_index, statusEntryRow) => {
   );
 }
 
-const FiscalDeviceInformation = () => {
-  const [isFiscalDeviceInformationAlertDialogOpen, setIsFiscalDeviceInformationAlertDialogOpen] = useState(false);
-  const [fiscalDeviceInformationAlertDialogTitle, setFiscalDeviceInformationAlertDialogTitle] = useState('');
-  const [fiscalDeviceInformationAlertDialogContent, setFiscalDeviceInformationAlertDialogContent] = useState('');
-  const [statusEntriesToFill, setStatusEntriesToFill] = useState([]);
-  const [statusEntriesSearchTermForFiltering, setStatusEntriesSearchTermForFiltering] = useState('');
-  const [statusEntriesToToggle, setStatusEntriesToToggle] = useState({ onStatusEntries: true, offStatusEntries: true });
-  const isDesktopScreen = useMediaQuery('(min-width:1200px)');
+const FiscalDeviceInformation: FC = () => {
+  const [isFiscalDeviceInformationAlertDialogOpen, setIsFiscalDeviceInformationAlertDialogOpen] = useState<boolean>(false);
+  const [fiscalDeviceInformationAlertDialogTitle, setFiscalDeviceInformationAlertDialogTitle] = useState<string>('');
+  const [fiscalDeviceInformationAlertDialogContent, setFiscalDeviceInformationAlertDialogContent] = useState<string>('');
+  const [statusEntriesToFill, setStatusEntriesToFill] = useState<StatusEntriesRowData[]>([]);
+  const [statusEntriesSearchTermForFiltering, setStatusEntriesSearchTermForFiltering] = useState<string>('');
+  const [statusEntriesToToggle, setStatusEntriesToToggle] = useState<ToggleableStatusEntries>({ onStatusEntries: true, offStatusEntries: true });
+  const isDesktopScreen: boolean = useMediaQuery('(min-width:1200px)');
   const dispatch = useDispatch();
   const fp = useFP();
 
@@ -130,7 +137,7 @@ const FiscalDeviceInformation = () => {
    * @function handleReadStatusEntries
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleReadStatusEntries = async () => {
+  const handleReadStatusEntries = async (): Promise<void> => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         if (statusEntriesSearchTermForFiltering !== '') {
@@ -141,15 +148,16 @@ const FiscalDeviceInformation = () => {
           setStatusEntriesToToggle({ onStatusEntries: true, offStatusEntries: true });
         }
 
-        const readStatusEntries = fp.ReadStatus();
+        const readStatusEntries: { [key: string]: boolean } = fp.ReadStatus();
 
-        const mappedStatusEntries = Object.entries(readStatusEntries).map(([key, value]) => ({
-          statusEntryName: key.replaceAll("_", " "),
-          statusEntryValue: value
-        }));
+        const mappedStatusEntries: StatusEntriesRowData[] = Object.entries(readStatusEntries)
+          .map(([key, value]: [string, boolean]) => ({
+            statusEntryName: key.replaceAll("_", " "),
+            statusEntryValue: value
+          }));
 
         setStatusEntriesToFill(mappedStatusEntries);
-      } catch (error) {
+      } catch (error: any) {
         toast.error(handleZFPLabServerError(error));
       }
     }, READING_STATUS_ENTRIES_LOADING_MESSAGE);
@@ -165,11 +173,11 @@ const FiscalDeviceInformation = () => {
    * @function handlePrintDiagnosticsClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handlePrintDiagnosticsClick = async () => {
+  const handlePrintDiagnosticsClick = async (): Promise<void> => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fp.PrintDiagnostics();
-      } catch (error) {
+      } catch (error: any) {
         toast.error(handleZFPLabServerError(error));
       }
     }, PRINTING_DIAGNOSTICS_LOADING_MESSAGE);
@@ -185,11 +193,11 @@ const FiscalDeviceInformation = () => {
    * @function handleReadVersionClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleReadVersionClick = async () => {
+  const handleReadVersionClick = async (): Promise<void> => {
     try {
-      const version = await fp.ReadVersion().Version;
+      const version: string = await fp.ReadVersion().Version;
       handleFiscalDeviceInformationAlertDialogOpen(VERSION_INFO_ALERT_DIALOG_TITLE, version);
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -206,12 +214,12 @@ const FiscalDeviceInformation = () => {
    * @function handleReadDateTimeClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleReadDateTimeClick = async () => {
+  const handleReadDateTimeClick = async (): Promise<void> => {
     try {
-      const readDateTime = await fp.ReadDateTime();
-      const formattedDateTime = readDateTime.toStringWithFormat("dd.MM.yyyy hh:mm");
+      const readDateTime: Date = await fp.ReadDateTime();
+      const formattedDateTime: string = readDateTime.toStringWithFormat("dd.MM.yyyy hh:mm");
       handleFiscalDeviceInformationAlertDialogOpen(DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE, formattedDateTime);
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -230,28 +238,34 @@ const FiscalDeviceInformation = () => {
    * @function handleReadGSInfoClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleReadGSInfoClick = async () => {
+  const handleReadGSInfoClick = async (): Promise<void> => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fp.RawWrite(new Uint8Array([0x1d, 0x49]));
-        const inputBytes = new Uint8Array([0x0a]);
-        const decodedBytes = new TextDecoder().decode(inputBytes);
+        
+        const inputBytes: Uint8Array = new Uint8Array([0x0a]);
+        const decodedBytes: string = new TextDecoder().decode(inputBytes);
 
-        const rawReadBytes = fp.RawRead(0, decodedBytes);
-        const windows1252Decoder = new TextDecoder('windows-1252');
-        const gsInfoDecodedBytes = windows1252Decoder.decode(new Uint8Array([...rawReadBytes]));
-        const gsInfoArray = gsInfoDecodedBytes.toString().split(';');
+        const rawReadBytes: Uint8Array = fp.RawRead(0, decodedBytes);
+        const windows1252Decoder: TextDecoder = new TextDecoder('windows-1252');
+        const gsInfoDecodedBytes: string = windows1252Decoder.decode(new Uint8Array([...rawReadBytes]));
 
-        const printableCharacersPerLine = gsInfoArray[0].slice(1);
-        const articlesNumber = gsInfoArray[1];
-        const departmentsNumber = gsInfoArray[2];
-        const operatorsNumber = gsInfoArray[3];
-        const vatGroupsNumber = gsInfoArray[4];
-        const headerAndFooterLines = gsInfoArray[5];
-        const paymentsNumber = gsInfoArray[6];
-        const logosNumber = gsInfoArray[7];
-        const receiptTransactionNumber = gsInfoArray[9];
-        const clientsNumber = gsInfoArray[10].trim();
+        const gsInfoArray: number[] = gsInfoDecodedBytes
+          .toString()
+          .split(';')
+          .map(str => str.trim())
+          .map((y, index) => index === 0 ? parseInt(y.slice(1)) : parseInt(y));
+
+        const printableCharacersPerLine: number = gsInfoArray[0];
+        const articlesNumber: number = gsInfoArray[1];
+        const departmentsNumber: number = gsInfoArray[2];
+        const operatorsNumber: number = gsInfoArray[3];
+        const vatGroupsNumber: number = gsInfoArray[4];
+        const headerAndFooterLines: number = gsInfoArray[5];
+        const paymentsNumber: number = gsInfoArray[6];
+        const logosNumber: number = gsInfoArray[7];
+        const receiptTransactionNumber: number = gsInfoArray[9];
+        const clientsNumber: number = gsInfoArray[10];
 
         const gsInfoAlertContent =
           `Printable characters per line: ${printableCharacersPerLine}\n` +
@@ -266,7 +280,7 @@ const FiscalDeviceInformation = () => {
           `Clients number: ${clientsNumber}\n`;
 
         handleFiscalDeviceInformationAlertDialogOpen(GS_INFO_ALERT_DIALOG_TITLE, gsInfoAlertContent);
-      } catch (error) {
+      } catch (error: any) {
         toast.error(handleZFPLabServerError(error));
       }
     }, READING_GS_INFO_LOADING_MESSAGE);
@@ -283,24 +297,24 @@ const FiscalDeviceInformation = () => {
    * @function handleGetLibraryInformationClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleGetLibraryInformationClick = async () => {
-    const coreVersion = await fp.GetVersionCore();
-    const libraryDefinitions = await fp.GetVersionDefinitions().toString();
+  const handleGetLibraryInformationClick = async (): Promise<void> => {
+    const coreVersion: string = await fp.GetVersionCore();
+    const libraryDefinitions: string = await fp.GetVersionDefinitions().toString();
 
-    const libraryDefinitionsAlertContent =
+    const libraryDefinitionsAlertContent: string =
       `Core Version: ${coreVersion}\n` +
       `Library Definitions: ${libraryDefinitions}`;
 
     handleFiscalDeviceInformationAlertDialogOpen(LIBRARY_INFORMATION_ALERT_DIALOG_TITLE, libraryDefinitionsAlertContent);
   }
 
-  const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {
+  const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle: string, infoAlertDialogContent: string): void => {
     setFiscalDeviceInformationAlertDialogTitle(infoAlertDialogTitle);
     setFiscalDeviceInformationAlertDialogContent(infoAlertDialogContent);
     setIsFiscalDeviceInformationAlertDialogOpen(true);
   }
 
-  const handleFiscalDeviceInformationAlertDialogClose = () => {
+  const handleFiscalDeviceInformationAlertDialogClose = (): void => {
     setIsFiscalDeviceInformationAlertDialogOpen(false);
   }
 
@@ -311,12 +325,12 @@ const FiscalDeviceInformation = () => {
     - Otherwise, status entries are filtered based on the true/false value and the toggle settings.
     - The filter considers status entries that match the search term and satisfy the toggle options.
   */
-  const filteredStatusEntries = useMemo(() => {
+  const filteredStatusEntries: StatusEntriesRowData[] = useMemo(() => {
     return statusEntriesToFill.filter((x) => {
-      const matchesStatusEntrySearchTerm = x.statusEntryName.toLowerCase().includes(statusEntriesSearchTermForFiltering.toLowerCase());
-      const showAllStatusEntries = (statusEntriesToToggle.onStatusEntries && statusEntriesToToggle.offStatusEntries) ||
+      const matchesStatusEntrySearchTerm: boolean = x.statusEntryName.toLowerCase().includes(statusEntriesSearchTermForFiltering.toLowerCase());
+      const showAllStatusEntries: boolean = (statusEntriesToToggle.onStatusEntries && statusEntriesToToggle.offStatusEntries) ||
         (!statusEntriesToToggle.onStatusEntries && !statusEntriesToToggle.offStatusEntries);
-      const matchesStatusEntriesToggle = showAllStatusEntries ||
+      const matchesStatusEntriesToggle: boolean = showAllStatusEntries ||
         (statusEntriesToToggle.onStatusEntries && x.statusEntryValue) ||
         (statusEntriesToToggle.offStatusEntries && !x.statusEntryValue);
       return matchesStatusEntrySearchTerm && matchesStatusEntriesToggle;
@@ -354,7 +368,7 @@ const FiscalDeviceInformation = () => {
                     <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleReadGSInfoClick}>
                       GS Info
                     </Button>
-                    <Button size="medium" variant="contained" sx={{ width: '100%'}} onClick={handleGetLibraryInformationClick}>
+                    <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handleGetLibraryInformationClick}>
                       Library Definitions
                     </Button>
                   </Stack>
