@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode, FC, SyntheticEvent } from 'react';
 import { Formik } from "formik";
 import { Paragraph } from '../layout/typography-elements/TypographyElements';
 import {
@@ -31,7 +31,6 @@ import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { getInitialFiscalDeviceConnectionFormValues, getConfiguredFiscalDeviceConnectionSettings, updateSerialPorts } from '../../utils/connectionUtils';
 import { setFiscalDeviceConnectionState, setIsSearchingForFiscalDevice } from '../../store/slices/zfpConnectionSlice';
 import * as Yup from "yup";
-import PropTypes from 'prop-types';
 import FiscalDeviceConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
@@ -55,7 +54,13 @@ import CableIcon from '@mui/icons-material/Cable';
 import NetworkPingIcon from '@mui/icons-material/NetworkPing';
 import CloseIcon from '@mui/icons-material/Close';
 
-const FiscalDeviceConnectionTabPanel = (props) => {
+interface FiscalDeviceConnectionTabPanelProps {
+  children?: ReactNode;
+  index: number;
+  value: number;
+}
+
+const FiscalDeviceConnectionTabPanel: FC<FiscalDeviceConnectionTabPanelProps> = (props) => {
   const { children, value, index, ...restProps } = props;
 
   return (
@@ -71,31 +76,29 @@ const FiscalDeviceConnectionTabPanel = (props) => {
   );
 }
 
-FiscalDeviceConnectionTabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
-const a11yProps = (index) => {
+const a11yProps = (index: number) => {
   return {
     id: `fiscal-device-connection-tab-${index}`,
     'aria-controls': `fiscal-device-connection-tabpanel-${index}`,
   };
 }
 
-const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
-  const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState(0);
-  const [serialPorts, setSerialPorts] = useState([]);
-  const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState(getInitialFiscalDeviceConnectionFormValues(SERIAL_PORT_CONNECTION));
-  const [serialPortOrUSBConnectionFormTouched, setSerialPortOrUSBConnectionFormTouched] = useState({});
-  const [serialPortOrUSBConnectionFormErrors, setSerialPortOrUSBConnectionFormErrors] = useState({});
-  const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState(getInitialFiscalDeviceConnectionFormValues(TCP_CONNECTION));
-  const [lanOrWifiConnectionFormTouched, setLANOrWifiConnectionFormTouched] = useState({});
-  const [lanOrWifiConnectionFormErrors, setLANOrWifiConnectionFormErrors] = useState({});
-  const [serialPortOrUSBConnectionState, setSerialPortOrUSBConnectionState] = useState(null);
-  const [lanOrWifiConnectionState, setLanOrWifiConnectionState] = useState(null);
-  const isMobileScreen = useMediaQuery('(max-width:480px)');
+interface FiscalDeviceConnectionProps {
+  fiscalDeviceConnectionHandler: (connectionSettings: any, connectionType: string) => void;
+}
+
+const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceConnectionHandler }) => {
+  const [fiscalDeviceConnectionTabValue, setFiscalDeviceConnectionTabValue] = useState<number>(0);
+  const [serialPorts, setSerialPorts] = useState<string[]>([]);
+  const [serialPortOrUSBConnectionFormValues, setSerialPortOrUSBConnectionFormValues] = useState<any>(getInitialFiscalDeviceConnectionFormValues(SERIAL_PORT_CONNECTION));
+  const [serialPortOrUSBConnectionFormTouched, setSerialPortOrUSBConnectionFormTouched] = useState<any>({});
+  const [serialPortOrUSBConnectionFormErrors, setSerialPortOrUSBConnectionFormErrors] = useState<any>({});
+  const [lanOrWifiConnectionFormValues, setLANOrWiFiConnectionFormValues] = useState<any>(getInitialFiscalDeviceConnectionFormValues(TCP_CONNECTION));
+  const [lanOrWifiConnectionFormTouched, setLANOrWifiConnectionFormTouched] = useState<any>({});
+  const [lanOrWifiConnectionFormErrors, setLANOrWifiConnectionFormErrors] = useState<any>({});
+  const [serialPortOrUSBConnectionState, setSerialPortOrUSBConnectionState] = useState<any>(null);
+  const [lanOrWifiConnectionState, setLanOrWifiConnectionState] = useState<any>(null);
+  const isMobileScreen: boolean = useMediaQuery('(max-width:480px)');
   const dispatch = useDispatch();
   const fp = useFP();
 
@@ -124,7 +127,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
     lanOrWifiPassword: Yup.string().required(REQUIRED_NETWORK_PASSWORD_ERROR_MESSAGE)
   });
 
-  const handleFiscalDeviceConnectionTabChange = (_, newValue) => {
+  const handleFiscalDeviceConnectionTabChange = (_: SyntheticEvent, newValue: number): void => {
     setFiscalDeviceConnectionTabValue(newValue);
   };
 
@@ -146,7 +149,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
    * @param {function} setErrors - Formik function to set field errors in the form.
    * @returns {Promise<void>} A promise that resolves once the search operation completes.
    */
-  const handleFindFiscalDeviceClick = async (setFieldValue, setTouched, setErrors) => {
+  const handleFindFiscalDeviceClick = async (setFieldValue: any, setTouched: any, setErrors: any): Promise<void> => {
     dispatch(setIsSearchingForFiscalDevice(true));
 
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -206,7 +209,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
    * @param {string} connectionType - Specifies the connection type for the fiscal device, either "Serial" or "TCP".
    * @returns {Promise<void>} A promise that resolves once the connection operation completes.
    */
-  const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData, setSubmitting, connectionType) => {
+  const handleFiscalDeviceConnectionFormSubmit = async (fiscalDeviceConnectionSettingsFormData: any, setSubmitting: any, connectionType: any): Promise<void> => {
     dispatch(setIsSearchingForFiscalDevice(true));
 
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -253,11 +256,11 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
     }, CONNECTING_TO_FISCAL_DEVICE_LOADING_MESSAGE);
   }
 
-  const clearSerialPortOrUSBConnectionStateAlert = () => {
+  const clearSerialPortOrUSBConnectionStateAlert = (): void => {
     setSerialPortOrUSBConnectionState(null);
   }
 
-  const clearLANOrWifiConnectionStateAlert = () => {
+  const clearLANOrWifiConnectionStateAlert = (): void => {
     setLanOrWifiConnectionState(null);
   }
 
@@ -271,7 +274,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
     This effect runs once when the component mounts.
   */
   useEffect(() => {
-    let serialPortsOptions = [];
+    let serialPortsOptions: string[] = [];
 
     for (let i = 0; i < 15; i++) {
       serialPortsOptions.push(`COM${i + 1}`);
@@ -352,7 +355,6 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                         <FormControl fullWidth size="small">
                           <Paragraph fontSize={14}>Serial Port</Paragraph>
                           <Autocomplete
-                            name="serialPort"
                             size="small"
                             value={values.serialPort}
                             onChange={(_, newSerialPortValue) => {
@@ -489,7 +491,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                           onBlur={handleBlur}
                           value={values.fiscalDeviceIPAddress}
                           onChange={handleChange}
-                          helperText={touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress}
+                          helperText={!!touched.fiscalDeviceIPAddress && !!errors.fiscalDeviceIPAddress}
                           error={Boolean(touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress)}
                         />
                       </Box>
@@ -505,7 +507,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                           onBlur={handleBlur}
                           value={values.lanOrWifiPassword}
                           onChange={handleChange}
-                          helperText={touched.lanOrWifiPassword && errors.lanOrWifiPassword}
+                          helperText={!!touched.lanOrWifiPassword && !!errors.lanOrWifiPassword}
                           error={Boolean(touched.lanOrWifiPassword && errors.lanOrWifiPassword)}
                         />
                       </Box>
@@ -546,10 +548,6 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
       </CardContent>
     </FiscalDeviceConnectionCard>
   )
-}
-
-FiscalDeviceConnection.propTypes = {
-  fiscalDeviceConnectionHandler: PropTypes.func
 }
 
 export default FiscalDeviceConnection;
