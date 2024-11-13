@@ -20,7 +20,7 @@ const StyledCardWrapper = styled(Card)(({ theme }) => ({
   },
 }));
 
-type ZFPConnectionCardProps = {
+interface ZFPConnectionCardProps {
   children: ReactNode;
 }
 

@@ -22,7 +22,7 @@ const DraggableDialogPaperWrapper: FC<PaperProps> = (props: PaperProps) => {
   )
 }
 
-type DraggableDetailsDialogProps = {
+interface DraggableDetailsDialogProps {
   isDraggableDialogOpen: boolean;
   onDraggableDialogClose: () => void;
   draggableDialogTitle: string;

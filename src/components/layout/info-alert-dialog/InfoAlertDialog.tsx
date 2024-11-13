@@ -7,7 +7,7 @@ import AlertTitle from '@mui/material/AlertTitle';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-type InfoAlertDialogProps = {
+interface InfoAlertDialogProps {
   isInfoAlertDialogOpen: boolean;
   onInfoAlertDialogClose: () => void;
   infoAlertDialogTitle: string;

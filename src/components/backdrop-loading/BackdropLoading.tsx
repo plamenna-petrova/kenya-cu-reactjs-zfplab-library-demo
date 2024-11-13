@@ -5,7 +5,7 @@ import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import CircularProgress from "@mui/material/CircularProgress";
 
-type BackdropLoadingProps = {
+interface BackdropLoadingProps {
   isBackdropLoadingOpen: boolean;
   loadingMessage?: string;
 }
