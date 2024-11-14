@@ -1,4 +1,5 @@
-import { Formik } from "formik";
+import { FC } from 'react';
+import { Formik, FormikHelpers } from "formik";
 import { H3, Paragraph } from '../../layout/typography-elements/TypographyElements';
 import {
   SENDING_DIRECT_COMMAND_LOADING_MESSAGE,
@@ -7,6 +8,7 @@ import {
 } from '../../../utils/constants';
 import { executeFPOperationWithLoading } from "../../../utils/loadingUtils";
 import { handleZFPLabServerError } from '../../../utils/tremolLibraryUtils';
+import { DirectCommandFormData } from '../../../interfaces/direct-commands/DirectCommandFormData';
 import { useFP } from '../../../hooks/useFP';
 import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
@@ -22,11 +24,11 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import ClearIcon from '@mui/icons-material/Clear';
 
-const DirectCommands = () => {
+const DirectCommands: FC = () => {
   const dispatch = useDispatch();
   const fp = useFP();
 
-  const directCommandInitialFormValues = {
+  const directCommandInitialFormValues: DirectCommandFormData = {
     directCommandInput: "",
     directCommandResult: ""
   };
@@ -45,22 +47,31 @@ const DirectCommands = () => {
    * 
    * @async
    * @function handleDirectCommandFormSubmit
-   * @param {object} directCommandFormData - Data containing the direct command input and result.
+   * @param {DirectCommandFormData} directCommandFormData - Data containing the direct command input and result.
    * @param {object} formikHelperFunctions - Formik helpers for handling form state.
-   * @param {function} formikHelperFunctions.setFieldValue - Formik function to update specific form field values.
-   * @param {function} formikHelperFunctions.setSubmitting - Formik function to control the submitting state of the form.
+   * @param {FormikHelpers<DirectCommandFormData>['setFieldValue']} formikHelperFunctions.setFieldValue - Formik function to update specific form field values.
+   * @param {FormikHelpers<DirectCommandFormData>['setSubmitting']} formikHelperFunctions.setSubmitting - Formik function to control the submitting state of the form.
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleDirectCommandFormSubmit = async (directCommandFormData, { setFieldValue, setSubmitting }) => {
+  const handleDirectCommandFormSubmit = async (
+    directCommandFormData: DirectCommandFormData,
+    { 
+      setFieldValue, 
+      setSubmitting 
+    }: {
+      setFieldValue: FormikHelpers<DirectCommandFormData>['setFieldValue'],
+      setSubmitting: FormikHelpers<DirectCommandFormData>['setSubmitting'],
+    }
+  ): Promise<void> => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         if (directCommandFormData.directCommandResult.trim() !== '') {
           setFieldValue("directCommandResult", '');
         }
 
-        const directCommandResult = await fp.DirectCommand(directCommandFormData.directCommandInput);
+        const directCommandResult: string = await fp.DirectCommand(directCommandFormData.directCommandInput);
         setFieldValue("directCommandResult", directCommandResult);
-      } catch (error) {
+      } catch (error: any) {
         toast.error(handleZFPLabServerError(error));
       } finally {
         setSubmitting(false);
@@ -68,7 +79,7 @@ const DirectCommands = () => {
     }, SENDING_DIRECT_COMMAND_LOADING_MESSAGE);
   }
 
-  const clearDirectCommandResult = (setFieldValue) => {
+  const clearDirectCommandResult = (setFieldValue: FormikHelpers<DirectCommandFormData>['setFieldValue']): void => {
     setFieldValue("directCommandResult", '');
   }
 

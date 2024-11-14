@@ -298,14 +298,18 @@ const FiscalDeviceInformation: FC = () => {
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleGetLibraryInformationClick = async (): Promise<void> => {
-    const coreVersion: string = await fp.GetVersionCore();
-    const libraryDefinitions: string = await fp.GetVersionDefinitions().toString();
-
-    const libraryDefinitionsAlertContent: string =
-      `Core Version: ${coreVersion}\n` +
-      `Library Definitions: ${libraryDefinitions}`;
-
-    handleFiscalDeviceInformationAlertDialogOpen(LIBRARY_INFORMATION_ALERT_DIALOG_TITLE, libraryDefinitionsAlertContent);
+    try {
+      const coreVersion: string = await fp.GetVersionCore();
+      const libraryDefinitions: string = await fp.GetVersionDefinitions().toString();
+  
+      const libraryDefinitionsAlertContent: string =
+        `Core Version: ${coreVersion}\n` +
+        `Library Definitions: ${libraryDefinitions}`;
+  
+      handleFiscalDeviceInformationAlertDialogOpen(LIBRARY_INFORMATION_ALERT_DIALOG_TITLE, libraryDefinitionsAlertContent);
+    } catch (error: any) {
+      toast.error(handleZFPLabServerError(error));
+    }
   }
 
   const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle: string, infoAlertDialogContent: string): void => {
