@@ -8,6 +8,7 @@ import { useFP } from '../../hooks/useFP';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
 import { isNullOrWhitespace, sleepAsync } from "../../utils/helperFunctions";
+import { VATGroup } from "../../interfaces/fiscal-receipts/VATGroup";
 import {
   REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE,
   OPERATOR_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE,
@@ -51,7 +52,7 @@ import OperatorDataSetup from "./operator-data/OperatorDataSetup";
 import Tremol from "../../assets/js/fp";
 
 const FiscalReceipts = () => {
-  const [vatGroups, setVATGroups] = useState([]);
+  const [vatGroups, setVATGroups] = useState<VATGroup[]>([]);
   const operatorData = useSelector((state: RootState) => state.operatorData);
   const isDesktopScreen: boolean = useMediaQuery('(min-width:1200px)');
   const dispatch = useDispatch<AppDispatch>();
@@ -123,8 +124,8 @@ const FiscalReceipts = () => {
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleExternalDatabaseArticleSaleFormSubmit = async (
-    externalDatabaseArticleSaleFormData: any, 
-    { setSubmitting }: { setSubmitting: any}
+    externalDatabaseArticleSaleFormData: any,
+    { setSubmitting }: { setSubmitting: any }
   ): Promise<void> => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
@@ -387,7 +388,7 @@ const FiscalReceipts = () => {
       toast.error(`${FISCAL_RECEIPT_OPENING_ERROR_MESSAGE}. ${REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE}.`);
       return false;
     } else {
-      if (isNaN(operatorData.operatorNumber)) {
+      if (isNaN(Number(operatorData.operatorNumber))) {
         toast.error(`${FISCAL_RECEIPT_OPENING_ERROR_MESSAGE}. ${OPERATOR_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE}.`);
         return false;
       }
@@ -413,8 +414,11 @@ const FiscalReceipts = () => {
    * @param {boolean} isDiscountOrAdditionInPercentage - Indicates whether the value represents a percentage.
    * @returns {(number | null)[]} An array with parsed discount or addition values, where the first element is used for percentage values and the second for absolute values.
    */
-  const getDiscountOrAdditionValues = (discountOrAdditionToCheck, isDiscountOrAdditionInPercentage) => {
-    let discountOrAdditionFillableArray = [null, null];
+  const getDiscountOrAdditionValues = (
+    discountOrAdditionToCheck: string,
+    isDiscountOrAdditionInPercentage: boolean
+  ): (number | null)[] => {
+    let discountOrAdditionFillableArray: (number | null)[] = [null, null];
 
     if (!isNullOrWhitespace(discountOrAdditionToCheck)) {
       if (isDiscountOrAdditionInPercentage) {
@@ -436,10 +440,11 @@ const FiscalReceipts = () => {
    * @returns {void} This function does not return a value.
    */
   const configureVATGroups = () => {
-    const vatGroupOptionsToSet = Object.entries((Tremol as any).Enums.OptionVATClass).map(([key, value]) => ({
-      name: key.replaceAll("_", ""),
-      value
-    }));
+    const vatGroupOptionsToSet: VATGroup[] = (Object.entries((Tremol as any).Enums.OptionVATClass) as [string, string][])
+      .map(([key, value]) => ({
+        name: key.replaceAll("_", ""),
+        value: value
+      }));
 
     setVATGroups(vatGroupOptionsToSet);
   }
