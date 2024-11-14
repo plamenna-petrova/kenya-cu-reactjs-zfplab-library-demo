@@ -1,31 +1,38 @@
-import { useState, useEffect } from "react";
+import { FC, useState, useEffect, ChangeEvent} from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import PropTypes from 'prop-types';
+import { ToggleableStatusEntries } from "../../../interfaces/status/ToggleableStatusEntries";
 
-const StatusEntriesFilterBar = ({
+interface StatusEntriesProps {
+  statusEntriesSearchTermForFiltering: string;
+  onStatusEntriesSearch: (searchTerm: string) => void;
+  statusEntriesToToggle: ToggleableStatusEntries;
+  onToggleStatusEntriesFilterChange: (statusEntriesToToggle: ToggleableStatusEntries) => void;
+}
+
+const StatusEntriesFilterBar: FC<StatusEntriesProps> = ({
   statusEntriesSearchTermForFiltering,
   onStatusEntriesSearch,
   statusEntriesToToggle,
   onToggleStatusEntriesFilterChange
 }) => {
-  const [statusEntriesSearchTerm, setStatusEntriesSearchTerm] = useState(statusEntriesSearchTermForFiltering);
-  const [checkedOnOrOffStatusEntries, setCheckedOnOrOffStatusEntries] = useState(statusEntriesToToggle);
+  const [statusEntriesSearchTerm, setStatusEntriesSearchTerm] = useState<string>(statusEntriesSearchTermForFiltering);
+  const [checkedOnOrOffStatusEntries, setCheckedOnOrOffStatusEntries] = useState<ToggleableStatusEntries>(statusEntriesToToggle);
 
-  const handleStatusEntriesSearch = (changeEvent) => {
-    const enteredSearchTerm = changeEvent.target.value;
+  const handleStatusEntriesSearch = (changeEvent: ChangeEvent<HTMLInputElement>): void => {
+    const enteredSearchTerm = changeEvent.target.value as string;
     setStatusEntriesSearchTerm(enteredSearchTerm);
     onStatusEntriesSearch(enteredSearchTerm);
   }
 
-  const handleOnOrOffCheckedStatusEntriesChange = (changeEvent) => {
+  const handleOnOrOffCheckedStatusEntriesChange = (changeEvent: ChangeEvent<HTMLInputElement>): void => {
     const mergedOnOrOffStatusEntries = {
       ...checkedOnOrOffStatusEntries,
       [changeEvent.target.name]: changeEvent.target.checked
-    }
+    } as ToggleableStatusEntries;
 
     setCheckedOnOrOffStatusEntries(mergedOnOrOffStatusEntries);
     onToggleStatusEntriesFilterChange(mergedOnOrOffStatusEntries);
@@ -80,12 +87,5 @@ const StatusEntriesFilterBar = ({
     </Box>
   )
 }
-
-StatusEntriesFilterBar.propTypes = {
-  statusEntriesSearchTermForFiltering: PropTypes.string,
-  onStatusEntriesSearch: PropTypes.func.isRequired,
-  statusEntriesToToggle: PropTypes.object,
-  onToggleStatusEntriesFilterChange: PropTypes.func
-};
 
 export default StatusEntriesFilterBar;
