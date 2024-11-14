@@ -92,6 +92,13 @@ const fullscreenTheme = createTheme({
         },
       },
     },
+    MuiSelect: {
+      defaultProps: {
+        PopperProps: {
+          container: fullScreenContainer,
+        },
+      },
+    },
     MuiTooltip: {
       defaultProps: {
         PopperProps: {

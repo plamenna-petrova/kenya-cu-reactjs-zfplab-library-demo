@@ -48,7 +48,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Stack from '@mui/material/Stack';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import OperatorDataSetup from "./operator-data/OperatorDataSetup";
-
 import Tremol from "../../assets/js/fp";
 
 const FiscalReceipts = () => {
@@ -61,7 +60,7 @@ const FiscalReceipts = () => {
   const externalDatabaseArticleSaleInitialFormValues = {
     withCorrection: false,
     articleName: "",
-    vatGroup: Tremol.Enums.OptionVATClass.VAT_Class_A,
+    vatGroup: (Tremol as any).Enums.OptionVATClass.VAT_Class_A,
     price: "",
     quantity: "",
     isDiscountOrAdditionInPercentage: false,
@@ -216,7 +215,7 @@ const FiscalReceipts = () => {
    */
   const handleCalculateSubtotalClick = async (): Promise<void> => {
     try {
-      await fp.Subtotal(Tremol.Enums.OptionPrinting.Yes, Tremol.Enums.OptionDisplay.No, null, null);
+      await fp.Subtotal((Tremol as any).Enums.OptionPrinting.Yes, (Tremol as any).Enums.OptionDisplay.No, null, null);
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
     }
@@ -232,7 +231,7 @@ const FiscalReceipts = () => {
    */
   const handlePayExactSumClick = async (): Promise<void> => {
     try {
-      await fp.PayExactSum(Tremol.Enums.OptionPaymentType.Cash);
+      await fp.PayExactSum((Tremol as any).Enums.OptionPaymentType.Cash);
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
     }
@@ -327,7 +326,7 @@ const FiscalReceipts = () => {
         await fp.OpenReceipt(
           operatorData.operatorNumber,
           operatorData.operatorPassword,
-          Tremol.Enums.OptionPrintType.Step_by_step_printing
+          (Tremol as any).Enums.OptionPrintType.Step_by_step_printing
         );
 
         isReceiptOpeningSuccessful = true;
@@ -437,7 +436,7 @@ const FiscalReceipts = () => {
    * @returns {void} This function does not return a value.
    */
   const configureVATGroups = () => {
-    const vatGroupOptionsToSet = Object.entries(Tremol.Enums.OptionVATClass).map(([key, value]) => ({
+    const vatGroupOptionsToSet = Object.entries((Tremol as any).Enums.OptionVATClass).map(([key, value]) => ({
       name: key.replaceAll("_", ""),
       value
     }));

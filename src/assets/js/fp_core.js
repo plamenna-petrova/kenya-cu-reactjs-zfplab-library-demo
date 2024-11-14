@@ -768,4 +768,4 @@ Uint8Array.prototype.toUnicodeString = function () {
 * @property {boolean} isConnected The client is connected to device
 */
 
-export default Tremol
+export default Tremol;
