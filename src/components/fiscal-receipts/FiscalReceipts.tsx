@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Formik } from "formik";
 import { H3, Paragraph } from "../layout/typography-elements/TypographyElements";
 import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
 import { toast } from 'react-toastify';
 import { useFP } from '../../hooks/useFP';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
@@ -47,13 +48,14 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Stack from '@mui/material/Stack';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import OperatorDataSetup from "./operator-data/OperatorDataSetup";
+
 import Tremol from "../../assets/js/fp";
 
 const FiscalReceipts = () => {
   const [vatGroups, setVATGroups] = useState([]);
-  const operatorData = useSelector((state) => state.operatorData);
-  const isDesktopScreen = useMediaQuery('(min-width:1200px)');
-  const dispatch = useDispatch();
+  const operatorData = useSelector((state: RootState) => state.operatorData);
+  const isDesktopScreen: boolean = useMediaQuery('(min-width:1200px)');
+  const dispatch = useDispatch<AppDispatch>();
   const fp = useFP();
 
   const externalDatabaseArticleSaleInitialFormValues = {
@@ -72,12 +74,12 @@ const FiscalReceipts = () => {
     articleName: Yup
       .string()
       .required(REQUIRED_ARTICLE_NAME_ERROR_MESSAGE)
-      .test("articleNameLength", ARTICLE_NAME_MAX_LENGTH_ERROR_MESSAGE, value => value && value.length <= 36),
+      .test("articleNameLength", ARTICLE_NAME_MAX_LENGTH_ERROR_MESSAGE, value => !!value && value.length <= 36),
     price: Yup
       .number()
       .required(REQUIRED_PRICE_ERROR_MESSAGE)
       .typeError(PRICE_VALUE_NOT_A_NUMBER_ERROR_MESSAGE)
-      .test("priceLength", PRICE_MAX_LENGTH_ERROR_MESSAGE, value => value && value.toString().length <= 10),
+      .test("priceLength", PRICE_MAX_LENGTH_ERROR_MESSAGE, value => !!value && value.toString().length <= 10),
     quantity: Yup
       .number()
       .typeError(QUANTITY_VALUE_NOT_A_NUMBER_ERROR_MESSAGE)
@@ -87,9 +89,9 @@ const FiscalReceipts = () => {
       .number()
       .typeError(DISCOUNT_OR_ADDITION_VALUE_NOT_A_NUMBER_ERROR_MESSAGE)
       .test("discountOrAdditionLength", function (value) {
-        const { isDiscountOrAdditionInPercentage } = this.parent;
-        const discountOrAdditionMaxLength = isDiscountOrAdditionInPercentage ? 7 : 8;
-        const discountOrAdditionMaxLengthErrorMessage = isDiscountOrAdditionInPercentage
+        const { isDiscountOrAdditionInPercentage }: { isDiscountOrAdditionInPercentage: boolean } = this.parent;
+        const discountOrAdditionMaxLength: number = isDiscountOrAdditionInPercentage ? 7 : 8;
+        const discountOrAdditionMaxLengthErrorMessage: string = isDiscountOrAdditionInPercentage
           ? DISCOUNT_OR_ADDITION_PERCENTAGE_MAX_LENGTH_ERROR_MESSAGE
           : DISCOUNT_OR_ADDITION_VALUE_MAX_LENGTH_ERROR_MESSAGE;
 
@@ -121,7 +123,10 @@ const FiscalReceipts = () => {
    * @param {function} formikHelperFunctions.setSubmitting - Formik function to control the form's submitting state.
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleExternalDatabaseArticleSaleFormSubmit = async (externalDatabaseArticleSaleFormData, { setSubmitting }) => {
+  const handleExternalDatabaseArticleSaleFormSubmit = async (
+    externalDatabaseArticleSaleFormData: any, 
+    { setSubmitting }: { setSubmitting: any}
+  ): Promise<void> => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
@@ -186,7 +191,7 @@ const FiscalReceipts = () => {
    * @function handleOpenFiscalReceiptClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleOpenFiscalReceiptClick = async () => {
+  const handleOpenFiscalReceiptClick = async (): Promise<void> => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
@@ -209,7 +214,7 @@ const FiscalReceipts = () => {
    * @function handleCalculateSubtotalClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleCalculateSubtotalClick = async () => {
+  const handleCalculateSubtotalClick = async (): Promise<void> => {
     try {
       await fp.Subtotal(Tremol.Enums.OptionPrinting.Yes, Tremol.Enums.OptionDisplay.No, null, null);
     } catch (error) {
@@ -225,7 +230,7 @@ const FiscalReceipts = () => {
    * @function handlePayExactSumClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handlePayExactSumClick = async () => {
+  const handlePayExactSumClick = async (): Promise<void> => {
     try {
       await fp.PayExactSum(Tremol.Enums.OptionPaymentType.Cash);
     } catch (error) {
@@ -244,7 +249,7 @@ const FiscalReceipts = () => {
    * @function handleAutomaticReceiptClosingClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleAutomaticReceiptClosingClick = async () => {
+  const handleAutomaticReceiptClosingClick = async (): Promise<void> => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
@@ -276,7 +281,7 @@ const FiscalReceipts = () => {
    * @function handleCloseFiscalReceiptClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleCloseFiscalReceiptClick = async () => {
+  const handleCloseFiscalReceiptClick = async (): Promise<void> => {
     try {
       const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
@@ -306,7 +311,7 @@ const FiscalReceipts = () => {
    * @function handleFiscalReceiptOpening
    * @returns {Promise<boolean>} `true` if the fiscal receipt is successfully opened; otherwise, `false`.
    */
-  const handleFiscalReceiptOpening = async () => {
+  const handleFiscalReceiptOpening = async (): Promise<boolean> => {
     let isReceiptOpeningSuccessful = false;
 
     if (!isOperatorProvided()) {
@@ -343,9 +348,9 @@ const FiscalReceipts = () => {
    * @function checkStatusForReceiptOpening
    * @returns {Promise<boolean>} `true` if all checked status entries are `false`; otherwise, `false`.
    */
-  const checkStatusForReceiptOpening = async () => {
+  const checkStatusForReceiptOpening = async (): Promise<boolean> => {
     try {
-      const status = await fp.ReadStatus();
+      const status: { [key: string]: boolean } = await fp.ReadStatus();
 
       return !status.Blocking_3_days_without_mobile_operator
         && !status.DateTime_not_set && !status.DateTime_wrong
@@ -378,7 +383,7 @@ const FiscalReceipts = () => {
    * @function isOperatorProvided
    * @returns {boolean} `true` if both operator number and password are valid; otherwise, `false`.
    */
-  const isOperatorProvided = () => {
+  const isOperatorProvided = (): boolean => {
     if (isNullOrWhitespace(operatorData.operatorNumber)) {
       toast.error(`${FISCAL_RECEIPT_OPENING_ERROR_MESSAGE}. ${REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE}.`);
       return false;
