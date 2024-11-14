@@ -1,8 +1,10 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useEffect } from "react";
+import { FC, useEffect } from "react";
 import { Formik } from "formik";
 import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../../store";
 import { setOperatorData } from "../../../store/slices/operatorDataSlice";
+import { OperatorData } from "../../../interfaces/operator-data/OpreratorData";
 import { H3 } from "../../layout/typography-elements/TypographyElements";
 import {
   REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE,
@@ -19,11 +21,11 @@ import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
-const OperatorData = () => {
-  const operatorData = useSelector((state) => state.operatorData);
-  const dispatch = useDispatch();
+const OperatorDataSetup: FC = () => {
+  const operatorData = useSelector((state: RootState) => state.operatorData);
+  const dispatch = useDispatch<AppDispatch>();
 
-  const operatorDataInitialFormValues = operatorData;
+  const operatorDataInitialFormValues: OperatorData = operatorData;
 
   const operatorDataValidationSchema = Yup.object().shape({
     operatorNumber: Yup
@@ -48,6 +50,7 @@ const OperatorData = () => {
         <Formik
           initialValues={operatorDataInitialFormValues}
           validationSchema={operatorDataValidationSchema}
+          onSubmit={() => {}}
         >
           {({
             values,
@@ -100,4 +103,4 @@ const OperatorData = () => {
   )
 }
 
-export default OperatorData;
+export default OperatorDataSetup;

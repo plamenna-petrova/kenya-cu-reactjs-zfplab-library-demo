@@ -1,6 +1,7 @@
+import { OperatorData } from './../../interfaces/operator-data/OpreratorData';
 import { createSlice } from "@reduxjs/toolkit";
 
-const operatorDataInitialState = {
+const operatorDataInitialState: OperatorData = {
   operatorNumber: "1",
   operatorPassword: "0"
 }
@@ -10,7 +11,7 @@ export const operatorDataSlice = createSlice({
   initialState: operatorDataInitialState,
   reducers: {
     setOperatorData: (state, action) => {
-      const { operatorNumber, operatorPassword } = action.payload;
+      const { operatorNumber, operatorPassword } = action.payload as OperatorData;
       state.operatorNumber = operatorNumber;
       state.operatorPassword = operatorPassword;
     }

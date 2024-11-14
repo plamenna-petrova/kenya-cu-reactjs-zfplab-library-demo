@@ -5,9 +5,13 @@ import { H3 } from '../layout/typography-elements/TypographyElements';
 import { TableVirtuoso, TableComponents } from 'react-virtuoso';
 import { useFP } from '../../hooks/useFP';
 import { useDispatch } from "react-redux";
+import { AppDispatch } from '../../store';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
+import { StatusEntriesColumnData } from '../../interfaces/status/StatusEntriesColumnData';
+import { StatusEntriesRowData } from '../../interfaces/status/StatusEntriesRowData';
+import { ToggleableStatusEntries } from '../../interfaces/status/ToggleableStatusEntries';
 import {
   READING_STATUS_ENTRIES_LOADING_MESSAGE,
   VERSION_INFO_ALERT_DIALOG_TITLE,
@@ -37,9 +41,8 @@ import StatusEntriesFilterBar from './status-entries-filter-bar/StatusEntriesFil
 import DirectCommands from './direct-commands/DirectCommands';
 // eslint-disable-next-line no-unused-vars
 import Tremol from "../../assets/js/fp";
-import { StatusEntriesColumnData } from '../../interfaces/status/StatusEntriesColumnData';
-import { StatusEntriesRowData } from '../../interfaces/status/StatusEntriesRowData';
-import { ToggleableStatusEntries } from '../../interfaces/status/ToggleableStatusEntries';
+import { isNaN } from 'formik';
+import { isNullOrWhitespace } from '../../utils/helperFunctions';
 
 const STATUS_ENTRY_NAME_LABEL: string = "Name";
 
@@ -122,7 +125,7 @@ const FiscalDeviceInformation: FC = () => {
   const [statusEntriesSearchTermForFiltering, setStatusEntriesSearchTermForFiltering] = useState<string>('');
   const [statusEntriesToToggle, setStatusEntriesToToggle] = useState<ToggleableStatusEntries>({ onStatusEntries: true, offStatusEntries: true });
   const isDesktopScreen: boolean = useMediaQuery('(min-width:1200px)');
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const fp = useFP();
 
   /**
@@ -250,24 +253,24 @@ const FiscalDeviceInformation: FC = () => {
         const windows1252Decoder: TextDecoder = new TextDecoder('windows-1252');
         const gsInfoDecodedBytes: string = windows1252Decoder.decode(new Uint8Array([...rawReadBytes]));
 
-        const gsInfoArray: number[] = gsInfoDecodedBytes
+        const gsInfoArray: (number | string)[] = gsInfoDecodedBytes
           .toString()
           .split(';')
           .map(str => str.trim())
-          .map((y, index) => index === 0 ? parseInt(y.slice(1)) : parseInt(y));
+          .map((y, index) => index === 0 ? parseInt(y.slice(1)) : !isNullOrWhitespace(y) ? parseInt(y) : '-');
 
-        const printableCharacersPerLine: number = gsInfoArray[0];
-        const articlesNumber: number = gsInfoArray[1];
-        const departmentsNumber: number = gsInfoArray[2];
-        const operatorsNumber: number = gsInfoArray[3];
-        const vatGroupsNumber: number = gsInfoArray[4];
-        const headerAndFooterLines: number = gsInfoArray[5];
-        const paymentsNumber: number = gsInfoArray[6];
-        const logosNumber: number = gsInfoArray[7];
-        const receiptTransactionNumber: number = gsInfoArray[9];
-        const clientsNumber: number = gsInfoArray[10];
+        const printableCharacersPerLine = gsInfoArray[0];
+        const articlesNumber = gsInfoArray[1];
+        const departmentsNumber = gsInfoArray[2];
+        const operatorsNumber = gsInfoArray[3];
+        const vatGroupsNumber = gsInfoArray[4];
+        const headerAndFooterLines = gsInfoArray[5];
+        const paymentsNumber = gsInfoArray[6];
+        const logosNumber = gsInfoArray[7];
+        const receiptTransactionNumber = gsInfoArray[9];
+        const clientsNumber = gsInfoArray[10];
 
-        const gsInfoAlertContent =
+        const gsInfoAlertContent: string =
           `Printable characters per line: ${printableCharacersPerLine}\n` +
           `Articles number: ${articlesNumber}\n` +
           `Departments number: ${departmentsNumber}\n` +

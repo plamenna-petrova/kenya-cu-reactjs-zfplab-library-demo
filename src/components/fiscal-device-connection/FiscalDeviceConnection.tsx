@@ -24,6 +24,9 @@ import {
   LAN_OR_WIFI_CONNECTION_TAB_LABEL
 } from '../../utils/constants';
 import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../store';
+import { SerialPortOrUSBConnectionType } from '../../types/fiscal-device-connection/SerialPortOrUSBConnectionType';
+import { LANOrWiFiConnectionType } from '../../types/fiscal-device-connection/LANOrWiFiConnectionType';
 import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
@@ -57,8 +60,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import CableIcon from '@mui/icons-material/Cable';
 import NetworkPingIcon from '@mui/icons-material/NetworkPing';
 import CloseIcon from '@mui/icons-material/Close';
-import { SerialPortOrUSBConnectionType } from '../../types/fiscal-device-connection/SerialPortOrUSBConnectionType';
-import { LANOrWiFiConnectionType } from '../../types/fiscal-device-connection/LANOrWiFiConnectionType';
 
 interface FiscalDeviceConnectionTabPanelProps {
   children?: ReactNode;
@@ -114,7 +115,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
   const [serialPortOrUSBConnectionState, setSerialPortOrUSBConnectionState] = useState<FiscalDeviceAlertConnectionState | null>(null);
   const [lanOrWifiConnectionState, setLanOrWifiConnectionState] = useState<FiscalDeviceAlertConnectionState | null>(null);
   const isMobileScreen: boolean = useMediaQuery('(max-width:480px)');
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const fp = useFP();
 
   const FiscalDeviceConnectionMenuProps = {

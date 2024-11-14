@@ -104,13 +104,21 @@ const Reports = () => {
       .required(REQUIRED_ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_ERROR_MESSAGE)
       .typeError(ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE)
       .positive(ELECTRONIC_JOUNRAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE)
-      .test("startingZReportNumberLength", ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, value => value && value.toString().length <= 4),
+      .test(
+        "startingZReportNumberLength", 
+        ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, 
+        value => value && value.toString().length <= 4
+      ),
     endingZReportNumber: Yup
       .number()
       .required(REQUIRED_ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_ERROR_MESSAGE)
       .typeError(ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE)
       .positive(ELECTRONIC_JOUNRAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE)
-      .test("endingZReportNumberLength", ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, value => value && value.toString().length <= 4),
+      .test(
+        "endingZReportNumberLength", 
+        ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, 
+        value => value && value.toString().length <= 4
+      ),
   });
 
   /**

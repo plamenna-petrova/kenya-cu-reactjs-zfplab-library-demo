@@ -46,7 +46,7 @@ import Select from '@mui/material/Select';
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from '@mui/material/Stack';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import OperatorData from "./operator-data/OperatorData";
+import OperatorDataSetup from "./operator-data/OperatorDataSetup";
 import Tremol from "../../assets/js/fp";
 
 const FiscalReceipts = () => {
@@ -448,7 +448,7 @@ const FiscalReceipts = () => {
     <Box sx={{ width: '100%', height: '100%', px: 2 }}>
       <Grid container spacing={2} sx={{ pb: !isDesktopScreen ? 2 : 0 }}>
         <Grid size={{ xs: 12, lg: 2 }}>
-          <OperatorData />
+          <OperatorDataSetup />
         </Grid>
         <Grid size={{ xs: 12, lg: 3 }}>
           <Formik

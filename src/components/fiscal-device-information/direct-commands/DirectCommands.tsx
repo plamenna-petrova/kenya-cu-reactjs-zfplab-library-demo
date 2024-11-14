@@ -11,6 +11,7 @@ import { handleZFPLabServerError } from '../../../utils/tremolLibraryUtils';
 import { DirectCommandFormData } from '../../../interfaces/direct-commands/DirectCommandFormData';
 import { useFP } from '../../../hooks/useFP';
 import { useDispatch } from "react-redux";
+import { AppDispatch } from '../../../store';
 import { toast } from 'react-toastify';
 import * as Yup from "yup";
 import Card from '@mui/material/Card';
@@ -25,7 +26,7 @@ import IconButton from '@mui/material/IconButton';
 import ClearIcon from '@mui/icons-material/Clear';
 
 const DirectCommands: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const fp = useFP();
 
   const directCommandInitialFormValues: DirectCommandFormData = {
