@@ -1,7 +1,10 @@
+/* eslint-disable react/display-name */
+import { forwardRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux';
 import Popper from '@mui/material/Popper';
+import Menu from '@mui/material/Menu';
 import Demo from './pages/demo/Demo';
 import NotFound from './pages/not-found/NotFound';
 
@@ -47,6 +50,14 @@ const CustomPopper = (props) => (
   <Popper {...props} container={fullScreenContainer} />
 );
 
+const CustomMenu = forwardRef((props, ref) => (
+  <Menu
+    {...props}
+    ref={ref}
+    PopperComponent={CustomPopper}
+  />
+));
+
 const fullscreenTheme = createTheme({
   palette: {
     primary: {
@@ -85,18 +96,17 @@ const fullscreenTheme = createTheme({
         PopperComponent: CustomPopper, 
       },
     },
-    MuiMenu: {
+    MuiSelect: {
       defaultProps: {
-        PopperProps: {
-          container: fullScreenContainer,
+        MenuProps: {
+          component: CustomMenu,
+          disablePortal: true,
         },
       },
     },
-    MuiSelect: {
+    MuiMenu: {
       defaultProps: {
-        PopperProps: {
-          container: fullScreenContainer,
-        },
+        PopperComponent: CustomPopper, 
       },
     },
     MuiTooltip: {

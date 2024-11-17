@@ -9,7 +9,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 
 const DraggableDialogPaperWrapper: FC<PaperProps> = (props: PaperProps) => {
-  const draggableDialogPaperRef = useRef<HTMLDivElement>(null);
+  const draggableDialogPaperRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <Draggable

@@ -521,7 +521,7 @@ const FiscalReceipts = () => {
                                 </MenuItem>
                               ))
                             ) : (
-                              <MenuItem disabled sx={{ dispaly: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                              <MenuItem disabled sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                 <CircularProgress size={20} />
                               </MenuItem>
                             )}

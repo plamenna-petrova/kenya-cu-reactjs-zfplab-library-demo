@@ -524,7 +524,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
                           onBlur={handleBlur}
                           value={values.fiscalDeviceIPAddress}
                           onChange={handleChange}
-                          helperText={!!touched.fiscalDeviceIPAddress && !!errors.fiscalDeviceIPAddress}
+                          helperText={touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress}
                           error={Boolean(touched.fiscalDeviceIPAddress && errors.fiscalDeviceIPAddress)}
                         />
                       </Box>
@@ -540,7 +540,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
                           onBlur={handleBlur}
                           value={values.lanOrWifiPassword}
                           onChange={handleChange}
-                          helperText={!!touched.lanOrWifiPassword && !!errors.lanOrWifiPassword}
+                          helperText={touched.lanOrWifiPassword && errors.lanOrWifiPassword}
                           error={Boolean(touched.lanOrWifiPassword && errors.lanOrWifiPassword)}
                         />
                       </Box>
