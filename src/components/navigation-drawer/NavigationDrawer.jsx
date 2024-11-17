@@ -646,7 +646,7 @@ export const NavigationDrawer = () => {
                     isNavigationDrawerOpen ? { justifyContent: 'initial' } : { justifyContent: 'center' }
                   ]}
                   onClick={() => showSection(sidebarMenuItem.title)}
-                  // disabled={!zfpLabServerConnectionState.isConnected || !fiscalDeviceConnectionState.isConnected}
+                  disabled={!zfpLabServerConnectionState.isConnected || !fiscalDeviceConnectionState.isConnected}
                 >
                   <ListItemIcon
                     sx={[
