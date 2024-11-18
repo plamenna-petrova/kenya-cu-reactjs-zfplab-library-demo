@@ -1,4 +1,4 @@
 export interface OperatorData {
-  operatorNumber: string;
+  operatorNumber: string | number;
   operatorPassword: string;
 }

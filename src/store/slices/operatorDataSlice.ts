@@ -2,7 +2,7 @@ import { OperatorData } from './../../interfaces/operator-data/OpreratorData';
 import { createSlice } from "@reduxjs/toolkit";
 
 const operatorDataInitialState: OperatorData = {
-  operatorNumber: "1",
+  operatorNumber: 1,
   operatorPassword: "0"
 }
 
