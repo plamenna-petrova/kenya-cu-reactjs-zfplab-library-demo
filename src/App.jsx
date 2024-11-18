@@ -1,10 +1,8 @@
 /* eslint-disable react/display-name */
-import { forwardRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux';
 import Popper from '@mui/material/Popper';
-import Menu from '@mui/material/Menu';
 import Demo from './pages/demo/Demo';
 import NotFound from './pages/not-found/NotFound';
 
