@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Formik } from "formik";
+import { Formik, FormikHelpers } from "formik";
 import { H3, Paragraph } from "../layout/typography-elements/TypographyElements";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
@@ -9,6 +9,7 @@ import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
 import { isNullOrWhitespace, sleepAsync } from "../../utils/helperFunctions";
 import { VATGroup } from "../../interfaces/fiscal-receipts/VATGroup";
+import { ExternalDatabaseArticleSaleFormData } from "../../interfaces/fiscal-receipts/ExternalDatabaseArticleSaleFormData";
 import {
   REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE,
   OPERATOR_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE,
@@ -59,10 +60,10 @@ const FiscalReceipts = () => {
   const dispatch = useDispatch<AppDispatch>();
   const fp = useFP();
 
-  const externalDatabaseArticleSaleInitialFormValues = {
+  const externalDatabaseArticleSaleInitialFormValues: ExternalDatabaseArticleSaleFormData = {
     withCorrection: false,
     articleName: "",
-    vatGroup: (Tremol as any).Enums.OptionVATClass.VAT_Class_A,
+    vatGroup: ((Tremol as any).Enums.OptionVATClass.VAT_Class_A) as string,
     price: "",
     quantity: "",
     isDiscountOrAdditionInPercentage: false,
@@ -121,17 +122,18 @@ const FiscalReceipts = () => {
    * @function handleExternalDatabaseArticleSaleFormSubmit
    * @param {object} externalDatabaseArticleSaleFormData - Article sale or correction data.
    * @param {object} formikHelperFunctions - Formik helpers for handling form state.
-   * @param {function} formikHelperFunctions.setSubmitting - Formik function to control the form's submitting state.
+   * @param {FormikHelpers<ExternalDatabaseArticleSaleFormData>['setSubmitting']} formikHelperFunctions.setSubmitting - 
+   * Formik function to control the form's submitting state.
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleExternalDatabaseArticleSaleFormSubmit = async (
-    externalDatabaseArticleSaleFormData: any,
-    { setSubmitting }: { setSubmitting: any }
+    externalDatabaseArticleSaleFormData: ExternalDatabaseArticleSaleFormData,
+    { setSubmitting }: { setSubmitting: FormikHelpers<ExternalDatabaseArticleSaleFormData>['setSubmitting'] }
   ): Promise<void> => {
     try {
-      const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
+      const openedFiscalReceiptStatusEntry: boolean = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
-      let isFiscalReceiptOpeningHandled = false;
+      let isFiscalReceiptOpeningHandled: boolean = false;
 
       if (!openedFiscalReceiptStatusEntry) {
         if (!await handleFiscalReceiptOpening()) {
@@ -152,15 +154,16 @@ const FiscalReceipts = () => {
         departmentNumber,
       } = externalDatabaseArticleSaleFormData;
 
-      const externalDatabaseArticlePrice = withCorrection && price > 0 ? -price : price;
+      const externalDatabaseArticlePrice: number = withCorrection && Number(price) > 0 ? Number(-price) : Number(price);
 
-      const externalDatabaseArticleQuantity = !isNullOrWhitespace(quantity) ? quantity : null;
+      const externalDatabaseArticleQuantity: number | null = !isNullOrWhitespace(quantity) ? Number(quantity) : null;
 
       const externalDatabaseArticleDiscountOrAdditionArray = getDiscountOrAdditionValues(
         discountOrAddition, isDiscountOrAdditionInPercentage
       );
 
-      const externalDatabaseArticleDepartmentNumber = !isNullOrWhitespace(departmentNumber) ? departmentNumber : null;
+      const externalDatabaseArticleDepartmentNumber: number | null = 
+        !isNullOrWhitespace(String(departmentNumber)) ? Number(departmentNumber) : null;
 
       if (isFiscalReceiptOpeningHandled) {
         await sleepAsync(200);
@@ -175,7 +178,7 @@ const FiscalReceipts = () => {
         externalDatabaseArticleDiscountOrAdditionArray[1],
         externalDatabaseArticleDepartmentNumber
       );
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
     } finally {
       setSubmitting(false);
@@ -194,7 +197,7 @@ const FiscalReceipts = () => {
    */
   const handleOpenFiscalReceiptClick = async (): Promise<void> => {
     try {
-      const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
+      const openedFiscalReceiptStatusEntry: boolean = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
       if (openedFiscalReceiptStatusEntry) {
         toast.error(FISCAL_RECEIPT_ALREADY_OPENED_ERROR_MESSAGE);
@@ -202,7 +205,7 @@ const FiscalReceipts = () => {
       }
 
       await handleFiscalReceiptOpening();
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -218,7 +221,7 @@ const FiscalReceipts = () => {
   const handleCalculateSubtotalClick = async (): Promise<void> => {
     try {
       await fp.Subtotal((Tremol as any).Enums.OptionPrinting.Yes, (Tremol as any).Enums.OptionDisplay.No, null, null);
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -234,7 +237,7 @@ const FiscalReceipts = () => {
   const handlePayExactSumClick = async (): Promise<void> => {
     try {
       await fp.PayExactSum((Tremol as any).Enums.OptionPaymentType.Cash);
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -252,7 +255,7 @@ const FiscalReceipts = () => {
    */
   const handleAutomaticReceiptClosingClick = async (): Promise<void> => {
     try {
-      const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
+      const openedFiscalReceiptStatusEntry: boolean = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
       if (!openedFiscalReceiptStatusEntry) {
         toast.error(FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE);
@@ -262,11 +265,11 @@ const FiscalReceipts = () => {
       await executeFPOperationWithLoading(dispatch, async () => {
         try {
           await fp.CashPayCloseReceipt();
-        } catch (error) {
+        } catch (error: any) {
           toast.error(handleZFPLabServerError(error));
         }
       }, FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE);
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -284,7 +287,7 @@ const FiscalReceipts = () => {
    */
   const handleCloseFiscalReceiptClick = async (): Promise<void> => {
     try {
-      const openedFiscalReceiptStatusEntry = await fp.ReadStatus().Opened_Fiscal_Receipt;
+      const openedFiscalReceiptStatusEntry: boolean = await fp.ReadStatus().Opened_Fiscal_Receipt;
 
       if (!openedFiscalReceiptStatusEntry) {
         toast.error(FISCAL_RECEIPT_NOT_OPENED_ERROR_MESSAGE);
@@ -294,11 +297,11 @@ const FiscalReceipts = () => {
       await executeFPOperationWithLoading(dispatch, async () => {
         try {
           await fp.CloseReceipt();
-        } catch (error) {
+        } catch (error: any) {
           toast.error(handleZFPLabServerError(error));
         }
       }, FISCAL_RECEIPT_CLOSING_LOADING_MESSAGE);
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -313,7 +316,7 @@ const FiscalReceipts = () => {
    * @returns {Promise<boolean>} `true` if the fiscal receipt is successfully opened; otherwise, `false`.
    */
   const handleFiscalReceiptOpening = async (): Promise<boolean> => {
-    let isReceiptOpeningSuccessful = false;
+    let isReceiptOpeningSuccessful: boolean = false;
 
     if (!isOperatorProvided()) {
       return false;
@@ -332,7 +335,7 @@ const FiscalReceipts = () => {
         );
 
         isReceiptOpeningSuccessful = true;
-      } catch (error) {
+      } catch (error: any) {
         toast.error(handleZFPLabServerError(error));
       }
     }, FISCAL_RECEIPT_OPENING_LOADING_MESSAGE);
@@ -369,7 +372,7 @@ const FiscalReceipts = () => {
         && !status.Unsent_data_for_24_hours
         && !status.Wrong_SIM_card
         && !status.Wrong_SD_card;
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
       return false;
     }
@@ -440,7 +443,7 @@ const FiscalReceipts = () => {
    * @function configureVATGroups
    * @returns {void} This function does not return a value.
    */
-  const configureVATGroups = () => {
+  const configureVATGroups = (): void => {
     const vatGroupOptionsToSet: VATGroup[] = (Object.entries((Tremol as any).Enums.OptionVATClass) as [string, string][])
       .map(([key, value]) => ({
         name: key.replaceAll("_", ""),
