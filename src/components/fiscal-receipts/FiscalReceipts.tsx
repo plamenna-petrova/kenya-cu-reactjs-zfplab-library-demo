@@ -54,6 +54,7 @@ import Tremol from "../../assets/js/fp";
 const FiscalReceipts = () => {
   const [vatGroups, setVATGroups] = useState<VATGroup[]>([]);
   const operatorData = useSelector((state: RootState) => state.operatorData);
+  const isFullscreenModeActive = useSelector((state: RootState) => state.fullscreenMode.isFullscreenModeActive);
   const isDesktopScreen: boolean = useMediaQuery('(min-width:1200px)');
   const dispatch = useDispatch<AppDispatch>();
   const fp = useFP();
@@ -513,6 +514,9 @@ const FiscalReceipts = () => {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             displayEmpty
+                            MenuProps={{
+                              disablePortal: isFullscreenModeActive
+                            }}
                           >
                             {vatGroups.length > 0 ? (
                               vatGroups.map((vatGroup) => (

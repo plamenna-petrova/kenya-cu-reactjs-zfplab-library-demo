@@ -23,8 +23,8 @@ import {
   LAN_OR_WIFI_CONNECTION_MOBILE_TAB_LABEL,
   LAN_OR_WIFI_CONNECTION_TAB_LABEL
 } from '../../utils/constants';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../store';
+import { useSelector, useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '../../store';
 import { SerialPortOrUSBConnectionType } from '../../types/fiscal-device-connection/SerialPortOrUSBConnectionType';
 import { LANOrWiFiConnectionType } from '../../types/fiscal-device-connection/LANOrWiFiConnectionType';
 import { useFP } from '../../hooks/useFP';
@@ -115,6 +115,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
   const [serialPortOrUSBConnectionState, setSerialPortOrUSBConnectionState] = useState<FiscalDeviceAlertConnectionState | null>(null);
   const [lanOrWifiConnectionState, setLanOrWifiConnectionState] = useState<FiscalDeviceAlertConnectionState | null>(null);
   const isMobileScreen: boolean = useMediaQuery('(max-width:480px)');
+  const isFullscreenModeActive = useSelector((state: RootState) => state.fullscreenMode.isFullscreenModeActive);
   const dispatch = useDispatch<AppDispatch>();
   const fp = useFP();
 
@@ -125,6 +126,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
         width: 250,
       },
     },
+    disablePortal: isFullscreenModeActive
   };
 
   const serialPortOrUSBConnectionValidationSchema = Yup.object().shape({
@@ -454,7 +456,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
                       </Box>
                     }
                     <Box sx={{ display: 'flex', justifyContent: 'center', ml: { xs: '0px', sm: '36px' }, mt: 2 }}>
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2.2}>
                         <Button
                           variant="contained"
                           startIcon={<SearchIcon />}

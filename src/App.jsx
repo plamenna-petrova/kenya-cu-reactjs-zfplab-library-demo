@@ -44,19 +44,11 @@ const demoPrimaryTheme = createTheme({
   }
 });
 
-const fullScreenContainer = () => document.fullscreenElement ?? document.body;
+const fullScreenContainer = () => document.fullscreenElement || document.body;
 
 const CustomPopper = (props) => (
   <Popper {...props} container={fullScreenContainer} />
 );
-
-const CustomMenu = forwardRef((props, ref) => (
-  <Menu
-    {...props}
-    ref={ref}
-    PopperComponent={CustomPopper}
-  />
-));
 
 const fullscreenTheme = createTheme({
   palette: {
@@ -96,19 +88,6 @@ const fullscreenTheme = createTheme({
         PopperComponent: CustomPopper, 
       },
     },
-    MuiSelect: {
-      defaultProps: {
-        MenuProps: {
-          component: CustomMenu,
-          disablePortal: true,
-        },
-      },
-    },
-    MuiMenu: {
-      defaultProps: {
-        PopperComponent: CustomPopper, 
-      },
-    },
     MuiTooltip: {
       defaultProps: {
         PopperProps: {
@@ -120,10 +99,10 @@ const fullscreenTheme = createTheme({
 });
 
 const App = () => {
-  const isFullscreen = useSelector((state) => state.fullscreen.isFullscreen);
+  const isFullscreenModeActive = useSelector((state) => state.fullscreenMode.isFullscreenModeActive);
 
   return (
-    <ThemeProvider theme={!isFullscreen ? demoPrimaryTheme : fullscreenTheme}>
+    <ThemeProvider theme={!isFullscreenModeActive ? demoPrimaryTheme : fullscreenTheme}>
       <Routes>
         <Route path="/" element={<Demo />}></Route>
         <Route path="*" element={<NotFound />}></Route>
