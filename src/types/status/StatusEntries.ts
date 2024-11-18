@@ -1,0 +1,1 @@
+export type StatusEntries = { [key: string]: boolean };

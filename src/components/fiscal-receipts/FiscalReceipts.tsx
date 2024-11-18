@@ -10,6 +10,7 @@ import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
 import { isNullOrWhitespace, sleepAsync } from "../../utils/helperFunctions";
 import { VATGroup } from "../../interfaces/fiscal-receipts/VATGroup";
 import { ExternalDatabaseArticleSaleFormData } from "../../interfaces/fiscal-receipts/ExternalDatabaseArticleSaleFormData";
+import { StatusEntries } from "../../types/status/StatusEntries";
 import {
   REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE,
   OPERATOR_NUMBER_VALUE_NOT_A_NUMBER_ERROR_MESSAGE,
@@ -354,7 +355,7 @@ const FiscalReceipts = () => {
    */
   const checkStatusForReceiptOpening = async (): Promise<boolean> => {
     try {
-      const status: { [key: string]: boolean } = await fp.ReadStatus();
+      const status: StatusEntries = await fp.ReadStatus();
 
       return !status.Blocking_3_days_without_mobile_operator
         && !status.DateTime_not_set && !status.DateTime_wrong
@@ -418,10 +419,7 @@ const FiscalReceipts = () => {
    * @param {boolean} isDiscountOrAdditionInPercentage - Indicates whether the value represents a percentage.
    * @returns {(number | null)[]} An array with parsed discount or addition values, where the first element is used for percentage values and the second for absolute values.
    */
-  const getDiscountOrAdditionValues = (
-    discountOrAdditionToCheck: string,
-    isDiscountOrAdditionInPercentage: boolean
-  ): (number | null)[] => {
+  const getDiscountOrAdditionValues = (discountOrAdditionToCheck: string, isDiscountOrAdditionInPercentage: boolean): (number | null)[] => {
     let discountOrAdditionFillableArray: (number | null)[] = [null, null];
 
     if (!isNullOrWhitespace(discountOrAdditionToCheck)) {

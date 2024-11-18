@@ -12,6 +12,8 @@ import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { StatusEntriesColumnData } from '../../interfaces/status/StatusEntriesColumnData';
 import { StatusEntriesRowData } from '../../interfaces/status/StatusEntriesRowData';
 import { ToggleableStatusEntries } from '../../interfaces/status/ToggleableStatusEntries';
+import { isNullOrWhitespace } from '../../utils/helperFunctions';
+import { StatusEntries } from '../../types/status/StatusEntries';
 import {
   READING_STATUS_ENTRIES_LOADING_MESSAGE,
   VERSION_INFO_ALERT_DIALOG_TITLE,
@@ -41,8 +43,6 @@ import StatusEntriesFilterBar from './status-entries-filter-bar/StatusEntriesFil
 import DirectCommands from './direct-commands/DirectCommands';
 // eslint-disable-next-line no-unused-vars
 import Tremol from "../../assets/js/fp";
-import { isNaN } from 'formik';
-import { isNullOrWhitespace } from '../../utils/helperFunctions';
 
 const STATUS_ENTRY_NAME_LABEL: string = "Name";
 
@@ -151,7 +151,7 @@ const FiscalDeviceInformation: FC = () => {
           setStatusEntriesToToggle({ onStatusEntries: true, offStatusEntries: true });
         }
 
-        const readStatusEntries: { [key: string]: boolean } = fp.ReadStatus();
+        const readStatusEntries: StatusEntries = fp.ReadStatus();
 
         const mappedStatusEntries: StatusEntriesRowData[] = Object.entries(readStatusEntries)
           .map(([key, value]: [string, boolean]) => ({
