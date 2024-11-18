@@ -44,10 +44,10 @@ const demoPrimaryTheme = createTheme({
   }
 });
 
-const fullScreenContainer = () => document.fullscreenElement || document.body;
+const fullscreenContainer = () => document.fullscreenElement || document.body;
 
-const CustomPopper = (props) => (
-  <Popper {...props} container={fullScreenContainer} />
+const FullscreenCustomPopper = (props) => (
+  <Popper {...props} container={fullscreenContainer} />
 );
 
 const fullscreenTheme = createTheme({
@@ -85,16 +85,26 @@ const fullscreenTheme = createTheme({
     },
     MuiAutocomplete: {
       defaultProps: {
-        PopperComponent: CustomPopper, 
+        PopperComponent: FullscreenCustomPopper, 
       },
     },
     MuiTooltip: {
       defaultProps: {
         PopperProps: {
-          container: fullScreenContainer,
+          container: fullscreenContainer,
         },
       },
     },
+    MuiDialog: {
+      defaultProps: {
+        container: fullscreenContainer,
+      },
+    },
+    MuiAlert: {
+      defaultProps: {
+        container: fullscreenContainer
+      }
+    }
   },
 });
 
