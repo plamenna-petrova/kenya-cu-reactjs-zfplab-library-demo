@@ -96,11 +96,6 @@ const fullscreenTheme = createTheme({
       defaultProps: {
         container: fullscreenContainer,
       },
-    },
-    MuiAlert: {
-      defaultProps: {
-        container: fullscreenContainer
-      }
     }
   },
 });
