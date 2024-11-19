@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const operatorDataInitialState = {
-  operatorNumber: "1",
+  operatorNumber: 1,
   operatorPassword: "0"
 }
 
