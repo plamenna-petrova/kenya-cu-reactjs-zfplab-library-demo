@@ -52,6 +52,7 @@ import Tremol from "../../assets/js/fp";
 const FiscalReceipts = () => {
   const [vatGroups, setVATGroups] = useState([]);
   const operatorData = useSelector((state) => state.operatorData);
+  const isFullscreenModeActive = useSelector((state) => state.fullscreenMode.isFullscreenModeActive);
   const isDesktopScreen = useMediaQuery('(min-width:1200px)');
   const dispatch = useDispatch();
   const fp = useFP();
@@ -154,7 +155,7 @@ const FiscalReceipts = () => {
         discountOrAddition, isDiscountOrAdditionInPercentage
       );
 
-      const externalDatabaseArticleDepartmentNumber = !isNullOrWhitespace(departmentNumber) ? departmentNumber : null;
+      const externalDatabaseArticleDepartmentNumber = !isNullOrWhitespace(String(departmentNumber)) ? departmentNumber : null;
 
       if (isFiscalReceiptOpeningHandled) {
         await sleepAsync(200);
@@ -345,24 +346,24 @@ const FiscalReceipts = () => {
    */
   const checkStatusForReceiptOpening = async () => {
     try {
-      const status = await fp.ReadStatus();
+      const readStatusEntries = await fp.ReadStatus();
 
-      return !status.Blocking_3_days_without_mobile_operator
-        && !status.DateTime_not_set && !status.DateTime_wrong
-        && !status.FM_error && !status.FM_full && !status.FM_Read_only && !status.No_FM_module
-        && !status.Hardware_clock_error
-        && !status.No_GPRS_Modem && !status.No_SIM_card
-        && !status.No_task_from_NRA
-        && !status.Opened_Non_fiscal_Receipt && !status.Opened_Fiscal_Receipt
-        && !status.Opened_Invoice_Fiscal_Receipt
-        && !status.Printer_not_ready_no_paper
-        && !status.Printer_not_ready_overheat
-        && !status.RAM_reset
-        && !status.Reports_registers_Overflow
-        && !status.SD_card_full
-        && !status.Unsent_data_for_24_hours
-        && !status.Wrong_SIM_card
-        && !status.Wrong_SD_card;
+      return !readStatusEntries.Blocking_3_days_without_mobile_operator
+        && !readStatusEntries.DateTime_not_set && !readStatusEntries.DateTime_wrong
+        && !readStatusEntries.FM_error && !readStatusEntries.FM_full && !readStatusEntries.FM_Read_only && !readStatusEntries.No_FM_module
+        && !readStatusEntries.Hardware_clock_error
+        && !readStatusEntries.No_GPRS_Modem && !readStatusEntries.No_SIM_card
+        && !readStatusEntries.No_task_from_NRA
+        && !readStatusEntries.Opened_Non_fiscal_Receipt && !readStatusEntries.Opened_Fiscal_Receipt
+        && !readStatusEntries.Opened_Invoice_Fiscal_Receipt
+        && !readStatusEntries.Printer_not_ready_no_paper
+        && !readStatusEntries.Printer_not_ready_overheat
+        && !readStatusEntries.RAM_reset
+        && !readStatusEntries.Reports_registers_Overflow
+        && !readStatusEntries.SD_card_full
+        && !readStatusEntries.Unsent_data_for_24_hours
+        && !readStatusEntries.Wrong_SIM_card
+        && !readStatusEntries.Wrong_SD_card;
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
       return false;
@@ -504,6 +505,9 @@ const FiscalReceipts = () => {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             displayEmpty
+                            MenuProps={{
+                              disablePortal: isFullscreenModeActive
+                            }}
                           >
                             {vatGroups.length > 0 ? (
                               vatGroups.map((vatGroup) => (
@@ -512,7 +516,7 @@ const FiscalReceipts = () => {
                                 </MenuItem>
                               ))
                             ) : (
-                              <MenuItem disabled sx={{ dispaly: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                              <MenuItem disabled sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                 <CircularProgress size={20} />
                               </MenuItem>
                             )}

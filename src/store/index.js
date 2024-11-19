@@ -4,7 +4,7 @@ import appNavigationReducer from './slices/appNavigationSlice';
 import loadingReducer from './slices/loadingSlice';
 import zfpConnectionReducer from './slices/zfpConnectionSlice';
 import operatorDataReducer from './slices/operatorDataSlice';
-import fullscreenReducer from './slices/fullScreenSlice';
+import fullscreenModeReducer from './slices/fullScreenModeSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +12,6 @@ export const store = configureStore({
     loading: loadingReducer,
     zfpConnection: zfpConnectionReducer,
     operatorData: operatorDataReducer,
-    fullscreen: fullscreenReducer
+    fullscreenMode: fullscreenModeReducer
   }
 });

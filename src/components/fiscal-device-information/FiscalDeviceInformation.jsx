@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
+import { isNullOrWhitespace } from '../../utils/helperFunctions';
 import {
   READING_STATUS_ENTRIES_LOADING_MESSAGE,
   VERSION_INFO_ALERT_DIALOG_TITLE,
@@ -240,9 +241,14 @@ const FiscalDeviceInformation = () => {
         const rawReadBytes = fp.RawRead(0, decodedBytes);
         const windows1252Decoder = new TextDecoder('windows-1252');
         const gsInfoDecodedBytes = windows1252Decoder.decode(new Uint8Array([...rawReadBytes]));
-        const gsInfoArray = gsInfoDecodedBytes.toString().split(';');
+        
+        const gsInfoArray = gsInfoDecodedBytes
+          .toString()
+          .split(';')
+          .map(str => str.trim())
+          .map((y, index) => index === 0 ? parseInt(y.slice(1)) : !isNullOrWhitespace(y) ? parseInt(y) : '-');
 
-        const printableCharacersPerLine = gsInfoArray[0].slice(1);
+        const printableCharacersPerLine = gsInfoArray[0];
         const articlesNumber = gsInfoArray[1];
         const departmentsNumber = gsInfoArray[2];
         const operatorsNumber = gsInfoArray[3];
@@ -284,14 +290,18 @@ const FiscalDeviceInformation = () => {
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleGetLibraryInformationClick = async () => {
-    const coreVersion = await fp.GetVersionCore();
-    const libraryDefinitions = await fp.GetVersionDefinitions().toString();
-
-    const libraryDefinitionsAlertContent =
-      `Core Version: ${coreVersion}\n` +
-      `Library Definitions: ${libraryDefinitions}`;
-
-    handleFiscalDeviceInformationAlertDialogOpen(LIBRARY_INFORMATION_ALERT_DIALOG_TITLE, libraryDefinitionsAlertContent);
+    try {
+      const coreVersion = await fp.GetVersionCore();
+      const libraryDefinitions = await fp.GetVersionDefinitions().toString();
+  
+      const libraryDefinitionsAlertContent =
+        `Core Version: ${coreVersion}\n` +
+        `Library Definitions: ${libraryDefinitions}`;
+  
+      handleFiscalDeviceInformationAlertDialogOpen(LIBRARY_INFORMATION_ALERT_DIALOG_TITLE, libraryDefinitionsAlertContent);
+    } catch (error) {
+      handleZFPLabServerError(error);
+    }
   }
 
   const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {

@@ -32,7 +32,7 @@ import {
   setIsConnectingToZFPLabServer,
   setIsSearchingForFiscalDevice
 } from '../../store/slices/zfpConnectionSlice';
-import { enterFullscreen, exitFullscreen } from '../../store/slices/fullScreenSlice';
+import { enterFullscreenMode, exitFullscreenMode } from '../../store/slices/fullScreenModeSlice';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { getConfiguredFiscalDeviceConnectionSettings } from '../../utils/connectionUtils';
 import { toast } from 'react-toastify';
@@ -153,7 +153,7 @@ export const NavigationDrawer = () => {
   const activeSection = useSelector((state) => state.appNavigation.activeSection);
   const zfpLabServerConnectionState = useSelector((state) => state.zfpConnection.zfpLabServerConnectionState);
   const fiscalDeviceConnectionState = useSelector((state) => state.zfpConnection.fiscalDeviceConnectionState);
-  const isFullscreen = useSelector((state) => state.fullscreen.isFullscreen);
+  const isFullscreenModeActive = useSelector((state) => state.fullscreenMode.isFullscreenModeActive);
   const demoContentElement = document.getElementById('demo');
   const navigationDrawerInitialMountRef = useRef(true);
   const theme = useTheme();
@@ -353,7 +353,7 @@ export const NavigationDrawer = () => {
     document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
 
   const toggleFullscreen = useCallback(() => {
-    if (isFullscreen) {
+    if (isFullscreenModeActive) {
       if (document.exitFullscreen) {
         document.exitFullscreen();
       } else if (document.webkitExitFullscreen) {
@@ -374,7 +374,7 @@ export const NavigationDrawer = () => {
         demoContentElement.msRequestFullscreen();
       }
     }
-  }, [isFullscreen, demoContentElement]);
+  }, [isFullscreenModeActive, demoContentElement]);
 
   useEffect(() => {
     if (!navigationDrawerInitialMountRef.current) {
@@ -433,31 +433,31 @@ export const NavigationDrawer = () => {
       const fullscreenElement = getFullscreenElement();
 
       if (fullscreenElement) {
-        dispatch(enterFullscreen());
+        dispatch(enterFullscreenMode());
       } else {
-        dispatch(exitFullscreen());
+        dispatch(exitFullscreenMode());
       }
     }
 
-    let fullScreenEventName;
+    let fullscreenEventName;
 
     if (!isFullscreenEventListenerAttached.current) {
-      fullScreenEventName =
+      fullscreenEventName =
         'onfullscreenchange' in document ? 'fullscreenchange' :
           'onwebkitfullscreenchange' in document ? 'webkitfullscreenchange' :
             'onmozfullscreenchange' in document ? 'mozfullscreenchange' :
               'onmsfullscreenchange' in document ? 'msfullscreenchange' :
                 null;
 
-      if (fullScreenEventName) {
-        document.addEventListener(fullScreenEventName, handleFullscreenChange);
+      if (fullscreenEventName) {
+        document.addEventListener(fullscreenEventName, handleFullscreenChange);
         isFullscreenEventListenerAttached.current = true;
       }
     }
 
     return () => {
-      if (isFullscreenEventListenerAttached.current && fullScreenEventName) {
-        document.removeEventListener(fullScreenEventName, handleFullscreenChange);
+      if (isFullscreenEventListenerAttached.current && fullscreenEventName) {
+        document.removeEventListener(fullscreenEventName, handleFullscreenChange);
         isFullscreenEventListenerAttached.current = false;
       }
     };
@@ -495,7 +495,7 @@ export const NavigationDrawer = () => {
             <Tooltip
               title={
                 <Paragraph>
-                  {isFullscreen ? EXIT_FULLSCREEN_MODE_TOOLTIP_TITLE : APPLICATION_VIEW_IN_FULLSCREEN_MODE_TOOLTIP_TITLE}
+                  {isFullscreenModeActive ? EXIT_FULLSCREEN_MODE_TOOLTIP_TITLE : APPLICATION_VIEW_IN_FULLSCREEN_MODE_TOOLTIP_TITLE}
                 </Paragraph>
               }
               placement="bottom"
@@ -518,12 +518,12 @@ export const NavigationDrawer = () => {
                 color="inherit"
                 sx={{ border: 'none', textTransform: 'capitalize', px: 2, py: 0 }}
                 onClick={toggleFullscreen}
-                startIcon={isFullscreen
+                startIcon={isFullscreenModeActive
                   ? <CloseFullscreenIcon fontSize="inherit" sx={{ color: 'primary.main', transform: 'scale(1.3)' }} />
                   : <FullscreenIcon fontSize="inherit" sx={{ color: 'primary.main', transform: 'scale(1.4)' }} />
                 }
               >
-                {isFullscreen ? EXIT_FULLSCREEN_LABEL : ENTER_FULLSCREEN_LABEL}
+                {isFullscreenModeActive ? EXIT_FULLSCREEN_LABEL : ENTER_FULLSCREEN_LABEL}
               </Button>
             </Tooltip>
             <Divider orientation="vertical" flexItem />
@@ -682,7 +682,7 @@ export const NavigationDrawer = () => {
             bgcolor: '#fff',
             p: 2
           },
-          isFullscreen && { overflow: 'auto' }
+          isFullscreenModeActive && { overflow: 'auto' }
         ]}
       >
         <DrawerHeader />

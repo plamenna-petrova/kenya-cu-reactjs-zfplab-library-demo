@@ -23,7 +23,7 @@ import {
   LAN_OR_WIFI_CONNECTION_MOBILE_TAB_LABEL,
   LAN_OR_WIFI_CONNECTION_TAB_LABEL
 } from '../../utils/constants';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
@@ -96,6 +96,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
   const [serialPortOrUSBConnectionState, setSerialPortOrUSBConnectionState] = useState(null);
   const [lanOrWifiConnectionState, setLanOrWifiConnectionState] = useState(null);
   const isMobileScreen = useMediaQuery('(max-width:480px)');
+  const isFullscreenModeActive = useSelector((state) => state.fullscreenMode.isFullscreenModeActive);
   const dispatch = useDispatch();
   const fp = useFP();
 
@@ -106,6 +107,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
         width: 250,
       },
     },
+    disablePortal: isFullscreenModeActive
   };
 
   const serialPortOrUSBConnectionValidationSchema = Yup.object().shape({
@@ -352,7 +354,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                         <FormControl fullWidth size="small">
                           <Paragraph fontSize={14}>Serial Port</Paragraph>
                           <Autocomplete
-                            name="serialPort"
+                            freeSolo
                             size="small"
                             value={values.serialPort}
                             onChange={(_, newSerialPortValue) => {
@@ -421,7 +423,7 @@ const FiscalDeviceConnection = ({ fiscalDeviceConnectionHandler }) => {
                       </Box>
                     }
                     <Box sx={{ display: 'flex', justifyContent: 'center', ml: { xs: '0px', sm: '36px' }, mt: 2 }}>
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2.2}>
                         <Button
                           variant="contained"
                           startIcon={<SearchIcon />}
