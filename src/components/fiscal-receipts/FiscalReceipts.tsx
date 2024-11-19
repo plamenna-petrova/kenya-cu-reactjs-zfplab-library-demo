@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { FC, useState, useEffect } from "react";
 import { Formik, FormikHelpers } from "formik";
 import { H3, Paragraph } from "../layout/typography-elements/TypographyElements";
 import { useSelector, useDispatch } from "react-redux";
@@ -53,7 +53,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import OperatorDataSetup from "./operator-data/OperatorDataSetup";
 import Tremol from "../../assets/js/fp";
 
-const FiscalReceipts = () => {
+const FiscalReceipts: FC = () => {
   const [vatGroups, setVATGroups] = useState<VATGroup[]>([]);
   const operatorData = useSelector((state: RootState) => state.operatorData);
   const isFullscreenModeActive = useSelector((state: RootState) => state.fullscreenMode.isFullscreenModeActive);

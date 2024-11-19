@@ -1,11 +1,12 @@
-export const isNullOrWhitespace = (input) => !input || input.trim().length === 0;
+export const isNullOrWhitespace = (input: string | null | undefined): boolean => !input || input.trim().length === 0;
 
-export const sleepAsync = (milliseconds) => new Promise(resolve => setTimeout(resolve, milliseconds));
+export const sleepAsync = (milliseconds: number): Promise<void> => 
+  new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 
-export const generateExportFileName = (fileName, fileExtension) => {
-  const currentTimeForFileExport = new Date();
+export const generateExportFileName = (fileName: string, fileExtension: string): string => {
+  const currentTimeForFileExport: Date = new Date();
 
-  const generatedFileName =
+  const generatedFileName: string =
     `${fileName}_` +
     `${currentTimeForFileExport.getDate() < 10 ? '0' : ''}${currentTimeForFileExport.getDate()}.` +
     `${currentTimeForFileExport.getMonth() + 1 < 10 ? '0' : ''}${currentTimeForFileExport.getMonth() + 1}.` +

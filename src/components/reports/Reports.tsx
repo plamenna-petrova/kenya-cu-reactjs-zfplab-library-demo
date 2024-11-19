@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { Formik } from "formik";
+import { FC, useState } from "react";
+import { Formik, FormikHelpers } from "formik";
 import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
 import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
 import { isNullOrWhitespace, generateExportFileName } from "../../utils/helperFunctions";
+import { ElectronicJournalReportByZReportNumbersFormData } from "../../interfaces/electronic-journal-reports/ElectronicJournalReportByZReportNumbersFormData";
 import {
   PRINT_DAILY_X_REPORT_LOADING_MESSAGE,
   PRINT_DAILY_Z_REPORT_LOADING_MESSAGE,
@@ -33,12 +35,15 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
-import PropTypes from 'prop-types';
 import DraggableDetailsDialog from "../layout/draggable-details-dialog/DraggableDetailsDialog";
 import SaveIcon from '@mui/icons-material/Save';
 import Tremol from "../../assets/js/fp";
 
-const SaveElectronicJournalReportButton = ({ electronicJournalReportContent }) => {
+interface SaveElectronicJournalReportButtonProps {
+  electronicJournalReportContent: string;
+}
+
+const SaveElectronicJournalReportButton: FC<SaveElectronicJournalReportButtonProps> = ({ electronicJournalReportContent }) => {
   /**
    * Saves the provided electronic journal report as a `.txt` file.
    * - Creates a blob from `electronicJournalReportContent` with a MIME type of `text/plain`.
@@ -50,10 +55,10 @@ const SaveElectronicJournalReportButton = ({ electronicJournalReportContent }) =
    * @function saveElectronicJournalReportToTXTFile
    * @returns {void} This function does not return a value.
    */
-  const saveElectronicJournalReportToTXTFile = () => {
-    const blob = new Blob([electronicJournalReportContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const anchorElement = document.createElement('a');
+  const saveElectronicJournalReportToTXTFile = (): void => {
+    const blob: Blob = new Blob([electronicJournalReportContent], { type: 'text/plain' });
+    const url: string = URL.createObjectURL(blob);
+    const anchorElement: HTMLAnchorElement = document.createElement('a');
     anchorElement.href = url;
     anchorElement.download = generateExportFileName(SAVED_EJ_REPORT_STARTING_FILE_NAME, '.txt');
     anchorElement.click();
@@ -82,18 +87,14 @@ const SaveElectronicJournalReportButton = ({ electronicJournalReportContent }) =
   )
 }
 
-SaveElectronicJournalReportButton.propTypes = {
-  electronicJournalReportContent: PropTypes.string,
-};
-
-const Reports = () => {
-  const [isReadElectronicJournalReportDraggableDialogOpen, setIsReadElectronicJournalReportDraggableDialogOpen] = useState(false);
-  const [readElectronicJournalReportDraggableDialogTitle, setReadElectronicJournalReportDraggableDialogTitle] = useState('');
-  const [readElectronicJournalReportDraggableDialogContent, setReadElectronicJournalReportDraggableDialogContent] = useState('');
-  const dispatch = useDispatch();
+const Reports: FC = () => {
+  const [isReadElectronicJournalReportDraggableDialogOpen, setIsReadElectronicJournalReportDraggableDialogOpen] = useState<boolean>(false);
+  const [readElectronicJournalReportDraggableDialogTitle, setReadElectronicJournalReportDraggableDialogTitle] = useState<string>('');
+  const [readElectronicJournalReportDraggableDialogContent, setReadElectronicJournalReportDraggableDialogContent] = useState<string>('');
+  const dispatch = useDispatch<AppDispatch>();
   const fp = useFP();
 
-  const electronicJournalReportByZReportNumbersInitialFormValues = {
+  const electronicJournalReportByZReportNumbersInitialFormValues: ElectronicJournalReportByZReportNumbersFormData = {
     startingZReportNumber: "",
     endingZReportNumber: ""
   }
@@ -105,9 +106,9 @@ const Reports = () => {
       .typeError(ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE)
       .positive(ELECTRONIC_JOUNRAL_REPORT_STARTING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE)
       .test(
-        "startingZReportNumberLength", 
-        ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, 
-        value => value && value.toString().length <= 4
+        "startingZReportNumberLength",
+        ELECTRONIC_JOURNAL_REPORT_STARTING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE,
+        value => !!value && value.toString().length <= 4
       ),
     endingZReportNumber: Yup
       .number()
@@ -115,9 +116,9 @@ const Reports = () => {
       .typeError(ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_A_NUMBER_ERROR_MESSAGE)
       .positive(ELECTRONIC_JOUNRAL_REPORT_ENDING_Z_REPORT_NUMBER_NOT_POSITIVE_ERROR_MESSAGE)
       .test(
-        "endingZReportNumberLength", 
-        ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE, 
-        value => value && value.toString().length <= 4
+        "endingZReportNumberLength",
+        ELECTRONIC_JOURNAL_REPORT_ENDING_Z_REPORT_NUMBER_MAX_LENGTH_ERROR_MESSAGE,
+        value => !!value && value.toString().length <= 4
       ),
   });
 
@@ -130,11 +131,11 @@ const Reports = () => {
    * @function handlePrintDailyXReportClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handlePrintDailyXReportClick = async () => {
+  const handlePrintDailyXReportClick = async (): Promise<void> => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        await fp.PrintDailyReport(Tremol.Enums.OptionZeroing.Without_zeroing);
-      } catch (error) {
+        await fp.PrintDailyReport((Tremol as any).Enums.OptionZeroing.Without_zeroing);
+      } catch (error: any) {
         toast.error(handleZFPLabServerError(error));
       }
     }, PRINT_DAILY_X_REPORT_LOADING_MESSAGE)
@@ -149,11 +150,11 @@ const Reports = () => {
    * @function handlePrintDailyZReportClick
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handlePrintDailyZReportClick = async () => {
+  const handlePrintDailyZReportClick = async (): Promise<void> => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        await fp.PrintDailyReport(Tremol.Enums.OptionZeroing.Zeroing);
-      } catch (error) {
+        await fp.PrintDailyReport((Tremol as any).Enums.OptionZeroing.Zeroing);
+      } catch (error: any) {
         toast.error(handleZFPLabServerError(error));
       }
     }, PRINT_DAILY_Z_REPORT_LOADING_MESSAGE)
@@ -170,14 +171,18 @@ const Reports = () => {
    * 
    * @async
    * @function handleReadElectronicJournalReportByZReportNumbers
-   * @param {object} zReportNumbers - Object containing the Z report numbers range.
-   * @param {string} zReportNumbers.startingZReportNumber - Starting Z report number.
-   * @param {string} zReportNumbers.endingZReportNumber - Ending Z report number.
-   * @param {object} formikHelperFunctions - Formik helper functions for handling form state.
+   * @param {ElectronicJournalReportByZReportNumbersFormData} zReportNumbers - Object containing the Z report numbers range.
+   * @param {string | number} zReportNumbers.startingZReportNumber - Starting Z report number.
+   * @param {string | number} zReportNumbers.endingZReportNumber - Ending Z report number.
+   * @param {FormikHelpers<ElectronicJournalReportByZReportNumbersFormData>['setSubmitting']} formikHelperFunctions - 
+   * Formik helper functions for handling form state.
    * @param {function} formikHelperFunctions.setSubmitting - Formik function to control the form's submitting state.
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
-  const handleReadElectronicJournalReportByZReportNumbers = async ({ startingZReportNumber, endingZReportNumber }, { setSubmitting }) => {
+  const handleReadElectronicJournalReportByZReportNumbers = async (
+    { startingZReportNumber, endingZReportNumber }: ElectronicJournalReportByZReportNumbersFormData,
+    { setSubmitting }: { setSubmitting: FormikHelpers<ElectronicJournalReportByZReportNumbersFormData>['setSubmitting'] }
+  ): Promise<void> => {
     if (Number(startingZReportNumber) > Number(endingZReportNumber)) {
       toast.error(ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_ENDING_NUMBER_ERROR_MESSAGE);
       return;
@@ -186,17 +191,17 @@ const Reports = () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fp.ReadEJByZBlocks(Number(startingZReportNumber), Number(endingZReportNumber));
-        const electronicJournalReportByZReportNumbersContent = await rawReadAndFormatBytesToString();
+        const electronicJournalReportByZReportNumbersContent: string | null = await rawReadAndFormatBytesToString();
 
         if (!isNullOrWhitespace(electronicJournalReportByZReportNumbersContent)) {
           handleReadReportDraggableDialogOpen(
             `EJ Report By Z Report Numbers (${startingZReportNumber}, ${endingZReportNumber})`,
-            electronicJournalReportByZReportNumbersContent
+            electronicJournalReportByZReportNumbersContent as string
           );
         } else {
           toast.error(NO_REPORT_CONTENT_ERROR_MESSAGE);
         }
-      } catch (error) {
+      } catch (error: any) {
         toast.error(handleZFPLabServerError(error));
       } finally {
         setSubmitting(false);
@@ -216,37 +221,37 @@ const Reports = () => {
    * @function rawReadAndFormatBytesToString
    * @returns {Promise<string | null>} A formatted string from decoded bytes, or `null` if an error occurs.
    */
-  const rawReadAndFormatBytesToString = async () => {
+  const rawReadAndFormatBytesToString = async (): Promise<string | null> => {
     try {
-      const rawReadBytes = await fp.RawRead(0, "@");
-      const decodedLines = new TextDecoder("windows-1252").decode(rawReadBytes).split("\n");
+      const rawReadBytes: Uint8Array = await fp.RawRead(0, "@");
+      const decodedLines: string[] = new TextDecoder("windows-1252").decode(rawReadBytes).split("\n");
 
-      let formattedResultString = "";
+      let formattedResultString: string = "";
 
       for (let i = 0; i < decodedLines.length - 1; i++) {
         if (decodedLines[i] === "@") {
           continue;
         }
 
-        let currentLineToProcess = decodedLines[i].slice(4, -2).replace(/\x7f/g, '.');
+        let currentLineToProcess: string = decodedLines[i].slice(4, -2).replace(/\x7f/g, '.');
 
         formattedResultString += currentLineToProcess + "\r\n";
       }
 
       return formattedResultString;
-    } catch (error) {
+    } catch (error: any) {
       toast.error(handleZFPLabServerError(error));
       return null;
     }
   }
 
-  const handleReadReportDraggableDialogOpen = (draggableDialogTitle, draggableDialogContent) => {
+  const handleReadReportDraggableDialogOpen = (draggableDialogTitle: string, draggableDialogContent: string): void => {
     setReadElectronicJournalReportDraggableDialogTitle(draggableDialogTitle);
     setReadElectronicJournalReportDraggableDialogContent(draggableDialogContent);
     setIsReadElectronicJournalReportDraggableDialogOpen(true);
   }
 
-  const handleReadReportDraggableDialogClose = () => {
+  const handleReadReportDraggableDialogClose = (): void => {
     setIsReadElectronicJournalReportDraggableDialogOpen(false);
   }
 
