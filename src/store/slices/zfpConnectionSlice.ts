@@ -4,7 +4,24 @@ import {
   FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE
 } from '../../utils/constants';
 
-const zfpConnectionInitialState = {
+interface ZFPLabServerConnectionState {
+  isConnecting: boolean;
+  isConnected: boolean;
+  connectionStateMessage: string;
+}
+
+interface FiscalDeviceConnectionState {
+  isSearching: boolean;
+  isConnected: boolean;
+  connectionStateMessage: string;
+}
+
+interface ZFPConnectionState {
+  zfpLabServerConnectionState: ZFPLabServerConnectionState;
+  fiscalDeviceConnectionState: FiscalDeviceConnectionState
+}
+
+const zfpConnectionInitialState: ZFPConnectionState = {
   zfpLabServerConnectionState: {
     isConnecting: false,
     isConnected: false,
@@ -22,18 +39,20 @@ export const zfpConnectionSlice = createSlice({
   initialState: zfpConnectionInitialState,
   reducers: {
     setIsConnectingToZFPLabServer: (state, action) => {
-      state.zfpLabServerConnectionState.isConnecting = action.payload;
+      state.zfpLabServerConnectionState.isConnecting = action.payload as boolean;
     },
     setZFPLabServerConnectionState: (state, action) => {
-      const { isConnected, connectionStateMessage } = action.payload;
+      const { isConnected, connectionStateMessage } =
+        action.payload as Pick<ZFPLabServerConnectionState, "isConnected" | "connectionStateMessage">;
       state.zfpLabServerConnectionState.isConnected = isConnected;
       state.zfpLabServerConnectionState.connectionStateMessage = connectionStateMessage;
     },
     setIsSearchingForFiscalDevice: (state, action) => {
-      state.fiscalDeviceConnectionState.isSearching = action.payload;
+      state.fiscalDeviceConnectionState.isSearching = action.payload as boolean;
     },
     setFiscalDeviceConnectionState: (state, action) => {
-      const { isConnected, connectionStateMessage } = action.payload;
+      const { isConnected, connectionStateMessage } =
+        action.payload as Pick<FiscalDeviceConnectionState, "isConnected" | "connectionStateMessage">;
       state.fiscalDeviceConnectionState.isConnected = isConnected;
       state.fiscalDeviceConnectionState.connectionStateMessage = connectionStateMessage;
     }

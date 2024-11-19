@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+import { FC, useState, useEffect, useRef, useCallback } from 'react';
+import { styled, Theme, useTheme, CSSObject } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
 import {
   ZFP_LAB_SERVER_CONNECTION,
@@ -24,6 +24,12 @@ import {
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { useSelector, useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '../../store';
+import { SerialPortOrUSBConnectionSettings } from '../../interfaces/fiscal-device-connection-settings/SerialPortOrUSBConnectionSettings';
+import { LANOrWiFiConnectionSettings } from '../../interfaces/fiscal-device-connection-settings/LANOrWiFiConnectionSettings';
+import { SerialPortOrUSBConnectionType } from '../../types/fiscal-device-connection/SerialPortOrUSBConnectionType';
+import { LANOrWiFiConnectionType } from '../../types/fiscal-device-connection/LANOrWiFiConnectionType';
+import { SidebarMenuItem } from '../../types/sidebar-menu-item/SideBarMenuItem';
 import { useFP } from '../../hooks/useFP';
 import { setActiveSection } from '../../store/slices/appNavigationSlice';
 import {
@@ -39,7 +45,7 @@ import { toast } from 'react-toastify';
 import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar from '@mui/material/AppBar';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -68,9 +74,9 @@ import FiscalReceipts from '../fiscal-receipts/FiscalReceipts';
 import Reports from '../reports/Reports';
 import FiscalDeviceInformation from '../fiscal-device-information/FiscalDeviceInformation';
 
-const drawerWidth = 240;
+const drawerWidth: number = 240;
 
-const openedMixin = (theme) => ({
+const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
@@ -79,7 +85,7 @@ const openedMixin = (theme) => ({
   overflowX: 'hidden',
 });
 
-const closedMixin = (theme) => ({
+const closedMixin = (theme: Theme): CSSObject => ({
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -99,9 +105,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   ...theme.mixins.toolbar
 }));
 
+interface AppBarProps extends MuiAppBarProps {
+  open?: boolean;
+}
+
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme }) => ({
+})<AppBarProps>(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
@@ -147,20 +157,20 @@ const MiniVariantDrawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop 
   }),
 );
 
-export const NavigationDrawer = () => {
-  const [isNavigationDrawerOpen, setIsNavigationDrawerOpen] = useState(true);
-  const isFullscreenEventListenerAttached = useRef(false);
-  const activeSection = useSelector((state) => state.appNavigation.activeSection);
-  const zfpLabServerConnectionState = useSelector((state) => state.zfpConnection.zfpLabServerConnectionState);
-  const fiscalDeviceConnectionState = useSelector((state) => state.zfpConnection.fiscalDeviceConnectionState);
-  const isFullscreenModeActive = useSelector((state) => state.fullscreenMode.isFullscreenModeActive);
-  const demoContentElement = document.getElementById('demo');
-  const navigationDrawerInitialMountRef = useRef(true);
-  const theme = useTheme();
-  const dispatch = useDispatch();
+export const NavigationDrawer: FC = () => {
+  const [isNavigationDrawerOpen, setIsNavigationDrawerOpen] = useState<boolean>(true);
+  const isFullscreenEventListenerAttached = useRef<boolean>(false);
+  const activeSection = useSelector((state: RootState) => state.appNavigation.activeSection);
+  const zfpLabServerConnectionState = useSelector((state: RootState) => state.zfpConnection.zfpLabServerConnectionState);
+  const fiscalDeviceConnectionState = useSelector((state: RootState) => state.zfpConnection.fiscalDeviceConnectionState);
+  const isFullscreenModeActive = useSelector((state: RootState) => state.fullscreenMode.isFullscreenModeActive);
+  const demoContentElement: HTMLElement | null = document.getElementById('demo');
+  const navigationDrawerInitialMountRef = useRef<boolean>(true);
+  const theme: Theme = useTheme();
+  const dispatch = useDispatch<AppDispatch>();
   const fp = useFP();
 
-  const sidebarMenuItems = [
+  const sidebarMenuItems: SidebarMenuItem[] = [
     {
       title: FISCAL_RECEIPTS,
       icon: <ReceiptIcon />
@@ -175,21 +185,21 @@ export const NavigationDrawer = () => {
     }
   ];
 
-  const handleNavigationDrawerOpen = () => {
+  const handleNavigationDrawerOpen = (): void => {
     setIsNavigationDrawerOpen(true);
   };
 
-  const handleNavigationDrawerClose = () => {
+  const handleNavigationDrawerClose = (): void => {
     setIsNavigationDrawerOpen(false);
   };
 
-  const showZFPLabServerConnectionSection = () => {
+  const showZFPLabServerConnectionSection = (): void => {
     sendZFPLabServerConnectionState(false, ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE);
     sendFiscalDeviceConnectionState(false, FISCAL_DEVICE_NOT_CONNECTED_ERROR_MESSAGE);
     showSection(ZFP_LAB_SERVER_CONNECTION);
   }
 
-  const showFiscalDeviceConnectionSection = () => {
+  const showFiscalDeviceConnectionSection = (): void => {
     if (!fiscalDeviceConnectionState.isConnected) {
       return;
     }
@@ -198,7 +208,7 @@ export const NavigationDrawer = () => {
     showSection(FISCAL_DEVICE_CONNECTION);
   }
 
-  const showSection = (sectionIdentifier) => {
+  const showSection = (sectionIdentifier: string): void => {
     dispatch(setActiveSection(sectionIdentifier));
   }
 
@@ -214,7 +224,7 @@ export const NavigationDrawer = () => {
    * @param {string} zfpLabServerAddress - The address of the ZFPLabServer.
    * @returns {Promise<void>} A promise that resolves once the connection attempt completes.
    */
-  const handleZFPLabServerAutomaticConnection = async (zfpLabServerAddress) => {
+  const handleZFPLabServerAutomaticConnection = async (zfpLabServerAddress: string): Promise<void> => {
     dispatch(setIsConnectingToZFPLabServer(true));
 
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -242,10 +252,10 @@ export const NavigationDrawer = () => {
    * @param {string} zfpLabServerAddress - The address of the ZFPLabServer.
    * @returns {Promise<void>} A promise that resolves once the ZFPLabServer connection operation completes.
    */
-  const connectToZFPLabServer = async (zfpLabServerAddress) => {
+  const connectToZFPLabServer = async (zfpLabServerAddress: string): Promise<void> => {
     await fp.ServerSetSettings(zfpLabServerAddress);
 
-    const serverSettingsForConnectionTest = await fp.ServerGetSettingsForConnectionTest();
+    const serverSettingsForConnectionTest: any = await fp.ServerGetSettingsForConnectionTest();
 
     if (serverSettingsForConnectionTest) {
       localStorage.setItem(ZFP_LAB_SERVER_ADDRESS_KEY, zfpLabServerAddress);
@@ -263,11 +273,15 @@ export const NavigationDrawer = () => {
    * 
    * @async
    * @function handleFiscalDeviceAutomaticConnection
-   * @param {object} fiscalDeviceConnectionSettings - Connection settings for the fiscal device.
+   * @param {SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings} fiscalDeviceConnectionSettings - 
+   * Connection settings for the fiscal device.
    * @param {string} connectionType - Type of the connection.
    * @returns {Promise<void>} A promise that resolves once the connection attempt completes.
    */
-  const handleFiscalDeviceAutomaticConnection = async (fiscalDeviceConnectionSettings, connectionType) => {
+  const handleFiscalDeviceAutomaticConnection = async (
+    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+    connectionType: string
+  ): Promise<void> => {
     dispatch(setIsSearchingForFiscalDevice(true));
 
     await executeFPOperationWithLoading(dispatch, async () => {
@@ -297,24 +311,29 @@ export const NavigationDrawer = () => {
    *
    * @async
    * @function connectToFiscalDevice
-   * @param {object} fiscalDeviceConnectionSettings - Connection settings for the fiscal device:
+   * @param {SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings} fiscalDeviceConnectionSettings - 
+   * Connection settings for the fiscal device:
    *    - If `Serial`, includes `{ serialPort: string, baudRate: number }`.
    *    - If `TCP`, includes `{ fiscalDeviceIPAddress: string, lanOrWifiPassword: string }`.
    * @param {string} connectionType - Type of the connection, either `SERIAL_PORT_CONNECTION` or `TCP_CONNECTION`.
    * @returns {Promise<void>} A promise that resolves once the fiscal device connection operation completes.
    */
-  const connectToFiscalDevice = async (fiscalDeviceConnectionSettings, connectionType) => {
-    let fiscalDeviceConnectionDetails = {};
+  const connectToFiscalDevice = async (
+    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+    connectionType: string
+  ): Promise<void> => {
+    let fiscalDeviceConnectionDetails = 
+      {} as SerialPortOrUSBConnectionSettings | Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">;
 
     switch (connectionType) {
       case SERIAL_PORT_CONNECTION: {
-        const { serialPort, baudRate } = fiscalDeviceConnectionSettings;
+        const { serialPort, baudRate } = fiscalDeviceConnectionSettings as SerialPortOrUSBConnectionSettings;
         await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
         Object.assign(fiscalDeviceConnectionDetails, { serialPort, baudRate });
         break;
       }
       case TCP_CONNECTION: {
-        const { fiscalDeviceIPAddress, lanOrWifiPassword } = fiscalDeviceConnectionSettings;
+        const { fiscalDeviceIPAddress, lanOrWifiPassword } = fiscalDeviceConnectionSettings as LANOrWiFiConnectionSettings;
         await fp.ServerSetDeviceTcpSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
         Object.assign(fiscalDeviceConnectionDetails, { fiscalDeviceIPAddress });
         break;
@@ -325,12 +344,15 @@ export const NavigationDrawer = () => {
 
     await fp.ReadStatus();
 
-    const fiscalDeviceSerialNumber = await fp.ReadSerialAndFiscalNums().SerialNumber;
-    const fiscalDeviceModel = await fp.ReadVersion().Model;
+    const fiscalDeviceSerialNumber: string = await fp.ReadSerialAndFiscalNums().SerialNumber;
+    const fiscalDeviceModel: string = await fp.ReadVersion().Model;
 
-    const fiscalDeviceSuccessfulConnectionMessage = connectionType === SERIAL_PORT_CONNECTION
-      ? `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on ${fiscalDeviceConnectionDetails.serialPort} and baud rate ${fiscalDeviceConnectionDetails.baudRate}`
-      : `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on IP address ${fiscalDeviceConnectionDetails.fiscalDeviceIPAddress}`;
+    const fiscalDeviceSuccessfulConnectionMessage: string = connectionType === SERIAL_PORT_CONNECTION
+      ? `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on ` + 
+        `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).serialPort} and baud rate ` + 
+        `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).baudRate}`
+      : `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on IP address ` + 
+      `${(fiscalDeviceConnectionDetails as Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">).fiscalDeviceIPAddress}`;
 
     sendFiscalDeviceConnectionState(true, fiscalDeviceSuccessfulConnectionMessage);
     showSection(FISCAL_RECEIPTS);
@@ -338,40 +360,40 @@ export const NavigationDrawer = () => {
     toast.success(CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE);
   }
 
-  const sendZFPLabServerConnectionState = (isConnected, connectionStateMessage) => {
+  const sendZFPLabServerConnectionState = (isConnected: boolean, connectionStateMessage: string): void => {
     dispatch(setZFPLabServerConnectionState({ isConnected, connectionStateMessage }));
   }
 
-  const sendFiscalDeviceConnectionState = (isConnected, connectionStateMessage) => {
+  const sendFiscalDeviceConnectionState = (isConnected: boolean, connectionStateMessage: string): void => {
     dispatch(setFiscalDeviceConnectionState({ isConnected, connectionStateMessage }));
   }
 
-  const isZFPLabServerOrFiscalDeviceConnectionSection = () =>
+  const isZFPLabServerOrFiscalDeviceConnectionSection = (): boolean =>
     activeSection === ZFP_LAB_SERVER_CONNECTION || activeSection === FISCAL_DEVICE_CONNECTION;
 
-  const getFullscreenElement = () =>
+  const getFullscreenElement = (): Element | undefined =>
     document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
 
   const toggleFullscreen = useCallback(() => {
     if (isFullscreenModeActive) {
       if (document.exitFullscreen) {
         document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
+      } else if (document?.webkitExitFullscreen) {
         document.webkitExitFullscreen();
-      } else if (document.mozCancelFullScreen) {
+      } else if (document?.mozCancelFullScreen) {
         document.mozCancelFullScreen();
-      } else if (document.msExitFullscreen) {
+      } else if (document?.msExitFullscreen) {
         document.msExitFullscreen();
       }
     } else {
-      if (demoContentElement.requestFullscreen) {
+      if (demoContentElement?.requestFullscreen) {
         demoContentElement.requestFullscreen();
-      } else if (demoContentElement.webkitRequestFullscreen) {
-        demoContentElement.webkitRequestFullscreen();
-      } else if (demoContentElement.mozRequestFullScreen) {
-        demoContentElement.mozRequestFullScreen();
-      } else if (demoContentElement.msRequestFullscreen) {
-        demoContentElement.msRequestFullscreen();
+      } else if (demoContentElement?.webkitRequestFullscreen) {
+        demoContentElement?.webkitRequestFullscreen();
+      } else if (demoContentElement?.mozRequestFullScreen) {
+        demoContentElement?.mozRequestFullScreen();
+      } else if (demoContentElement?.msRequestFullscreen) {
+        demoContentElement?.msRequestFullscreen();
       }
     }
   }, [isFullscreenModeActive, demoContentElement]);
@@ -400,26 +422,27 @@ export const NavigationDrawer = () => {
      * @function handleZFPLabServerAndFiscalDeviceAutomaticConnection
      * @returns {Promise<void>} A promise that resolves once the operation completes.
      */
-    const handleZFPLabServerAndFiscalDeviceAutomaticConnection = async () => {
-      const savedZFPLabServerAddress = localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS;
+    const handleZFPLabServerAndFiscalDeviceAutomaticConnection = async (): Promise<void> => {
+      const savedZFPLabServerAddress: string = localStorage.getItem(ZFP_LAB_SERVER_ADDRESS_KEY) || DEFAULT_ZFP_LAB_SERVER_ADDRESS;
 
       try {
         await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress);
 
         setTimeout(async () => {
-          const configuredFiscalDeviceConnectionSettings = getConfiguredFiscalDeviceConnectionSettings();
+          const configuredFiscalDeviceConnectionSettings: SerialPortOrUSBConnectionType | LANOrWiFiConnectionType | null = 
+            getConfiguredFiscalDeviceConnectionSettings();
 
           if (configuredFiscalDeviceConnectionSettings) {
             const { connectionType, ...connectionParameters } = configuredFiscalDeviceConnectionSettings;
 
             try {
               await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
-            } catch (error) {
+            } catch (error: unknown) {
               toast.error(handleZFPLabServerError(error));
             }
           }
         }, 300);
-      } catch (error) {
+      } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       }
     };
@@ -429,8 +452,8 @@ export const NavigationDrawer = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      const fullscreenElement = getFullscreenElement();
+    const handleFullscreenChange = (): void => {
+      const fullscreenElement: Element | undefined = getFullscreenElement();
 
       if (fullscreenElement) {
         dispatch(enterFullscreenMode());
@@ -439,7 +462,7 @@ export const NavigationDrawer = () => {
       }
     }
 
-    let fullscreenEventName;
+    let fullscreenEventName: string | null;
 
     if (!isFullscreenEventListenerAttached.current) {
       fullscreenEventName =
