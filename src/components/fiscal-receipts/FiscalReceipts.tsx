@@ -562,7 +562,6 @@ const FiscalReceipts = () => {
                           label="Department Number"
                           fullWidth
                           size="small"
-                          type="number"
                           name="departmentNumber"
                           variant="outlined"
                           onBlur={handleBlur}
