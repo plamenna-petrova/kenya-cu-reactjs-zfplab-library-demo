@@ -1,4 +1,5 @@
-import { Formik } from "formik";
+import { FC } from "react";
+import { Formik, FormikHelpers } from "formik";
 import { Paragraph } from "../layout/typography-elements/TypographyElements";
 import {
   DEFAULT_ZFP_LAB_SERVER_ADDRESS,
@@ -9,11 +10,12 @@ import {
 } from '../../utils/constants';
 import { executeFPOperationWithLoading } from "../../utils/loadingUtils";
 import { handleZFPLabServerError } from "../../utils/tremolLibraryUtils";
+import { ZFPLabServerConnectionFormData } from "../../interfaces/zfp-lab-server-connection/ZFPLabServerConnectionFormData";
 import { setIsConnectingToZFPLabServer, setZFPLabServerConnectionState } from "../../store/slices/zfpConnectionSlice";
 import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
 import { toast } from 'react-toastify';
 import * as Yup from "yup";
-import PropTypes from 'prop-types';
 import ZFPLabServerConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
 import Grid from '@mui/material/Grid2';
@@ -22,10 +24,14 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import PowerIcon from '@mui/icons-material/Power';
 
-const ZFPLabServerConnection = ({ zfpLabServerConnectionHandler }) => {
-  const dispatch = useDispatch();
+interface ZFPLabServerConnectionProps {
+  zfpLabServerConnectionHandler: (zfpLabServerAddress: string) => Promise<void>;
+}
 
-  const zfpLabServerConnectionInitialFormValues = {
+const ZFPLabServerConnection: FC<ZFPLabServerConnectionProps> = ({ zfpLabServerConnectionHandler }) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const zfpLabServerConnectionInitialFormValues: ZFPLabServerConnectionFormData = {
     zfpLabServerAddress: DEFAULT_ZFP_LAB_SERVER_ADDRESS
   }
 
@@ -48,20 +54,24 @@ const ZFPLabServerConnection = ({ zfpLabServerConnectionHandler }) => {
    *
    * @async
    * @function handleZFPLabServerConnectionFormSubmit
-   * @param {object} zfpLabServerFormData - Data containing the ZFPLabServer connection details.
+   * @param {ZFPLabServerConnectionFormData} zfpLabServerFormData - Data containing the ZFPLabServer connection details.
    * @param {string} zfpLabServerFormData.zfpLabServerAddress - The address of the ZFPLabServer.
    * @param {object} formikHelperFunctions - Formik helper functions for handling form state.
-   * @param {function} formikHelperFunctions.setSubmitting - Function to control the submitting state of the form.
+   * @param {FormikHelpers<ZFPLabServerConnectionFormData>['setSubmitting']} formikHelperFunctions.setSubmitting - 
+   * Function to control the submitting state of the form.
    * @returns {Promise<void>} A promise that resolves once the connection operation completes.
    */
-  const handleZFPLabServerConnectionFormSubmit = async ({ zfpLabServerAddress }, { setSubmitting }) => {
+  const handleZFPLabServerConnectionFormSubmit = async (
+    { zfpLabServerAddress }: ZFPLabServerConnectionFormData, 
+    { setSubmitting }: { setSubmitting: FormikHelpers<ZFPLabServerConnectionFormData>['setSubmitting'] }
+  ): Promise<void> => {
     dispatch(setIsConnectingToZFPLabServer(true));
 
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await zfpLabServerConnectionHandler(zfpLabServerAddress);
-      } catch (error) {
-        const zfpLabServerConnectionError = handleZFPLabServerError(error);
+      } catch (error: unknown) {
+        const zfpLabServerConnectionError: string = handleZFPLabServerError(error);
         toast.error(`${zfpLabServerConnectionError || ''}Unable to connect on: ${zfpLabServerAddress}`);
         dispatch(setZFPLabServerConnectionState({ isConnected: false, connectionStateMessage: ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE }))
       } finally {
@@ -118,10 +128,6 @@ const ZFPLabServerConnection = ({ zfpLabServerConnectionHandler }) => {
       </CardContent>
     </ZFPLabServerConnectionCard>
   )
-}
-
-ZFPLabServerConnection.propTypes = {
-  zfpLabServerConnectionHandler: PropTypes.func
 }
 
 export default ZFPLabServerConnection;
