@@ -157,14 +157,14 @@ const FiscalReceipts: FC = () => {
 
       const externalDatabaseArticlePrice: number = withCorrection && Number(price) > 0 ? Number(-price) : Number(price);
 
-      const externalDatabaseArticleQuantity: number | null = !isNullOrWhitespace(quantity) ? Number(quantity) : null;
+      const externalDatabaseArticleQuantity: number | null = !isNullOrWhitespace(quantity as string) ? Number(quantity) : null;
 
       const externalDatabaseArticleDiscountOrAdditionArray = getDiscountOrAdditionValues(
         discountOrAddition, isDiscountOrAdditionInPercentage
       );
 
       const externalDatabaseArticleDepartmentNumber: number | null = 
-        !isNullOrWhitespace(String(departmentNumber)) ? Number(departmentNumber) : null;
+        !isNullOrWhitespace(departmentNumber as string) ? Number(departmentNumber) : null;
 
       if (isFiscalReceiptOpeningHandled) {
         await sleepAsync(200);
@@ -179,7 +179,7 @@ const FiscalReceipts: FC = () => {
         externalDatabaseArticleDiscountOrAdditionArray[1],
         externalDatabaseArticleDepartmentNumber
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
     } finally {
       setSubmitting(false);
@@ -206,7 +206,7 @@ const FiscalReceipts: FC = () => {
       }
 
       await handleFiscalReceiptOpening();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -222,7 +222,7 @@ const FiscalReceipts: FC = () => {
   const handleCalculateSubtotalClick = async (): Promise<void> => {
     try {
       await fp.Subtotal((Tremol as any).Enums.OptionPrinting.Yes, (Tremol as any).Enums.OptionDisplay.No, null, null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -238,7 +238,7 @@ const FiscalReceipts: FC = () => {
   const handlePayExactSumClick = async (): Promise<void> => {
     try {
       await fp.PayExactSum((Tremol as any).Enums.OptionPaymentType.Cash);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -266,11 +266,11 @@ const FiscalReceipts: FC = () => {
       await executeFPOperationWithLoading(dispatch, async () => {
         try {
           await fp.CashPayCloseReceipt();
-        } catch (error: any) {
+        } catch (error: unknown) {
           toast.error(handleZFPLabServerError(error));
         }
       }, FISCAL_RECEIPT_AUTOMATIC_CLOSURE_LOADING_MESSAGE);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -298,11 +298,11 @@ const FiscalReceipts: FC = () => {
       await executeFPOperationWithLoading(dispatch, async () => {
         try {
           await fp.CloseReceipt();
-        } catch (error: any) {
+        } catch (error: unknown) {
           toast.error(handleZFPLabServerError(error));
         }
       }, FISCAL_RECEIPT_CLOSING_LOADING_MESSAGE);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -336,7 +336,7 @@ const FiscalReceipts: FC = () => {
         );
 
         isReceiptOpeningSuccessful = true;
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       }
     }, FISCAL_RECEIPT_OPENING_LOADING_MESSAGE);
@@ -373,7 +373,7 @@ const FiscalReceipts: FC = () => {
         && !readStatusEntries.Unsent_data_for_24_hours
         && !readStatusEntries.Wrong_SIM_card
         && !readStatusEntries.Wrong_SD_card;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
       return false;
     }

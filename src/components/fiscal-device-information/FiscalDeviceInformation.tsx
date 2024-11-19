@@ -160,7 +160,7 @@ const FiscalDeviceInformation: FC = () => {
           }));
 
         setStatusEntriesToFill(mappedStatusEntries);
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       }
     }, READING_STATUS_ENTRIES_LOADING_MESSAGE);
@@ -180,7 +180,7 @@ const FiscalDeviceInformation: FC = () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fp.PrintDiagnostics();
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       }
     }, PRINTING_DIAGNOSTICS_LOADING_MESSAGE);
@@ -200,7 +200,7 @@ const FiscalDeviceInformation: FC = () => {
     try {
       const version: string = await fp.ReadVersion().Version;
       handleFiscalDeviceInformationAlertDialogOpen(VERSION_INFO_ALERT_DIALOG_TITLE, version);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -222,7 +222,7 @@ const FiscalDeviceInformation: FC = () => {
       const readDateTime: Date = await fp.ReadDateTime();
       const formattedDateTime: string = readDateTime.toStringWithFormat("dd.MM.yyyy hh:mm");
       handleFiscalDeviceInformationAlertDialogOpen(DATE_AND_TIME_INFO_ALERT_DIALOG_TITLE, formattedDateTime);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
     }
   }
@@ -283,7 +283,7 @@ const FiscalDeviceInformation: FC = () => {
           `Clients number: ${clientsNumber}\n`;
 
         handleFiscalDeviceInformationAlertDialogOpen(GS_INFO_ALERT_DIALOG_TITLE, gsInfoAlertContent);
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       }
     }, READING_GS_INFO_LOADING_MESSAGE);
@@ -310,7 +310,7 @@ const FiscalDeviceInformation: FC = () => {
         `Library Definitions: ${libraryDefinitions}`;
   
       handleFiscalDeviceInformationAlertDialogOpen(LIBRARY_INFORMATION_ALERT_DIALOG_TITLE, libraryDefinitionsAlertContent);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
     }
   }

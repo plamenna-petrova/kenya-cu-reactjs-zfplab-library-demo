@@ -72,7 +72,7 @@ const DirectCommands: FC = () => {
 
         const directCommandResult: string = await fp.DirectCommand(directCommandFormData.directCommandInput);
         setFieldValue("directCommandResult", directCommandResult);
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       } finally {
         setSubmitting(false);

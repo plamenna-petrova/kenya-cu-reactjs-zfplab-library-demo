@@ -135,7 +135,7 @@ const Reports: FC = () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fp.PrintDailyReport((Tremol as any).Enums.OptionZeroing.Without_zeroing);
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       }
     }, PRINT_DAILY_X_REPORT_LOADING_MESSAGE)
@@ -154,7 +154,7 @@ const Reports: FC = () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fp.PrintDailyReport((Tremol as any).Enums.OptionZeroing.Zeroing);
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       }
     }, PRINT_DAILY_Z_REPORT_LOADING_MESSAGE)
@@ -201,7 +201,7 @@ const Reports: FC = () => {
         } else {
           toast.error(NO_REPORT_CONTENT_ERROR_MESSAGE);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       } finally {
         setSubmitting(false);
@@ -239,7 +239,7 @@ const Reports: FC = () => {
       }
 
       return formattedResultString;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(handleZFPLabServerError(error));
       return null;
     }
