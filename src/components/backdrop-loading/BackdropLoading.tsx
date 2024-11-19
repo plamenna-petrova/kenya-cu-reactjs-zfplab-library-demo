@@ -7,7 +7,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 interface BackdropLoadingProps {
   isBackdropLoadingOpen: boolean;
-  loadingMessage?: string;
+  loadingMessage: string | null;
 }
 
 const BackdropLoading: FC<BackdropLoadingProps> = ({ isBackdropLoadingOpen, loadingMessage = DEFAULT_LOADING_MESSAGE }) => {

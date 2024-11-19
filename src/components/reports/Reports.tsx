@@ -183,14 +183,17 @@ const Reports: FC = () => {
     { startingZReportNumber, endingZReportNumber }: ElectronicJournalReportByZReportNumbersFormData,
     { setSubmitting }: { setSubmitting: FormikHelpers<ElectronicJournalReportByZReportNumbersFormData>['setSubmitting'] }
   ): Promise<void> => {
-    if (Number(startingZReportNumber) > Number(endingZReportNumber)) {
+    const startingZReportNumberNumericalValue: number = Number(startingZReportNumber);
+    const endingZReportNumberNumericalValue: number = Number(endingZReportNumber);
+
+    if (startingZReportNumberNumericalValue > endingZReportNumberNumericalValue) {
       toast.error(ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_ENDING_NUMBER_ERROR_MESSAGE);
       return;
     }
 
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        await fp.ReadEJByZBlocks(Number(startingZReportNumber), Number(endingZReportNumber));
+        await fp.ReadEJByZBlocks(startingZReportNumberNumericalValue, endingZReportNumberNumericalValue);
         const electronicJournalReportByZReportNumbersContent: string | null = await rawReadAndFormatBytesToString();
 
         if (!isNullOrWhitespace(electronicJournalReportByZReportNumbersContent)) {

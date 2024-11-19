@@ -1,12 +1,14 @@
 /* eslint-disable react/display-name */
+import { FC } from "react";
 import { Route, Routes } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles'
+import { Theme, ThemeProvider, createTheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux';
+import { RootState } from './store';
 import Popper from '@mui/material/Popper';
 import Demo from './pages/demo/Demo';
 import NotFound from './pages/not-found/NotFound';
 
-const demoPrimaryTheme = createTheme({
+const demoPrimaryTheme: Theme = createTheme({
   palette: {
     primary: {
       main: '#1f4788'
@@ -42,13 +44,13 @@ const demoPrimaryTheme = createTheme({
   }
 });
 
-const fullscreenContainer = () => document.fullscreenElement || document.body;
+const fullscreenContainer = (): Element => document.fullscreenElement || document.body;
 
-const FullscreenCustomPopper = (props) => (
-  <Popper {...props} container={fullscreenContainer} />
+const FullscreenCustomPopper = (props: any) => (
+<Popper {...props} container={fullscreenContainer} />
 );
 
-const fullscreenTheme = createTheme({
+const fullscreenTheme: Theme = createTheme({
   palette: {
     primary: {
       main: '#1f4788'
@@ -101,8 +103,8 @@ const fullscreenTheme = createTheme({
   },
 });
 
-const App = () => {
-  const isFullscreenModeActive = useSelector((state) => state.fullscreenMode.isFullscreenModeActive);
+const App: FC = () => {
+  const isFullscreenModeActive = useSelector((state: RootState) => state.fullscreenMode.isFullscreenModeActive);
 
   return (
     <ThemeProvider theme={!isFullscreenModeActive ? demoPrimaryTheme : fullscreenTheme}>

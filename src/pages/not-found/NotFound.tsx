@@ -1,3 +1,4 @@
+import { FC } from "react";
 import { styled } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
 import Typography from '@mui/material/Typography';
@@ -29,7 +30,7 @@ const IMG = styled("img")({
   marginBottom: "32px"
 });
 
-const NotFound = () => {
+const NotFound: FC = () => {
   const navigate = useNavigate();
 
   return (

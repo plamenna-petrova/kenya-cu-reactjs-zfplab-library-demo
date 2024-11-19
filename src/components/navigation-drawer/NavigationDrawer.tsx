@@ -434,9 +434,12 @@ export const NavigationDrawer: FC = () => {
 
           if (configuredFiscalDeviceConnectionSettings) {
             const { connectionType, ...connectionParameters } = configuredFiscalDeviceConnectionSettings;
-
+                        
             try {
-              await handleFiscalDeviceAutomaticConnection(connectionParameters, connectionType);
+              await handleFiscalDeviceAutomaticConnection(
+                connectionParameters as SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+                connectionType
+              );
             } catch (error: unknown) {
               toast.error(handleZFPLabServerError(error));
             }

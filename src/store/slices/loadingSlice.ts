@@ -1,6 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const loadingInitialState = {
+interface LoadingState {
+  isLoading: boolean;
+  message: string | null;
+}
+
+const loadingInitialState: LoadingState = {
   isLoading: false,
   message: null
 }
@@ -10,7 +15,7 @@ export const loadingSlice = createSlice({
   initialState: loadingInitialState,
   reducers: {
     setBackdropLoading: (state, action) => {
-      const { isLoading, message } = action.payload;
+      const { isLoading, message } = action.payload as LoadingState;
       state.isLoading = isLoading;
       state.message = message || null;
     }
