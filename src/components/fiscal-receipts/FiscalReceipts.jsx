@@ -147,15 +147,16 @@ const FiscalReceipts = () => {
         departmentNumber,
       } = externalDatabaseArticleSaleFormData;
 
-      const externalDatabaseArticlePrice = withCorrection && price > 0 ? -price : price;
+      const externalDatabaseArticlePrice = withCorrection && Number(price) > 0 ? Number(-price) : Number(price);
 
-      const externalDatabaseArticleQuantity = !isNullOrWhitespace(quantity) ? quantity : null;
+      const externalDatabaseArticleQuantity = !isNullOrWhitespace(quantity) ? Number(quantity) : null;
 
       const externalDatabaseArticleDiscountOrAdditionArray = getDiscountOrAdditionValues(
         discountOrAddition, isDiscountOrAdditionInPercentage
       );
 
-      const externalDatabaseArticleDepartmentNumber = !isNullOrWhitespace(String(departmentNumber)) ? departmentNumber : null;
+      const externalDatabaseArticleDepartmentNumber = 
+        !isNullOrWhitespace(String(departmentNumber)) ? Number(departmentNumber) : null;
 
       if (isFiscalReceiptOpeningHandled) {
         await sleepAsync(200);
@@ -321,7 +322,7 @@ const FiscalReceipts = () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fp.OpenReceipt(
-          operatorData.operatorNumber,
+          Number(operatorData.operatorNumber),
           operatorData.operatorPassword,
           Tremol.Enums.OptionPrintType.Step_by_step_printing
         );
@@ -552,7 +553,6 @@ const FiscalReceipts = () => {
                           label="Department Number"
                           fullWidth
                           size="small"
-                          type="number"
                           name="departmentNumber"
                           variant="outlined"
                           onBlur={handleBlur}
