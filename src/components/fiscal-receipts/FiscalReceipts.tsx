@@ -389,7 +389,7 @@ const FiscalReceipts = () => {
    * @returns {boolean} `true` if both operator number and password are valid; otherwise, `false`.
    */
   const isOperatorProvided = (): boolean => {
-    if (isNullOrWhitespace(operatorData.operatorNumber)) {
+    if (isNullOrWhitespace(String(operatorData.operatorNumber))) {
       toast.error(`${FISCAL_RECEIPT_OPENING_ERROR_MESSAGE}. ${REQUIRED_OPERATOR_NUMBER_ERROR_MESSAGE}.`);
       return false;
     } else {
