@@ -330,7 +330,7 @@ const FiscalReceipts = () => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
         await fp.OpenReceipt(
-          operatorData.operatorNumber,
+          Number(operatorData.operatorNumber),
           operatorData.operatorPassword,
           (Tremol as any).Enums.OptionPrintType.Step_by_step_printing
         );
