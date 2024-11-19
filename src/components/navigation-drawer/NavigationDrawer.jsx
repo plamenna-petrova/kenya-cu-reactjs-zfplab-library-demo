@@ -439,25 +439,25 @@ export const NavigationDrawer = () => {
       }
     }
 
-    let fullScreenEventName;
+    let fullscreenEventName;
 
     if (!isFullscreenEventListenerAttached.current) {
-      fullScreenEventName =
+      fullscreenEventName =
         'onfullscreenchange' in document ? 'fullscreenchange' :
           'onwebkitfullscreenchange' in document ? 'webkitfullscreenchange' :
             'onmozfullscreenchange' in document ? 'mozfullscreenchange' :
               'onmsfullscreenchange' in document ? 'msfullscreenchange' :
                 null;
 
-      if (fullScreenEventName) {
-        document.addEventListener(fullScreenEventName, handleFullscreenChange);
+      if (fullscreenEventName) {
+        document.addEventListener(fullscreenEventName, handleFullscreenChange);
         isFullscreenEventListenerAttached.current = true;
       }
     }
 
     return () => {
-      if (isFullscreenEventListenerAttached.current && fullScreenEventName) {
-        document.removeEventListener(fullScreenEventName, handleFullscreenChange);
+      if (isFullscreenEventListenerAttached.current && fullscreenEventName) {
+        document.removeEventListener(fullscreenEventName, handleFullscreenChange);
         isFullscreenEventListenerAttached.current = false;
       }
     };

@@ -8,8 +8,8 @@ const fullscreenModeInitialState: FullscreenModeState = {
   isFullscreenModeActive: false
 }
 
-const fullscreenSlice = createSlice({
-  name: 'fullscreen',
+const fullscreenModeSlice = createSlice({
+  name: 'fullscreen-mode',
   initialState: fullscreenModeInitialState,
   reducers: {
     enterFullscreenMode: (state) => {
@@ -21,6 +21,6 @@ const fullscreenSlice = createSlice({
   }
 });
 
-export const { enterFullscreenMode, exitFullscreenMode } = fullscreenSlice.actions;
+export const { enterFullscreenMode, exitFullscreenMode } = fullscreenModeSlice.actions;
 
-export default fullscreenSlice.reducer;
+export default fullscreenModeSlice.reducer;
