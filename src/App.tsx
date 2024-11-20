@@ -1,4 +1,3 @@
-/* eslint-disable react/display-name */
 import { FC } from "react";
 import { Route, Routes } from 'react-router-dom';
 import { Theme, ThemeProvider, createTheme } from '@mui/material/styles'
@@ -46,8 +45,8 @@ const demoPrimaryTheme: Theme = createTheme({
 
 const fullscreenContainer = (): Element => document.fullscreenElement || document.body;
 
-const FullscreenCustomPopper = (props: any) => (
-<Popper {...props} container={fullscreenContainer} />
+const FullscreenCustomPopper = (props: any): JSX.Element => (
+  <Popper {...props} container={fullscreenContainer} />
 );
 
 const fullscreenTheme: Theme = createTheme({

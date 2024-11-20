@@ -71,7 +71,7 @@ const ZFPLabServerConnection: FC<ZFPLabServerConnectionProps> = ({ zfpLabServerC
       try {
         await zfpLabServerConnectionHandler(zfpLabServerAddress);
       } catch (error: unknown) {
-        const zfpLabServerConnectionError: string = handleZFPLabServerError(error);
+        const zfpLabServerConnectionError = handleZFPLabServerError(error);
         toast.error(`${zfpLabServerConnectionError || ''}Unable to connect on: ${zfpLabServerAddress}`);
         dispatch(setZFPLabServerConnectionState({ isConnected: false, connectionStateMessage: ZFP_LAB_SERVER_CONNECTION_NOT_ESTABLISHED_ERROR_MESSAGE }))
       } finally {
