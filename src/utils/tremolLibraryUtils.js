@@ -97,7 +97,6 @@ export const handleZFPLabServerError = (error) => {
       case Tremol.ServerErrorType.ClientInvalidGetFormat:
       case Tremol.ServerErrorType.ClientInvalidPostFormat:
       case Tremol.ServerErrorType.ClientXMLCanNotParse:
-      case Tremol.ServerErrorType.ClientCanNotParseResponseXML:
         return error.message;
       //#endregion "Internal ZFPLabServer errors"
       //#endregion "ZFPLabServer Errors"
@@ -231,7 +230,11 @@ export const handleZFPLabServerError = (error) => {
       default:
         return error.message;
     }
-  } else {
+  } else if(error instanceof Error) {
     console.log("An error occurred", error);
+    return `An error occurred ${error.message}`;
+  } else {
+    console.log("An unknown error occurred", error);
+    return `An unknown error occurred`;
   }
 }
