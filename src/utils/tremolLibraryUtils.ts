@@ -1,9 +1,13 @@
 import Tremol from "../assets/js/fp.js";
 
-export const handleZFPLabServerError = (error) => {
-  if (error instanceof Tremol.ServerError) {
+type ServerErrorTypeValues = typeof Tremol.ServerErrorType[keyof typeof Tremol.ServerErrorType];
+
+export const handleZFPLabServerError = (error: unknown): string | undefined => {
+  if (isZFPLabServerError(error)) {
+    const errorType = error.type as unknown as ServerErrorTypeValues;
+
     // Here are the most important error cases
-    switch (error.type) {
+    switch (errorType) {
       /*
           Overall, the error types are split into three major categories :
               1) Errors, related to the ZFPLabServer's configuration / activity
@@ -97,7 +101,6 @@ export const handleZFPLabServerError = (error) => {
       case Tremol.ServerErrorType.ClientInvalidGetFormat:
       case Tremol.ServerErrorType.ClientInvalidPostFormat:
       case Tremol.ServerErrorType.ClientXMLCanNotParse:
-      case Tremol.ServerErrorType.ClientCanNotParseResponseXML:
         return error.message;
       //#endregion "Internal ZFPLabServer errors"
       //#endregion "ZFPLabServer Errors"
@@ -231,7 +234,15 @@ export const handleZFPLabServerError = (error) => {
       default:
         return error.message;
     }
-  } else {
+  } else if(error instanceof Error) {
     console.log("An error occurred", error);
+    return `An error occurred ${error.message}`;
+  } else {
+    console.log("An unknown error occurred", error);
+    return `An unknown error occurred`;
   }
 }
+
+const isZFPLabServerError = (error: unknown): error is InstanceType<typeof Tremol.ServerError> => {
+  return error instanceof Tremol.ServerError;
+};
