@@ -230,7 +230,7 @@ export const handleZFPLabServerError = (error) => {
       default:
         return error.message;
     }
-  } else if(error instanceof Error) {
+  } else if (error instanceof Error) {
     console.log("An error occurred", error);
     return `An error occurred ${error.message}`;
   } else {
