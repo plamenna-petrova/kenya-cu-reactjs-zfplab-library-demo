@@ -562,6 +562,7 @@ const FiscalReceipts: FC = () => {
                           label="Department Number"
                           fullWidth
                           size="small"
+                          type="text"
                           name="departmentNumber"
                           variant="outlined"
                           onBlur={handleBlur}
@@ -584,6 +585,7 @@ const FiscalReceipts: FC = () => {
                           label="Discount/Addition"
                           fullWidth
                           size="small"
+                          type="text"
                           name="discountOrAddition"
                           variant="outlined"
                           onBlur={handleBlur}
