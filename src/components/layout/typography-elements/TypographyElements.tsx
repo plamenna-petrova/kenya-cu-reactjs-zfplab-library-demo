@@ -1,4 +1,4 @@
-import { FC, ComponentProps } from "react";
+import { FC, ComponentProps, ElementType } from "react";
 import { styled } from "@mui/material/styles";
 import Box, { BoxProps } from '@mui/material/Box';
 import clsx from "clsx";
@@ -16,7 +16,7 @@ const StyledBox = styled(Box, {
 
 interface TypographyProps extends ComponentProps<typeof StyledBox> {
   ellipsis?: boolean;
-  component?: React.ElementType;
+  component?: ElementType;
 }
 
 export const H1: FC<TypographyProps> = ({ children, className, ellipsis, ...restProps }) => {

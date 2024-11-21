@@ -352,7 +352,7 @@ export const NavigationDrawer: FC = () => {
         `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).serialPort} and baud rate ` + 
         `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).baudRate}`
       : `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on IP address ` + 
-      `${(fiscalDeviceConnectionDetails as Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">).fiscalDeviceIPAddress}`;
+        `${(fiscalDeviceConnectionDetails as Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">).fiscalDeviceIPAddress}`;
 
     sendFiscalDeviceConnectionState(true, fiscalDeviceSuccessfulConnectionMessage);
     showSection(FISCAL_RECEIPTS);
@@ -374,20 +374,20 @@ export const NavigationDrawer: FC = () => {
   const getFullscreenElement = (): Element | undefined =>
     document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
 
-  const toggleFullscreen = useCallback(() => {
+  const toggleFullscreen = useCallback((): void => {
     if (isFullscreenModeActive) {
       if (document.exitFullscreen) {
         document.exitFullscreen();
-      } else if (document?.webkitExitFullscreen) {
+      } else if (document.webkitExitFullscreen) {
         document.webkitExitFullscreen();
-      } else if (document?.mozCancelFullScreen) {
+      } else if (document.mozCancelFullScreen) {
         document.mozCancelFullScreen();
-      } else if (document?.msExitFullscreen) {
+      } else if (document.msExitFullscreen) {
         document.msExitFullscreen();
       }
     } else {
       if (demoContentElement?.requestFullscreen) {
-        demoContentElement.requestFullscreen();
+        demoContentElement?.requestFullscreen();
       } else if (demoContentElement?.webkitRequestFullscreen) {
         demoContentElement?.webkitRequestFullscreen();
       } else if (demoContentElement?.mozRequestFullScreen) {
