@@ -36,7 +36,7 @@ export const getConfiguredFiscalDeviceConnectionSettings = () => {
   const savedFiscalDeviceConnectionSettingsJSON = localStorage.getItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY);
 
   if (!savedFiscalDeviceConnectionSettingsJSON) {
-    return undefined;
+    return null;
   }
 
   return JSON.parse(savedFiscalDeviceConnectionSettingsJSON);

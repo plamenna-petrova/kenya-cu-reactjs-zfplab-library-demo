@@ -156,7 +156,7 @@ const FiscalReceipts = () => {
       );
 
       const externalDatabaseArticleDepartmentNumber = 
-        !isNullOrWhitespace(String(departmentNumber)) ? Number(departmentNumber) : null;
+        !isNullOrWhitespace(departmentNumber) ? Number(departmentNumber) : null;
 
       if (isFiscalReceiptOpeningHandled) {
         await sleepAsync(200);
@@ -553,6 +553,7 @@ const FiscalReceipts = () => {
                           label="Department Number"
                           fullWidth
                           size="small"
+                          type="text"
                           name="departmentNumber"
                           variant="outlined"
                           onBlur={handleBlur}
@@ -575,6 +576,7 @@ const FiscalReceipts = () => {
                           label="Discount/Addition"
                           fullWidth
                           size="small"
+                          type="text"
                           name="discountOrAddition"
                           variant="outlined"
                           onBlur={handleBlur}

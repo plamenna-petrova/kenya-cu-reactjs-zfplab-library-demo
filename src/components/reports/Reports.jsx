@@ -170,14 +170,17 @@ const Reports = () => {
    * @returns {Promise<void>} A promise that resolves once the operation completes.
    */
   const handleReadElectronicJournalReportByZReportNumbers = async ({ startingZReportNumber, endingZReportNumber }, { setSubmitting }) => {
-    if (Number(startingZReportNumber) > Number(endingZReportNumber)) {
+    const startingZReportNumberNumericalValue = Number(startingZReportNumber);
+    const endingZReportNumberNumericalValue = Number(endingZReportNumber);
+
+    if (startingZReportNumberNumericalValue > endingZReportNumberNumericalValue) {
       toast.error(ELECTRONIC_JOURNAl_REPORT_STARTING_Z_REPORT_NUMBER_GREATER_THAN_ENDING_NUMBER_ERROR_MESSAGE);
       return;
     }
 
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        await fp.ReadEJByZBlocks(Number(startingZReportNumber), Number(endingZReportNumber));
+        await fp.ReadEJByZBlocks(startingZReportNumberNumericalValue, endingZReportNumberNumericalValue);
         const electronicJournalReportByZReportNumbersContent = await rawReadAndFormatBytesToString();
 
         if (!isNullOrWhitespace(electronicJournalReportByZReportNumbersContent)) {
