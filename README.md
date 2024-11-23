@@ -37,6 +37,7 @@ npm run dev
 ## Features and installed modules
 
 - JavaScript
+- TypeScript
 - React
 - vite
 - @emotion/react
