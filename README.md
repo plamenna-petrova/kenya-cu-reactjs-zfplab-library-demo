@@ -19,7 +19,7 @@ paying an exact sum for the receipt, closing the receipt or closing the receipt 
 and reading an electronic journal report by Z report numbers (the content of which can be displayed and saved to a .txt file). The Information section contains details about the fiscal device, which
 can be viewed by executing the following operations: reading a status, printing diagnostics, reading the version of the fiscal device, reading the set date and time on the fiscal device, reading GS info for special
 parameters and reading library definitions. In addition, direct commands can be sent and the resulting status entries can be filtered, based on a search term and their boolean values. The application's logic
-is built using React JSX components with Redux state management, Material UI is used for the UI elements, the forms are made with Formik and are validated with Yup. A Tremol library utility is integrated for
+is built using React TSX/JSX components with Redux state management, Material UI is used for the UI elements, the forms are made with Formik and are validated with Yup. A Tremol library utility is integrated for
 better handling of server errors. Overall, most of the functions of the codebase have detailed JSDoc comments, describing their designation. 
 
 ## Startup
