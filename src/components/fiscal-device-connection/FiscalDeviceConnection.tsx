@@ -37,6 +37,7 @@ import { SerialPortOrUSBConnectionSettings } from '../../interfaces/fiscal-devic
 import { LANOrWiFiConnectionSettings } from '../../interfaces/fiscal-device-connection-settings/LANOrWiFiConnectionSettings';
 import { FiscalDeviceAlertConnectionState } from '../../interfaces/fiscal-device-connection-state/FiscalDeviceAlertConnectionState';
 import { FiscalDeviceConnectionType, fiscalDeviceConnectionTypes } from '../../types/fiscal-device-connection/FiscalDeviceConnectionType';
+import { serverFindDevice } from '../../api/services/fiscal-device-connection-service';
 import * as Yup from "yup";
 import FiscalDeviceConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
@@ -176,7 +177,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
 
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        const foundDeviceSettings = await fp.ServerFindDevice() as SerialPortOrUSBConnectionSettings;
+        const foundDeviceSettings = await serverFindDevice();
 
         if (foundDeviceSettings !== null) {
           const { serialPort, baudRate } = foundDeviceSettings;
