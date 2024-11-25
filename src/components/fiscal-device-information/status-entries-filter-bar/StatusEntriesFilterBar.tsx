@@ -1,10 +1,10 @@
 import { FC, useState, useEffect, ChangeEvent} from 'react';
+import { ToggleableStatusEntries } from "../../../interfaces/status/ToggleableStatusEntries";
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { ToggleableStatusEntries } from "../../../interfaces/status/ToggleableStatusEntries";
 
 interface StatusEntriesProps {
   statusEntriesSearchTermForFiltering: string;
