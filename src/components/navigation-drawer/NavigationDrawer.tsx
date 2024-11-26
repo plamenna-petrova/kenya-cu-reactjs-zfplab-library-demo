@@ -41,6 +41,7 @@ import {
 import { enterFullscreenMode, exitFullscreenMode } from '../../store/slices/fullScreenModeSlice';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { getConfiguredFiscalDeviceConnectionSettings } from '../../utils/connectionUtils';
+import { setFiscalDeviceSerialPortOrUSBConnectionSettings } from '../../api/services/fiscal-device-connection-service';
 import { toast } from 'react-toastify';
 import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import Box from '@mui/material/Box';
@@ -328,7 +329,7 @@ export const NavigationDrawer: FC = () => {
     switch (connectionType) {
       case SERIAL_PORT_CONNECTION: {
         const { serialPort, baudRate } = fiscalDeviceConnectionSettings as SerialPortOrUSBConnectionSettings;
-        await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
+        await setFiscalDeviceSerialPortOrUSBConnectionSettings(serialPort, baudRate, true);
         Object.assign(fiscalDeviceConnectionDetails, { serialPort, baudRate });
         break;
       }

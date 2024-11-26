@@ -27,7 +27,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { SerialPortOrUSBConnectionType } from '../../types/fiscal-device-connection/SerialPortOrUSBConnectionType';
 import { LANOrWiFiConnectionType } from '../../types/fiscal-device-connection/LANOrWiFiConnectionType';
-import { useFP } from '../../hooks/useFP';
 import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
@@ -37,7 +36,7 @@ import { SerialPortOrUSBConnectionSettings } from '../../interfaces/fiscal-devic
 import { LANOrWiFiConnectionSettings } from '../../interfaces/fiscal-device-connection-settings/LANOrWiFiConnectionSettings';
 import { FiscalDeviceAlertConnectionState } from '../../interfaces/fiscal-device-connection-state/FiscalDeviceAlertConnectionState';
 import { FiscalDeviceConnectionType, fiscalDeviceConnectionTypes } from '../../types/fiscal-device-connection/FiscalDeviceConnectionType';
-import { serverFindDevice } from '../../api/services/fiscal-device-connection-service';
+import { findFiscalDevice } from '../../api/services/fiscal-device-connection-service';
 import * as Yup from "yup";
 import FiscalDeviceConnectionCard from '../layout/zfp-connection-card/ZFPConnectionCard';
 import CardContent from '@mui/material/CardContent';
@@ -118,7 +117,6 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
   const isMobileScreen: boolean = useMediaQuery('(max-width:480px)');
   const isFullscreenModeActive = useSelector((state: RootState) => state.fullscreenMode.isFullscreenModeActive);
   const dispatch = useDispatch<AppDispatch>();
-  const fp = useFP();
 
   const FiscalDeviceConnectionMenuProps = {
     PaperProps: {
@@ -177,7 +175,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
 
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        const foundDeviceSettings = await serverFindDevice();
+        const foundDeviceSettings = await findFiscalDevice();
 
         if (foundDeviceSettings !== null) {
           const { serialPort, baudRate } = foundDeviceSettings;
