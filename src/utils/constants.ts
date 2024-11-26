@@ -185,3 +185,11 @@ export const FISCAL_DEVICE_NOT_FOUND_WARNING_MESSAGE: string = "A fiscal device 
 export const FISCAL_DEVICE_NOT_FOUND_ERROR_MESSAGE: string = "An error occurred while trying to find a fiscal device";
 
 export const NOT_CONNECTED_TO_FISCAL_DEVICE_ERROR_MESSAGE: string = "Couldn't connect to a fiscal device";
+
+// MIME Types
+
+export const APPLICATION_XML = "application/xml";
+
+// Date Formats
+
+export const TREMOL_FP_DATE_FORMAT: string = "dd-MM-yyyy HH:mm:ss";
