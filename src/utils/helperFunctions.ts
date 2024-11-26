@@ -42,7 +42,7 @@ export const analyzeZFPLabServerResponseData = (responseData: any): Record<strin
         resultObject[currentResChildElementNameAttribute] = currentResChildElementValueAttribute;
         break;
       case "DateTime":
-        resultObject[currentResChildElementNameAttribute] = parseDateWithFormat(
+        resultObject[currentResChildElementNameAttribute] = parseDateWithCustomFormat(
           currentResChildElementValueAttribute, TREMOL_FP_DATE_FORMAT
         );
         break;
@@ -98,64 +98,62 @@ export const generateExportFileName = (fileName: string, fileExtension: string):
   return generatedFileName;
 }
 
-export const parseDateWithFormat = (input: string, format: string): Date => {
-  var p = input;
-  var f = format;
-  var y = 0;
-  var M = 0;
-  var d = 0;
-  var h = 0;
-  var m = 0;
-  var s = 0;
+export const parseDateWithCustomFormat = (stringParsedAsDate: string, customDateFormat: string): Date => {
+  let year: number = 0;
+  let month: number = 0;
+  let date: number = 0;
+  let hours: number = 0;
+  let minutes: number = 0;
+  let seconds: number = 0;
 
-  var yIx = f.indexOf("yyyy");
-  var MIx = f.indexOf("MM");
-  var dIx = f.indexOf("dd");
-  var hIx = f.indexOf("HH");
-  var mIx = f.indexOf("mm");
-  var sIx = f.indexOf("ss");
+  let yearIndex: number = customDateFormat.indexOf("yyyy");
+  let monthIndex: number = customDateFormat.indexOf("MM");
+  let dateIndex: number = customDateFormat.indexOf("dd");
+  let hoursIndex: number = customDateFormat.indexOf("HH");
+  let minutesIndex: number = customDateFormat.indexOf("mm");
+  let secondsIndex: number = customDateFormat.indexOf("ss");
 
-  if (yIx !== -1) {
-    y = parseInt(p.substring(yIx, yIx + 4));
-  }
-  else {
-    yIx = f.indexOf("yy");
-    if (yIx !== -1) {
-      y = parseInt(p.substring(yIx, yIx + 2));
+  if (yearIndex !== -1) {
+    year = parseInt(stringParsedAsDate.substring(yearIndex, yearIndex + 4));
+  } else {
+    yearIndex = customDateFormat.indexOf("yy");
+
+    if (yearIndex !== -1) {
+      year = parseInt(stringParsedAsDate.substring(yearIndex, yearIndex + 2));
     }
   }
 
-  if (MIx !== -1) {
-    M = parseInt(p.substring(MIx, MIx + 2)) - 1;
+  if (monthIndex !== -1) {
+    month = parseInt(stringParsedAsDate.substring(monthIndex, monthIndex + 2)) - 1;
   }
 
-  if (dIx !== -1) {
-    d = parseInt(p.substring(dIx, dIx + 2));
+  if (dateIndex !== -1) {
+    date = parseInt(stringParsedAsDate.substring(dateIndex, dateIndex + 2));
   }
 
-  if (hIx !== -1) {
-    h = parseInt(p.substring(hIx, hIx + 2));
+  if (hoursIndex !== -1) {
+    hours = parseInt(stringParsedAsDate.substring(hoursIndex, hoursIndex + 2));
   }
 
-  if (mIx !== -1) {
-    m = parseInt(p.substring(mIx, mIx + 2));
+  if (minutesIndex !== -1) {
+    minutes = parseInt(stringParsedAsDate.substring(minutesIndex, minutesIndex + 2));
   }
 
-  if (sIx !== -1) {
-    s = parseInt(p.substring(sIx, sIx + 2));
+  if (secondsIndex !== -1) {
+    seconds = parseInt(stringParsedAsDate.substring(secondsIndex, secondsIndex + 2));
   }
 
-  return new Date(y, M, d, h, m, s);
+  return new Date(year, month, date, hours, minutes, seconds);
 };
 
-export const base64stringToArrayBuffer = (input: string) => {
-  var binary_string = window.atob(input);
-  var len = binary_string.length;
-  var bytes = new Uint8Array(len);
+export const base64stringToArrayBuffer = (inputString: string) => {
+  const binaryString: string = window.atob(inputString);
+  const binaryStringLength: number = binaryString.length;
+  const uint8BytesArray: Uint8Array = new Uint8Array(binaryStringLength);
 
-  for (var i = 0; i < len; i++) {
-    bytes[i] = binary_string.charCodeAt(i);
+  for (let i = 0; i < binaryStringLength; i++) {
+    uint8BytesArray[i] = binaryString.charCodeAt(i);
   }
 
-  return bytes;
+  return uint8BytesArray;
 };
