@@ -79,7 +79,7 @@ export const analyzeZFPLabServerResponseData = (responseData: any): Record<strin
 
 export const isNullOrWhitespace = (input: string | null | undefined): boolean => !input || input.trim().length === 0;
 
-export const sleepAsync = (milliseconds: number): Promise<void> => 
+export const sleepAsync = (milliseconds: number): Promise<void> =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 
 export const generateExportFileName = (fileName: string, fileExtension: string): string => {
