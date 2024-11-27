@@ -146,7 +146,7 @@ export const parseDateWithCustomFormat = (stringParsedAsDate: string, customDate
   return new Date(year, month, date, hours, minutes, seconds);
 };
 
-export const base64stringToArrayBuffer = (inputString: string) => {
+export const base64stringToArrayBuffer = (inputString: string): Uint8Array => {
   const binaryString: string = window.atob(inputString);
   const binaryStringLength: number = binaryString.length;
   const uint8BytesArray: Uint8Array = new Uint8Array(binaryStringLength);
