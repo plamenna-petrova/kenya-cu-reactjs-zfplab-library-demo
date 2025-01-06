@@ -304,6 +304,8 @@ export const NavigationDrawer = () => {
    * @returns {Promise<void>} A promise that resolves once the fiscal device connection operation completes.
    */
   const connectToFiscalDevice = async (fiscalDeviceConnectionSettings, connectionType) => {
+    await fp.ApplyClientLibraryDefinitions();
+
     let fiscalDeviceConnectionDetails = {};
 
     switch (connectionType) {
@@ -320,8 +322,6 @@ export const NavigationDrawer = () => {
         break;
       }
     }
-
-    await fp.ApplyClientLibraryDefinitions();
 
     await fp.ReadStatus();
 
