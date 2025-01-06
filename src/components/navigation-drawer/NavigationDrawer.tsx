@@ -328,6 +328,8 @@ export const NavigationDrawer: FC = () => {
     fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
     connectionType: string
   ): Promise<void> => {
+    await fp.ApplyClientLibraryDefinitions();
+
     let fiscalDeviceConnectionDetails = 
       {} as SerialPortOrUSBConnectionSettings | Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">;
 
@@ -345,8 +347,6 @@ export const NavigationDrawer: FC = () => {
         break;
       }
     }
-
-    await fp.ApplyClientLibraryDefinitions();
 
     await fp.ReadStatus();
 
