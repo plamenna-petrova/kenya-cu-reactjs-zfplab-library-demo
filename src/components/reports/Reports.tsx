@@ -123,25 +123,6 @@ const Reports: FC = () => {
   });
 
   /**
-   * Prints a daily fiscal report without zeroing.
-   * - Initiates an asynchronous operation with a loading indicator.
-   * - If an error occurs, shows an error toast with the error message.
-   * 
-   * @async
-   * @function handlePrintDailyXReportClick
-   * @returns {Promise<void>} A promise that resolves once the operation completes.
-   */
-  const handlePrintDailyXReportClick = async (): Promise<void> => {
-    await executeFPOperationWithLoading(dispatch, async () => {
-      try {
-        await fp.PrintDailyReport((Tremol as any).Enums.OptionZeroing.Without_zeroing);
-      } catch (error: unknown) {
-        toast.error(handleZFPLabServerError(error));
-      }
-    }, PRINT_DAILY_X_REPORT_LOADING_MESSAGE)
-  }
-
-  /**
    * Prints a daily fiscal report with zeroing.
    * - Initiates an asynchronous operation with a loading indicator.
    * - If an error occurs, shows an error toast with the error message.
@@ -153,7 +134,7 @@ const Reports: FC = () => {
   const handlePrintDailyZReportClick = async (): Promise<void> => {
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
-        await fp.PrintDailyReport((Tremol as any).Enums.OptionZeroing.Zeroing);
+        await fp.DailyReport();
       } catch (error: unknown) {
         toast.error(handleZFPLabServerError(error));
       }
@@ -268,9 +249,6 @@ const Reports: FC = () => {
                 Reports
               </H3>
               <Stack spacing={2} sx={{ mt: 3 }}>
-                <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handlePrintDailyXReportClick}>
-                  Daily X Report
-                </Button>
                 <Button size="medium" variant="contained" sx={{ width: '100%' }} onClick={handlePrintDailyZReportClick}
                 >
                   Daily Z Report

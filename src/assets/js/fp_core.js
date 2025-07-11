@@ -256,7 +256,6 @@ Tremol.FP = Tremol.FP ||
         }
         x += "</Command>";
         var response = sendReq("POST", "", x);
-
         return analyzeResponse(response);
       }
       catch (ex) {
@@ -441,11 +440,13 @@ Tremol.FP = Tremol.FP ||
       try {
         var response = sendReq("GET", "clients", null);
         var clientNodes = response.getElementsByTagName("Client");
+        console.log("client nodes", clientNodes);
+
         var clients = [];
         for (var c = 0; c < clientNodes.length; c++) {
           var client = {
-            id: response.getElementsByTagName("Id")[c].firstChild.nodeValue,
-            ipaddress: response.getElementsByTagName("ip")[c].firstChild.nodeValue,
+            id: response.getElementsByTagName("Id")[c].firstChild ? response.getElementsByTagName("Id")[c].firstChild.nodeValue : undefined,
+            ipaddress: response.getElementsByTagName("ip")[c].firstChild.nodeValue ? response.getElementsByTagName("ip")[c].firstChild.nodeValue : undefined,
             isConnected: (response.getElementsByTagName("PortIsOpen")[c].firstChild.nodeValue === "1")
           };
           clients.push(client);

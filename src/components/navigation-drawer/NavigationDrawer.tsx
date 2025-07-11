@@ -258,6 +258,19 @@ export const NavigationDrawer: FC = () => {
     const serverSettingsForConnectionTest: any = await fp.ServerGetSettingsForConnectionTest();
 
     if (serverSettingsForConnectionTest) {
+      console.log('removing all clients');
+      await fp.ServerRemoveAllClients();
+      console.log('all clients removed');
+
+      // const customClientId: number = getRandomIntegerFromInterval(1, 1000);
+      const customClientId = generateCustomClientId(5);
+      console.log('Set custom client Id to: ', customClientId);
+
+      await fp.ServerSetCustomClientId(customClientId);
+
+      const currentClients = await fp.ServerGetClients();
+      console.log('Current clients: ', currentClients);
+      
       localStorage.setItem(ZFP_LAB_SERVER_ADDRESS_KEY, zfpLabServerAddress);
       sendZFPLabServerConnectionState(true, `Connected to ZFPLabServer on: ${zfpLabServerAddress}`);
       showSection(FISCAL_DEVICE_CONNECTION);
@@ -279,7 +292,7 @@ export const NavigationDrawer: FC = () => {
    * @returns {Promise<void>} A promise that resolves once the connection attempt completes.
    */
   const handleFiscalDeviceAutomaticConnection = async (
-    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings,
     connectionType: string
   ): Promise<void> => {
     dispatch(setIsSearchingForFiscalDevice(true));
@@ -319,12 +332,12 @@ export const NavigationDrawer: FC = () => {
    * @returns {Promise<void>} A promise that resolves once the fiscal device connection operation completes.
    */
   const connectToFiscalDevice = async (
-    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings,
     connectionType: string
   ): Promise<void> => {
     await fp.ApplyClientLibraryDefinitions();
 
-    let fiscalDeviceConnectionDetails = 
+    let fiscalDeviceConnectionDetails =
       {} as SerialPortOrUSBConnectionSettings | Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">;
 
     switch (connectionType) {
@@ -344,20 +357,35 @@ export const NavigationDrawer: FC = () => {
 
     await fp.ReadStatus();
 
-    const fiscalDeviceSerialNumber: string = await fp.ReadSerialAndFiscalNums().SerialNumber;
     const fiscalDeviceModel: string = await fp.ReadVersion().Model;
 
     const fiscalDeviceSuccessfulConnectionMessage: string = connectionType === SERIAL_PORT_CONNECTION
-      ? `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on ` + 
-        `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).serialPort} and baud rate ` + 
-        `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).baudRate}`
-      : `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on IP address ` + 
-        `${(fiscalDeviceConnectionDetails as Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">).fiscalDeviceIPAddress}`;
+      ? `(${fiscalDeviceModel}) on ` +
+      `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).serialPort} and baud rate ` +
+      `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).baudRate}`
+      : `(${fiscalDeviceModel}) on IP address ` +
+      `${(fiscalDeviceConnectionDetails as Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">).fiscalDeviceIPAddress}`;
 
     sendFiscalDeviceConnectionState(true, fiscalDeviceSuccessfulConnectionMessage);
     showSection(FISCAL_RECEIPTS);
 
     toast.success(CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE);
+  }
+
+  const getRandomIntegerFromInterval = (min: number, max: number): number => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  };
+
+  const generateCustomClientId = (idLength: number): string => {
+    let result: string = '';
+    const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength: number = characters.length;
+
+    for (let i: number = 0; i < idLength; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
   }
 
   const sendZFPLabServerConnectionState = (isConnected: boolean, connectionStateMessage: string): void => {
@@ -429,15 +457,15 @@ export const NavigationDrawer: FC = () => {
         await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress);
 
         setTimeout(async () => {
-          const configuredFiscalDeviceConnectionSettings: SerialPortOrUSBConnectionType | LANOrWiFiConnectionType | null = 
+          const configuredFiscalDeviceConnectionSettings: SerialPortOrUSBConnectionType | LANOrWiFiConnectionType | null =
             getConfiguredFiscalDeviceConnectionSettings();
 
           if (configuredFiscalDeviceConnectionSettings) {
             const { connectionType, ...connectionParameters } = configuredFiscalDeviceConnectionSettings;
-                        
+
             try {
               await handleFiscalDeviceAutomaticConnection(
-                connectionParameters as SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+                connectionParameters as SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings,
                 connectionType
               );
             } catch (error: unknown) {
