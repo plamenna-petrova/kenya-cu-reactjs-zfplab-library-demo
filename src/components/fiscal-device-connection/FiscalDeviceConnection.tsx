@@ -241,6 +241,7 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
 
     await executeFPOperationWithLoading(dispatch, async () => {
       try {
+        console.log("calling fiscal device connection handler");
         await fiscalDeviceConnectionHandler(fiscalDeviceConnectionSettingsFormData, connectionType);
 
         let connectedFiscalDeviceSettings = {} as SerialPortOrUSBConnectionType | LANOrWiFiConnectionType;
@@ -261,6 +262,8 @@ const FiscalDeviceConnection: FC<FiscalDeviceConnectionProps> = ({ fiscalDeviceC
 
         localStorage.setItem(FISCAL_DEVICE_CONNECTION_SETTINGS_KEY, JSON.stringify(connectedFiscalDeviceSettings));
       } catch (error: unknown) {
+        console.log(error);	
+
         const fiscalDeviceFailedConnectionStatus: FiscalDeviceAlertConnectionState = {
           severity: "error",
           message: NOT_CONNECTED_TO_FISCAL_DEVICE_ERROR_MESSAGE,

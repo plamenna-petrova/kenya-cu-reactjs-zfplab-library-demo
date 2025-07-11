@@ -28,7 +28,13 @@ export const setFiscalDeviceSerialPortOrUSBConnectionSettings = async (
   baudRate: number, 
   keepPortOpen: boolean
 ): Promise<void> => {
-  await axiosInstance.get(`/Settings(com=${serialPort},baud=${baudRate},keepPortOpen=${keepPortOpen ? '1' : '0'},tcp=0)`);
+  try {
+    console.log(`Setting fiscal device connection settings: serialPort=${serialPort}, baudRate=${baudRate}, keepPortOpen=${keepPortOpen}`);	
+    await axiosInstance.get(`/settings?com=${serialPort}&baud=${baudRate}&keepPortOpen=${keepPortOpen ? '1' : '0'}&tcp=0`);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 
 export const setFiscalDeviceLANOrWiFiConnectionSettings = async (
@@ -36,11 +42,11 @@ export const setFiscalDeviceLANOrWiFiConnectionSettings = async (
   tcpPort: number, 
   lanOrWifiPassword?: string | undefined
 ): Promise<void> => {
-  await axiosInstance.get(`/Settings(ip=${fiscalDeviceIPAdress},port=${tcpPort}${lanOrWifiPassword ? `,password=${lanOrWifiPassword}` : ''},tcp=1)`);
+  await axiosInstance.get(`/settings?ip=${fiscalDeviceIPAdress}&port=${tcpPort}${lanOrWifiPassword ? `&password=${lanOrWifiPassword}` : ''}&tcp=1)`);
 }
 
 export const getSettingsForConnectionTest = async (): Promise<Element> => {
-  const response = await axiosInstance.get('/Settings');
+  const response = await axiosInstance.get('/settings');
 
   const settingsForConnectionTestXMLDocument: Document = new DOMParser().parseFromString(
     response.data,
@@ -51,3 +57,30 @@ export const getSettingsForConnectionTest = async (): Promise<Element> => {
 
   return settingsNode;
 }
+
+export const readStatusPOST = async (): Promise<any> => {
+  const readStatusXMLCommand: string = `<Command Name="ReadStatus"></Command>`; 
+
+  try {
+    const response = await axiosInstance.post(
+      "/ReadStatus", 
+      readStatusXMLCommand
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error reading fiscal device status", error);
+    throw error;
+  }
+};
+
+export const readStatusGET = async (): Promise<any> => {
+  try {
+    const response = await axiosInstance.get("/ReadStatus");
+
+    return response.data;
+  } catch (error) {
+    console.error("Error reading fiscal device status", error);
+    throw error;
+  }
+};

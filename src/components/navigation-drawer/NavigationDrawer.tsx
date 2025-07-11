@@ -41,12 +41,13 @@ import {
 import { enterFullscreenMode, exitFullscreenMode } from '../../store/slices/fullScreenModeSlice';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { getConfiguredFiscalDeviceConnectionSettings } from '../../utils/connectionUtils';
-import { 
-  getSettingsForConnectionTest, 
-  setFiscalDeviceLANOrWiFiConnectionSettings, 
-  setFiscalDeviceSerialPortOrUSBConnectionSettings 
+import {
+  getSettingsForConnectionTest,
+  readStatusGET,
+  readStatusPOST,
+  setFiscalDeviceLANOrWiFiConnectionSettings,
+  setFiscalDeviceSerialPortOrUSBConnectionSettings
 } from '../../api/services/fiscal-device-connection-service';
-import { readModelAndVersion, readSerialAndFiscalNumbers } from '../../api/services/fiscal-device-information-service';
 import { toast } from 'react-toastify';
 import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import Box from '@mui/material/Box';
@@ -79,6 +80,7 @@ import FiscalDeviceConnection from '../fiscal-device-connection/FiscalDeviceConn
 import FiscalReceipts from '../fiscal-receipts/FiscalReceipts';
 import Reports from '../reports/Reports';
 import FiscalDeviceInformation from '../fiscal-device-information/FiscalDeviceInformation';
+import { readModelAndVersion } from '../../api/services/fiscal-device-information-service';
 
 const drawerWidth: number = 240;
 
@@ -261,9 +263,22 @@ export const NavigationDrawer: FC = () => {
   const connectToZFPLabServer = async (zfpLabServerAddress: string): Promise<void> => {
     await fp.ServerSetSettings(zfpLabServerAddress);
 
-    const serverSettingsForConnectionTest = await getSettingsForConnectionTest();
+    const serverSettingsForConnectionTest: any = await getSettingsForConnectionTest();
 
     if (serverSettingsForConnectionTest) {
+      // console.log('removing all clients');
+      // await fp.ServerRemoveAllClients();
+      // console.log('all clients removed');
+
+      // const customClientId: number = getRandomIntegerFromInterval(1, 1000);
+      const customClientId = generateCustomClientId(5);
+      console.log('Set custom client Id to: ', customClientId);
+
+      await fp.ServerSetCustomClientId(customClientId);
+
+      const currentClients = await fp.ServerGetClients();
+      console.log('Current clients: ', currentClients);
+
       localStorage.setItem(ZFP_LAB_SERVER_ADDRESS_KEY, zfpLabServerAddress);
       sendZFPLabServerConnectionState(true, `Connected to ZFPLabServer on: ${zfpLabServerAddress}`);
       showSection(FISCAL_DEVICE_CONNECTION);
@@ -285,7 +300,7 @@ export const NavigationDrawer: FC = () => {
    * @returns {Promise<void>} A promise that resolves once the connection attempt completes.
    */
   const handleFiscalDeviceAutomaticConnection = async (
-    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings,
     connectionType: string
   ): Promise<void> => {
     dispatch(setIsSearchingForFiscalDevice(true));
@@ -325,17 +340,22 @@ export const NavigationDrawer: FC = () => {
    * @returns {Promise<void>} A promise that resolves once the fiscal device connection operation completes.
    */
   const connectToFiscalDevice = async (
-    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+    fiscalDeviceConnectionSettings: SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings,
     connectionType: string
   ): Promise<void> => {
+    console.log('Connecting to fiscal device...');
+
     await fp.ApplyClientLibraryDefinitions();
 
-    let fiscalDeviceConnectionDetails = 
+    console.log('here');
+
+    let fiscalDeviceConnectionDetails =
       {} as SerialPortOrUSBConnectionSettings | Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">;
 
     switch (connectionType) {
       case SERIAL_PORT_CONNECTION: {
         const { serialPort, baudRate } = fiscalDeviceConnectionSettings as SerialPortOrUSBConnectionSettings;
+        console.log(`Connecting to fiscal device on serial port: ${serialPort} with baud rate: ${baudRate}`);
         await setFiscalDeviceSerialPortOrUSBConnectionSettings(serialPort, baudRate, true);
         Object.assign(fiscalDeviceConnectionDetails, { serialPort, baudRate });
         break;
@@ -348,22 +368,56 @@ export const NavigationDrawer: FC = () => {
       }
     }
 
-    await fp.ReadStatus();
+    // switch (connectionType) {
+    //   case SERIAL_PORT_CONNECTION: {
+    //     const { serialPort, baudRate } = fiscalDeviceConnectionSettings as SerialPortOrUSBConnectionSettings;
+    //     await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
+    //     Object.assign(fiscalDeviceConnectionDetails, { serialPort, baudRate });
+    //     break;
+    //   }
+    //   case TCP_CONNECTION: {
+    //     const { fiscalDeviceIPAddress, lanOrWifiPassword } = fiscalDeviceConnectionSettings as LANOrWiFiConnectionSettings;
+    //     await fp.ServerSetDeviceTcpSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
+    //     Object.assign(fiscalDeviceConnectionDetails, { fiscalDeviceIPAddress });
+    //     break;
+    //   }
+    // }
 
-    const fiscalDeviceSerialNumber: string = (await readSerialAndFiscalNumbers()).SerialNumber;
+    console.log('before reading status');
+
+    await readStatusGET();
+
+    console.log('read status');
+
     const fiscalDeviceModel: string = (await readModelAndVersion()).Model;
 
     const fiscalDeviceSuccessfulConnectionMessage: string = connectionType === SERIAL_PORT_CONNECTION
-      ? `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on ` + 
-        `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).serialPort} and baud rate ` + 
-        `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).baudRate}`
-      : `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on IP address ` + 
-        `${(fiscalDeviceConnectionDetails as Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">).fiscalDeviceIPAddress}`;
+      ? `(${fiscalDeviceModel}) on ` +
+      `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).serialPort} and baud rate ` +
+      `${(fiscalDeviceConnectionDetails as SerialPortOrUSBConnectionSettings).baudRate}`
+      : `(${fiscalDeviceModel}) on IP address ` +
+      `${(fiscalDeviceConnectionDetails as Pick<LANOrWiFiConnectionSettings, "fiscalDeviceIPAddress">).fiscalDeviceIPAddress}`;
 
     sendFiscalDeviceConnectionState(true, fiscalDeviceSuccessfulConnectionMessage);
     showSection(FISCAL_RECEIPTS);
 
     toast.success(CONNECTED_TO_FISCAL_DEVICE_SUCCESS_MESSAGE);
+  }
+
+  const getRandomIntegerFromInterval = (min: number, max: number): number => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  };
+
+  const generateCustomClientId = (idLength: number): string => {
+    let result: string = '';
+    const characters: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength: number = characters.length;
+
+    for (let i: number = 0; i < idLength; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
   }
 
   const sendZFPLabServerConnectionState = (isConnected: boolean, connectionStateMessage: string): void => {
@@ -435,15 +489,15 @@ export const NavigationDrawer: FC = () => {
         await handleZFPLabServerAutomaticConnection(savedZFPLabServerAddress);
 
         setTimeout(async () => {
-          const configuredFiscalDeviceConnectionSettings: SerialPortOrUSBConnectionType | LANOrWiFiConnectionType | null = 
+          const configuredFiscalDeviceConnectionSettings: SerialPortOrUSBConnectionType | LANOrWiFiConnectionType | null =
             getConfiguredFiscalDeviceConnectionSettings();
 
           if (configuredFiscalDeviceConnectionSettings) {
             const { connectionType, ...connectionParameters } = configuredFiscalDeviceConnectionSettings;
-                        
+
             try {
               await handleFiscalDeviceAutomaticConnection(
-                connectionParameters as SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings, 
+                connectionParameters as SerialPortOrUSBConnectionSettings | LANOrWiFiConnectionSettings,
                 connectionType
               );
             } catch (error: unknown) {
