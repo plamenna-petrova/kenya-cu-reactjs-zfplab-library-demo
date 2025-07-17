@@ -33,6 +33,7 @@ import {
   setIsSearchingForFiscalDevice
 } from '../../store/slices/zfpConnectionSlice';
 import { enterFullscreenMode, exitFullscreenMode } from '../../store/slices/fullScreenModeSlice';
+import { readStatus, readVersion } from '../../api/direct-api-requests-xhr';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { getConfiguredFiscalDeviceConnectionSettings } from '../../utils/connectionUtils';
 import { toast } from 'react-toastify';
@@ -323,14 +324,15 @@ export const NavigationDrawer = () => {
       }
     }
 
-    await fp.ReadStatus();
+    // await fp.ReadStatus();
 
-    const fiscalDeviceSerialNumber = await fp.ReadSerialAndFiscalNums().SerialNumber;
-    const fiscalDeviceModel = await fp.ReadVersion().Model;
+    await readStatus();
+
+    const fiscalDeviceModel = await readVersion();
 
     const fiscalDeviceSuccessfulConnectionMessage = connectionType === SERIAL_PORT_CONNECTION
-      ? `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on ${fiscalDeviceConnectionDetails.serialPort} and baud rate ${fiscalDeviceConnectionDetails.baudRate}`
-      : `${fiscalDeviceSerialNumber} (${fiscalDeviceModel}) on IP address ${fiscalDeviceConnectionDetails.fiscalDeviceIPAddress}`;
+      ? `(${fiscalDeviceModel}) on ${fiscalDeviceConnectionDetails.serialPort} and baud rate ${fiscalDeviceConnectionDetails.baudRate}`
+      : `(${fiscalDeviceModel}) on IP address ${fiscalDeviceConnectionDetails.fiscalDeviceIPAddress}`;
 
     sendFiscalDeviceConnectionState(true, fiscalDeviceSuccessfulConnectionMessage);
     showSection(FISCAL_RECEIPTS);

@@ -38,6 +38,7 @@ import StatusEntriesFilterBar from './status-entries-filter-bar/StatusEntriesFil
 import DirectCommands from './direct-commands/DirectCommands';
 // eslint-disable-next-line no-unused-vars
 import Tremol from "../../assets/js/fp";
+import { saveLog, openCreditNoteWithFreeCustomerDataWithArgsParsing } from '../../api/direct-api-requests-xhr';
 
 const STATUS_ENTRY_NAME_LABEL = "Name";
 
@@ -304,6 +305,23 @@ const FiscalDeviceInformation = () => {
     }
   }
 
+  const handleSaveLogToATXTFileClick = () => { 
+    try {
+      saveLog();
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    }
+  }
+
+  const handleOpenCreditNoteTestClick = async () => { 
+    try {
+      // await openCreditNoteWithFreeCustomerDataWithArgsParsing("Tremol Ltd.", "123456789", "Test Credit Note", "Test Address", "Test City", "12345");
+      await fp.OpenCreditNoteWithFreeCustomerData("Tremol Ltd.", "123456789", "Test Credit Note", "Test Address", "Test City", "12345");
+    } catch (error) {
+      toast.error(handleZFPLabServerError(error));
+    }
+  }
+
   const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {
     setFiscalDeviceInformationAlertDialogTitle(infoAlertDialogTitle);
     setFiscalDeviceInformationAlertDialogContent(infoAlertDialogContent);
@@ -366,6 +384,12 @@ const FiscalDeviceInformation = () => {
                     </Button>
                     <Button size="medium" variant="contained" sx={{ width: '100%'}} onClick={handleGetLibraryInformationClick}>
                       Library Definitions
+                    </Button>
+                    <Button size="medium" variant="contained" sx={{ width: '100%'}} onClick={handleSaveLogToATXTFileClick}>
+                      Save Log File
+                    </Button>
+                    <Button size="medium" variant="contained" sx={{ width: '100%'}} onClick={handleOpenCreditNoteTestClick}>
+                      Open Credit Note Test
                     </Button>
                   </Stack>
                 </CardContent>
