@@ -6,15 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/ReadStatus': {
+      '/direct-api': {
         target: 'http://localhost:4444',
         changeOrigin: true,
-        secure: false,
-        ws: true, // If you are using WebSockets
-        headers: {
-          'Access-Control-Allow-Credentials': 'true',
-        },
+        rewrite: path => path.replace(/^\/direct-api/, ''),
       },
     },
-  },
+  }
 })

@@ -47,7 +47,7 @@ import {
   readStatusPOST,
   setFiscalDeviceLANOrWiFiConnectionSettings,
   setFiscalDeviceSerialPortOrUSBConnectionSettings
-} from '../../api/services/fiscal-device-connection-service';
+} from '../../api/requests/direct-api-requests-fetch';
 import { toast } from 'react-toastify';
 import { H3, Paragraph } from '../layout/typography-elements/TypographyElements';
 import Box from '@mui/material/Box';
@@ -356,13 +356,15 @@ export const NavigationDrawer: FC = () => {
       case SERIAL_PORT_CONNECTION: {
         const { serialPort, baudRate } = fiscalDeviceConnectionSettings as SerialPortOrUSBConnectionSettings;
         console.log(`Connecting to fiscal device on serial port: ${serialPort} with baud rate: ${baudRate}`);
-        await setFiscalDeviceSerialPortOrUSBConnectionSettings(serialPort, baudRate, true);
+        await fp.ServerSetDeviceSerialSettings(serialPort, baudRate, true);
+        // await setFiscalDeviceSerialPortOrUSBConnectionSettings(serialPort, baudRate, true);
         Object.assign(fiscalDeviceConnectionDetails, { serialPort, baudRate });
         break;
       }
       case TCP_CONNECTION: {
         const { fiscalDeviceIPAddress, lanOrWifiPassword } = fiscalDeviceConnectionSettings as LANOrWiFiConnectionSettings;
-        await setFiscalDeviceLANOrWiFiConnectionSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
+        await fp.ServerSetDeviceTcpSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
+        // await setFiscalDeviceLANOrWiFiConnectionSettings(fiscalDeviceIPAddress, 8000, lanOrWifiPassword);
         Object.assign(fiscalDeviceConnectionDetails, { fiscalDeviceIPAddress });
         break;
       }
@@ -385,11 +387,16 @@ export const NavigationDrawer: FC = () => {
 
     console.log('before reading status');
 
-    await readStatusGET();
+    // await readStatusGET();
+
+    await readStatusPOST();
+
+    // await fp.ReadStatus();
 
     console.log('read status');
 
-    const fiscalDeviceModel: string = (await readModelAndVersion()).Model;
+    // const fiscalDeviceModel: string = (await readModelAndVersion()).Model;
+    const fiscalDeviceModel: string =  await fp.ReadVersion().Model;
 
     const fiscalDeviceSuccessfulConnectionMessage: string = connectionType === SERIAL_PORT_CONNECTION
       ? `(${fiscalDeviceModel}) on ` +

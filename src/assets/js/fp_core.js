@@ -31,6 +31,13 @@ Tremol.FP = Tremol.FP ||
         req.open(verb, url + prefix + (client ? "?client=" + client : ""), false);
         req.setRequestHeader("Content-Type", "text/plain");
         // try { req.setRequestHeader("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7"); } catch (ignored) { }
+
+        console.log("verb");
+        console.log(verb);
+
+        console.log("requests data");
+        console.log(data);
+
         req.send(data);
         if (req.status !== 200) {
           throw new Error("HTTP code " + req.status);
@@ -255,6 +262,9 @@ Tremol.FP = Tremol.FP ||
           x += "</Args>";
         }
         x += "</Command>";
+
+        console.log("x - for sending requests in the do function", x);	
+
         var response = sendReq("POST", "", x);
         return analyzeResponse(response);
       }
