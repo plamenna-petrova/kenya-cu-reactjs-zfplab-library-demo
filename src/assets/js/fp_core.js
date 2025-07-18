@@ -26,7 +26,8 @@ Tremol.FP = Tremol.FP ||
     var req = (typeof XMLHttpRequest !== 'undefined' ? new XMLHttpRequest() : (typeof ActiveXObject !== 'undefined' ? new ActiveXObject('Microsoft.XMLHTTP') : function () { throw new Error(); }));
     try { req.withCredentials = false; } catch (ignored) { };
     try { req.overrideMimeType("text/xml; charset=UTF-8"); } catch (ignored) { };
-    var sendReq = function (verb, prefix, data) {
+
+    this.sendReq = function (verb, prefix, data) {
       try {
         req.open(verb, url + prefix + (client ? "?client=" + client : ""), false);
         req.setRequestHeader("Content-Type", "text/plain");
@@ -48,7 +49,9 @@ Tremol.FP = Tremol.FP ||
             throw new Tremol.ServerError("Server response missing", Tremol.ServerErrorType.ServerResponseMissing);
           }
         }
-        throwOnServerError(respXml);
+
+        this.throwOnServerError(respXml);
+        
         return respXml;
       }
       catch (ex) {
@@ -61,7 +64,7 @@ Tremol.FP = Tremol.FP ||
       }
     };
 
-    var throwOnServerError = function (resp) {
+    this.throwOnServerError = function (resp) {
       var resRoot = resp.getElementsByTagName("Res")[0];
       var resCode = Number(resRoot.getAttribute("Code"));
       if (resCode !== 0) {
@@ -80,7 +83,7 @@ Tremol.FP = Tremol.FP ||
       }
     }
 
-    var analyzeResponse = function (resp) {
+    this.analyzeResponse = function (resp) {
       var resRoot = resp.getElementsByTagName("Res")[0];
       var props = resRoot.getElementsByTagName("Res");
       var resultObj = {};
@@ -200,6 +203,8 @@ Tremol.FP = Tremol.FP ||
           throw new Error("Invalid number of arguments!");
         }
 
+        console.log("arguments", arguments);
+
         /** var xml = psr.parseFromString("<Command></Command>", "text/xml");
         var rt = xml.getElementsByTagName("Command")[0];
         rt.setAttribute("Name", commandName);
@@ -255,8 +260,11 @@ Tremol.FP = Tremol.FP ||
           x += "</Args>";
         }
         x += "</Command>";
-        var response = sendReq("POST", "", x);
-        return analyzeResponse(response);
+
+        console.log("command with arguments to send", x);
+
+        var response = this.sendReq("POST", "", x);
+        return this.analyzeResponse(response);
       }
       catch (ex) {
         if (ex instanceof Tremol.ServerError) {
@@ -305,7 +313,7 @@ Tremol.FP = Tremol.FP ||
     this.ServerFindDevice = function () {
       w = true;
       try {
-        var response = sendReq("GET", "finddevice", null);
+        var response = this.sendReq("GET", "finddevice", null);
         if (response.getElementsByTagName("com")[0].firstChild) {
           var comS = response.getElementsByTagName("com")[0].firstChild.nodeValue; //.data
           var baudS = Number(response.getElementsByTagName("baud")[0].firstChild.nodeValue);
@@ -323,7 +331,7 @@ Tremol.FP = Tremol.FP ||
       w = true;
 
       try {
-        var response = sendReq("GET", "settings", null);
+        var response = this.sendReq("GET", "settings", null);
         return response;
       }
       finally {
@@ -338,7 +346,7 @@ Tremol.FP = Tremol.FP ||
     this.ServerGetDeviceSettings = function () {
       w = true;
       try {
-        var response = sendReq("GET", "settings", null);
+        var response = this.sendReq("GET", "settings", null);
         var isTcp = Boolean(Number(response.getElementsByTagName("tcp")[0].firstChild.nodeValue));
         var comS = response.getElementsByTagName("com")[0].firstChild.nodeValue; //.data
         var baudS = Number(response.getElementsByTagName("baud")[0].firstChild.nodeValue);
@@ -376,7 +384,7 @@ Tremol.FP = Tremol.FP ||
         if (!Tremol.FP.IsOnAndroid()) {
           throw new Tremol.ServerError("This connection type is used only if ZFPLabServer is running on Android device", Tremol.ServerErrorType.ClientArgValueWrongFormat);
         }
-        var response = sendReq("GET", "settings(com=" + deviceFriendlyName + ",tcp=0)", null);
+        var response = this.sendReq("GET", "settings(com=" + deviceFriendlyName + ",tcp=0)", null);
         var df = response.getElementsByTagName("defVer");
         if (this.prototype.timeStamp && df.length > 0) {
           ok = (this.prototype.timeStamp === Number(df[0].firstChild.nodeValue));
@@ -398,7 +406,7 @@ Tremol.FP = Tremol.FP ||
     this.ServerSetDeviceSerialSettings = function (serialPort, baudRate, keepPortOpen) {
       w = true;
       try {
-        var response = sendReq("GET", "settings(com=" + serialPort + ",baud=" + baudRate + ",keepPortOpen=" + (keepPortOpen ? "1" : "0") + ",tcp=0)", null);
+        var response = this.sendReq("GET", "settings(com=" + serialPort + ",baud=" + baudRate + ",keepPortOpen=" + (keepPortOpen ? "1" : "0") + ",tcp=0)", null);
         var df = response.getElementsByTagName("defVer");
         if (this.prototype.timeStamp && df.length > 0) {
           ok = (this.prototype.timeStamp === Number(df[0].firstChild.nodeValue));
@@ -419,7 +427,7 @@ Tremol.FP = Tremol.FP ||
     this.ServerSetDeviceTcpSettings = function (ipaddress, tcpport, password) {
       w = true;
       try {
-        var response = sendReq("GET", "settings(ip=" + ipaddress + ",port=" + tcpport + (password ? (",password=" + password) : "") + ",tcp=1)", null);
+        var response = this.sendReq("GET", "settings(ip=" + ipaddress + ",port=" + tcpport + (password ? (",password=" + password) : "") + ",tcp=1)", null);
         var df = response.getElementsByTagName("defVer");
         if (this.prototype.timeStamp && df.length > 0) {
           ok = (this.prototype.timeStamp === Number(df[0].firstChild.nodeValue));
@@ -438,7 +446,7 @@ Tremol.FP = Tremol.FP ||
     this.ServerGetClients = function () {
       w = true;
       try {
-        var response = sendReq("GET", "clients", null);
+        var response = this.sendReq("GET", "clients", null);
         var clientNodes = response.getElementsByTagName("Client");
         console.log("client nodes", clientNodes);
 
@@ -466,7 +474,7 @@ Tremol.FP = Tremol.FP ||
     this.ServerRemoveClient = function (ip) {
       w = true;
       try {
-        sendReq("GET", "clientremove(ip=" + ip + ")", null);
+        this.sendReq("GET", "clientremove(ip=" + ip + ")", null);
       }
       finally {
         w = false;
@@ -477,7 +485,7 @@ Tremol.FP = Tremol.FP ||
       w = true;
       try {
         if (!defsSent) {
-          sendReq("POST", "", defs);
+          this.sendReq("POST", "", defs);
           defsSent = true;
         }
       }
@@ -493,7 +501,7 @@ Tremol.FP = Tremol.FP ||
     this.ServerCloseDeviceConnection = function () {
       w = true;
       try {
-        sendReq("GET", "clientremove(who=me)", null);
+        this.sendReq("GET", "clientremove(who=me)", null);
       }
       finally {
         w = false;
@@ -507,7 +515,7 @@ Tremol.FP = Tremol.FP ||
     this.ServerRemoveAllClients = function () {
       w = true;
       try {
-        sendReq("GET", "clientremove(who=all)", null);
+        this.sendReq("GET", "clientremove(who=all)", null);
       }
       finally {
         w = false;
@@ -522,7 +530,7 @@ Tremol.FP = Tremol.FP ||
     this.ServerSetLog = function (enable) {
       w = true;
       try {
-        sendReq("GET", "log(on=" + (enable ? "1" : "0") + ")", null);
+        this.sendReq("GET", "log(on=" + (enable ? "1" : "0") + ")", null);
       }
       finally {
         w = false;

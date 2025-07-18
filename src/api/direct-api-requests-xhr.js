@@ -33,14 +33,14 @@ export const openCreditNoteWithFreeCustomerData = (
   const openCreditNoteWithFreeCustomerDataXMLString = `
     <Command Name="${zfpCommandName}">
       <Args>
-        <Arg Name="CompanyName" Value="${escapeForXML(companyName)}" />
-        <Arg Name="ClientPINnum" Value="${escapeForXML(clientPINNumber)}" />
-        <Arg Name="HeadQuarters" Value="${escapeForXML(headquarters)}" />
-        <Arg Name="Address" Value="${escapeForXML(address)}" />
-        <Arg Name="PostalCodeAndCity" Value="${escapeForXML(postalCodeAndCity)}" />
-        <Arg Name="ExemptionNum" Value="${escapeForXML(exemptionNumber)}" />
-        <Arg Name="RelatedInvoiceNum" Value="${escapeForXML(relatedInvoiceNumber)}" />
-        <Arg Name="TraderSystemInvNum" Value="${escapeForXML(traderSystemInvoiceNumber)}" />
+        <Arg Name="CompanyName" Value="${companyName}" />
+        <Arg Name="ClientPINnum" Value="${clientPINNumber}" />
+        <Arg Name="HeadQuarters" Value="${headquarters}" />
+        <Arg Name="Address" Value="${address}" />
+        <Arg Name="PostalCodeAndCity" Value="${postalCodeAndCity}" />
+        <Arg Name="ExemptionNum" Value="${exemptionNumber}" />
+        <Arg Name="RelatedInvoiceNum" Value="${relatedInvoiceNumber}" />
+        <Arg Name="TraderSystemInvNum" Value="${traderSystemInvoiceNumber}" />
       </Args>
     </Command>
   `.trim();
@@ -60,8 +60,7 @@ export const openCreditNoteWithFreeCustomerDataWithArgsParsing = (
   relatedInvoiceNumber,
   traderSystemInvoiceNumber
 ) => {
-  const openCreditNoteWithFreeCustomerDataXML = buildZFPCommandXMLFromArgs(
-    "OpenCreditNoteWithFreeCustomerData",
+  const openCreditNoteWithFreeCustomerDataArgs = [
     "CompanyName", companyName,
     "ClientPINnum", clientPINNumber,
     "HeadQuarters", headquarters,
@@ -70,6 +69,10 @@ export const openCreditNoteWithFreeCustomerDataWithArgsParsing = (
     "ExemptionNum", exemptionNumber,
     "RelatedInvoiceNum", relatedInvoiceNumber,
     "TraderSystemInvNum", traderSystemInvoiceNumber
+  ];
+
+  const openCreditNoteWithFreeCustomerDataXML = buildZFPCommandXMLFromArgs(
+    "OpenCreditNoteWithFreeCustomerData", ...openCreditNoteWithFreeCustomerDataArgs
   );
 
   const openCreditNoteWithFreeCustomerDataResponse = sendXHRRequest("POST", "", openCreditNoteWithFreeCustomerDataXML);
@@ -128,6 +131,7 @@ const sendXHRRequest = function (verb, endpoint, data, clientId) {
     }
 
     throwOnServerError(xmlResponse);
+
     return xmlResponse;
   } catch (error) {
     if (error instanceof Tremol.ServerError) {
@@ -230,44 +234,59 @@ const analyzeZFPLabServerResponseData = (zfpLabServerResponseXMLDocument) => {
   return resultObject;
 }
 
-const buildZFPCommandXMLFromArgs = (zfpCommandName, ...args) => { 
-  console.log(args);
-
-  if (args.length < 1) {
-    throw new Error("Invalid number of arguments!");
-  }
-
-  let zfpCommandXML = '<Command Name="' + zfpCommandName + '">';
-
-  if (args.length > 1) {
-    zfpCommandXML += "<Args>";
-
-    for (var a = 1; a < args.length; a += 2) {
-      if (typeof args[a + 1] === "string") {
-        zfpCommandXML += `<Arg Name="${args[a]}" Value="${escapeForXML(args[a + 1])}" />`;
-      }
-      else if (args[a + 1] instanceof Date) {
-        zfpCommandXML += `<Arg Name="${args[a]}" Value="${toTremolFpString(args[a + 1])}" />`;
-      }
-      else if (args[a + 1] instanceof Uint8Array) {
-        zfpCommandXML += `<Arg Name="${args[a]}" Value="${toBase64string(args[a + 1])}" />`;
-      }
-      else if (typeof args[a] === "undefined" || typeof args[a + 1] === "undefined" || args[a] == null || args[a + 1] == null) {
-        continue;
-      }
-      else {
-        zfpCommandXML += `<Arg Name="${args[a]}" Value="${escapeForXML(String(args[a + 1]))}" />`;
-      }
+const buildZFPCommandXMLFromArgs = (zfpCommandName, ...args) => {
+  try {
+    if (args.length < 1) {
+      throw new Error("Invalid number of arguments!");
     }
 
-    zfpCommandXML += "</Args>";
+    if ((args.length % 2) !== 0) {
+      throw new Error("Invalid number of arguments!");
+    }
+
+    let zfpCommandXML = '<Command Name="' + zfpCommandName + '">';
+
+    if (args.length > 1) {
+      zfpCommandXML += "<Args>";
+
+      for (let a = 0; a < args.length; a += 2) {
+        const argName = args[a];
+        const argValue = args[a + 1];
+
+        if (typeof argName === "undefined" || typeof argValue === "undefined" || argName == null || argValue == null) {
+          continue;
+        }
+
+        if (typeof argValue === "string") {
+          zfpCommandXML += `<Arg Name="${argName}" Value="${escapeForXML(argValue)}" />`;
+        }
+        else if (argValue instanceof Date) {
+          zfpCommandXML += `<Arg Name="${argName}" Value="${toTremolFpString(argValue)}" />`;
+        }
+        else if (argValue instanceof Uint8Array) {
+          zfpCommandXML += `<Arg Name="${argName}" Value="${toBase64string(argValue)}" />`;
+        }
+        else {
+          zfpCommandXML += `<Arg Name="${argName}" Value="${escapeForXML(String(argValue))}" />`;
+        }
+      }
+
+      zfpCommandXML += "</Args>";
+    }
+
+    zfpCommandXML += "</Command>";
+
+    console.log(zfpCommandXML);
+
+    return zfpCommandXML;
+
+  } catch (error) {
+    if (error instanceof Tremol.ServerError) {
+      throw error;
+    } else {
+      throw new Tremol.ServerError(error.message, Tremol.ServerErrorType.ServerErr)
+    }
   }
-
-  zfpCommandXML += "</Command>";
-
-  console.log(zfpCommandXML);
-
-  return zfpCommandXML;
 }
 
 // Utility Functions
@@ -276,7 +295,7 @@ export const parseDateWithCustomFormat = (stringParsedAsDate, customDateFormat) 
   let year = 0;
   let month = 0;
   let date = 0;
-  let hours= 0;
+  let hours = 0;
   let minutes = 0;
   let seconds = 0;
 
@@ -335,7 +354,7 @@ const base64stringToArrayBuffer = (inputString) => {
 const toBase64string = (byteArray) => {
   let binaryString = '';
 
-  for (var i = 0; i < byteArray.byteLength; i++) {
+  for (let i = 0; i < byteArray.byteLength; i++) {
     binaryString += String.fromCharCode(byteArray[i]);
   }
 

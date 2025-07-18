@@ -326,9 +326,18 @@ export const NavigationDrawer = () => {
 
     // await fp.ReadStatus();
 
-    await readStatus();
+    // await readStatus();
 
-    const fiscalDeviceModel = await readVersion();
+    console.log("before reading status");
+
+    const readStatusCommandXML = `<Command Name="ReadStatus"></Command>`;
+    await fp.sendReq("POST", "/ReadStatus", readStatusCommandXML);
+
+    console.log("after reading status");
+
+    const readVersionCommandXML = `<Command Name="ReadVersion"></Command>`;
+    const readVersionResponse = await fp.sendReq("POST", "/ReadStatus", readVersionCommandXML);
+    const fiscalDeviceModel = await fp.analyzeResponse(readVersionResponse);
 
     const fiscalDeviceSuccessfulConnectionMessage = connectionType === SERIAL_PORT_CONNECTION
       ? `(${fiscalDeviceModel}) on ${fiscalDeviceConnectionDetails.serialPort} and baud rate ${fiscalDeviceConnectionDetails.baudRate}`
