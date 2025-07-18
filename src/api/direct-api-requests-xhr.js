@@ -18,7 +18,7 @@ export const readVersion = () => {
   return analyzeZFPLabServerResponseData(readStatusResponse);
 };
 
-export const openCreditNoteWithFreeCustomerData = (
+export const openCreditNoteWithFreeCustomerDataManually = (
   companyName,
   clientPINNumber,
   headquarters,
@@ -33,14 +33,14 @@ export const openCreditNoteWithFreeCustomerData = (
   const openCreditNoteWithFreeCustomerDataXMLString = `
     <Command Name="${zfpCommandName}">
       <Args>
-        <Arg Name="CompanyName" Value="${companyName}" />
-        <Arg Name="ClientPINnum" Value="${clientPINNumber}" />
-        <Arg Name="HeadQuarters" Value="${headquarters}" />
-        <Arg Name="Address" Value="${address}" />
-        <Arg Name="PostalCodeAndCity" Value="${postalCodeAndCity}" />
-        <Arg Name="ExemptionNum" Value="${exemptionNumber}" />
-        <Arg Name="RelatedInvoiceNum" Value="${relatedInvoiceNumber}" />
-        <Arg Name="TraderSystemInvNum" Value="${traderSystemInvoiceNumber}" />
+        <Arg Name="CompanyName" Value="${escapeForXML(companyName)}" />
+        <Arg Name="ClientPINnum" Value="${escapeForXML(clientPINNumber)}" />
+        <Arg Name="HeadQuarters" Value="${escapeForXML(headquarters)}" />
+        <Arg Name="Address" Value="${escapeForXML(address)}" />
+        <Arg Name="PostalCodeAndCity" Value="${escapeForXML(postalCodeAndCity)}" />
+        <Arg Name="ExemptionNum" Value="${escapeForXML(exemptionNumber)}" />
+        <Arg Name="RelatedInvoiceNum" Value="${escapeForXML(relatedInvoiceNumber)}" />
+        <Arg Name="TraderSystemInvNum" Value="${escapeForXML(traderSystemInvoiceNumber)}" />
       </Args>
     </Command>
   `.trim();
@@ -49,6 +49,47 @@ export const openCreditNoteWithFreeCustomerData = (
 
   return analyzeZFPLabServerResponseData(openCreditNoteWithFreeCustomerDataResponse);
 };
+
+export const openCreditNoteWithFreeCustomerData = (
+  companyName,
+  clientPINNumber,
+  headquarters,
+  address,
+  postalCodeAndCity,
+  exemptionNumber,
+  relatedInvoiceNumber,
+  traderSystemInvoiceNumber
+) => {
+  const zfpCommandName = "OpenCreditNoteWithFreeCustomerData";
+
+  const openCreditNoteWithFreeCustomerDataArgs = [
+    { name: "CompanyName", value: companyName },
+    { name: "ClientPINnum", value: clientPINNumber },
+    { name: "HeadQuarters", value: headquarters },
+    { name: "Address", value: address },
+    { name: "PostalCodeAndCity", value: postalCodeAndCity },
+    { name: "ExemptionNum", value: exemptionNumber },
+    { name: "RelatedInvoiceNum", value: relatedInvoiceNumber },
+    { name: "TraderSystemInvNum", value: traderSystemInvoiceNumber },
+  ];
+
+  const openCreditNoteWithFreeCustomerDataArgsXML = openCreditNoteWithFreeCustomerDataArgs
+    .filter((({ value }) => value !== null && value !== undefined))
+    .map(({ name, value}) => `<Arg Name="${name}" Value="${escapeForXML(value)}"/>`)
+    .join("\n");
+
+  const openCreditNoteWithFreeCustomerDataXMLString = `
+    <Command Name="${zfpCommandName}">
+      <Args>
+        ${openCreditNoteWithFreeCustomerDataArgsXML}
+      </Args>
+    </Command>
+  `;
+  
+  const openCreditNoteWithFreeCustomerDataResponse = sendXHRRequest("POST", "", openCreditNoteWithFreeCustomerDataXMLString);
+
+  return analyzeZFPLabServerResponseData(openCreditNoteWithFreeCustomerDataResponse);
+}
 
 export const openCreditNoteWithFreeCustomerDataWithArgsParsing = (
   companyName,
@@ -376,6 +417,10 @@ const lpad = (value, size = 2) => {
 };
 
 const escapeForXML = (stringToEscapeForXML) => {
+  if (stringToEscapeForXML === null || stringToEscapeForXML === undefined) {
+    return '';
+  }
+
   return stringToEscapeForXML.toString()
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")

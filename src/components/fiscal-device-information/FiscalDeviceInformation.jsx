@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { isNullOrWhitespace } from '../../utils/helperFunctions';
+import { openCreditNoteWithFreeCustomerData, openCreditNoteWithFreeCustomerDataManually } from '../../api/direct-api-requests-xhr';
 import {
   READING_STATUS_ENTRIES_LOADING_MESSAGE,
   VERSION_INFO_ALERT_DIALOG_TITLE,
@@ -315,45 +316,13 @@ const FiscalDeviceInformation = () => {
 
   const handleOpenCreditNoteTestClick = async () => {
     try {
-      await openCreditNoteWithFreeCustomerDataWithArgsParsing("Tremol Ltd.", "123456789", "Test Credit Note", "Test Address", "Test City", "12345");
-      // await fp.OpenCreditNoteWithFreeCustomerData("Tremol Ltd.", "123456789", "Test Credit Note", "Test Address", "Test City", "12345");
-      await openCreditNoteWithFreeCustomerData("Tremol Ltd.", "123456789", "Test Credit Note", "Test Address", "Test City", "12345");
+      // await openCreditNoteWithFreeCustomerDataWithArgsParsing("Tremol Ltd.", null, null, "Toledo Street", "5000, Veliko Tarnovo", null, "0080003220000045779", null);
+      // await fp.OpenCreditNoteWithFreeCustomerData("Tremol Ltd.", null, null, "Toledo Street", "5000, Veliko Tarnovo", null, "0080003220000045779", null);
+      await openCreditNoteWithFreeCustomerDataManually("Tremol Ltd.", null, null, "Toledo Street", "5000, Veliko Tarnovo", null, "0080003220000045780", null);
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
     }
   }
-
-  const openCreditNoteWithFreeCustomerData = (
-    companyName,
-    clientPINNumber,
-    headquarters,
-    address,
-    postalCodeAndCity,
-    exemptionNumber,
-    relatedInvoiceNumber,
-    traderSystemInvoiceNumber
-  ) => {
-    const zfpCommandName = "OpenCreditNoteWithFreeCustomerData";
-  
-    const openCreditNoteWithFreeCustomerDataXMLString = `
-      <Command Name="${zfpCommandName}">
-        <Args>
-          <Arg Name="CompanyName" Value="${companyName}" />
-          <Arg Name="ClientPINnum" Value="${clientPINNumber}" />
-          <Arg Name="HeadQuarters" Value="${headquarters}" />
-          <Arg Name="Address" Value="${address}" />
-          <Arg Name="PostalCodeAndCity" Value="${postalCodeAndCity}" />
-          <Arg Name="ExemptionNum" Value="${exemptionNumber}" />
-          <Arg Name="RelatedInvoiceNum" Value="${relatedInvoiceNumber}" />
-          <Arg Name="TraderSystemInvNum" Value="${traderSystemInvoiceNumber}" />
-        </Args>
-      </Command>
-    `.trim();
-  
-    const openCreditNoteWithFreeCustomerDataResponse = this.fp.sendReq("POST", "", openCreditNoteWithFreeCustomerDataXMLString);
-  
-    return this.fp.analyzeResponse(openCreditNoteWithFreeCustomerDataResponse);
-  };
 
   const handleFiscalDeviceInformationAlertDialogOpen = (infoAlertDialogTitle, infoAlertDialogContent) => {
     setFiscalDeviceInformationAlertDialogTitle(infoAlertDialogTitle);
