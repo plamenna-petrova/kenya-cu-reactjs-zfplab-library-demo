@@ -33,7 +33,7 @@ import {
   setIsSearchingForFiscalDevice
 } from '../../store/slices/zfpConnectionSlice';
 import { enterFullscreenMode, exitFullscreenMode } from '../../store/slices/fullScreenModeSlice';
-import { readStatus, readVersion } from '../../api/direct-api-requests-xhr';
+import { readStatus, readVersion } from '../../api/direct-api-queries';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { getConfiguredFiscalDeviceConnectionSettings } from '../../utils/connectionUtils';
 import { toast } from 'react-toastify';
@@ -330,14 +330,14 @@ export const NavigationDrawer = () => {
 
     console.log("before reading status");
 
-    const readStatusCommandXML = `<Command Name="ReadStatus"></Command>`;
-    await fp.sendReq("POST", "/ReadStatus", readStatusCommandXML);
+    // const readStatusCommandXML = `<Command Name="ReadStatus"></Command>`;
+    // await fp.sendReq("POST", "/ReadStatus", readStatusCommandXML);
+
+    await readStatus();
 
     console.log("after reading status");
 
-    const readVersionCommandXML = `<Command Name="ReadVersion"></Command>`;
-    const readVersionResponse = await fp.sendReq("POST", "/ReadStatus", readVersionCommandXML);
-    const fiscalDeviceModel = await fp.analyzeResponse(readVersionResponse);
+    const fiscalDeviceModel = await readVersion();
 
     const fiscalDeviceSuccessfulConnectionMessage = connectionType === SERIAL_PORT_CONNECTION
       ? `(${fiscalDeviceModel}) on ${fiscalDeviceConnectionDetails.serialPort} and baud rate ${fiscalDeviceConnectionDetails.baudRate}`

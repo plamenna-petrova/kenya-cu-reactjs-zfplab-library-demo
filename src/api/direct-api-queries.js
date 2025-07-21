@@ -6,48 +6,14 @@ const TREMOL_FP_DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
 
 // Requests
 
-export const readStatus = () => {
-  const readStatusCommandXML = `<Command Name="ReadStatus"></Command>`;
-  const readStatusResponse = sendXHRRequest("POST", "/ReadStatus", readStatusCommandXML);
+export const readStatus = async () => {
+  const readStatusResponse = sendXHRRequest("GET", '/ReadStatus', null);
   return analyzeZFPLabServerResponseData(readStatusResponse);
 };
 
-export const readVersion = () => {
-  const readStatusCommandXML = `<Command Name="ReadVersion"></Command>`;
-  const readStatusResponse = sendXHRRequest("POST", "/ReadVersion", readStatusCommandXML);
-  return analyzeZFPLabServerResponseData(readStatusResponse);
-};
-
-export const openCreditNoteWithFreeCustomerDataManually = (
-  companyName,
-  clientPINNumber,
-  headquarters,
-  address,
-  postalCodeAndCity,
-  exemptionNumber,
-  relatedInvoiceNumber,
-  traderSystemInvoiceNumber
-) => {
-  const zfpCommandName = "OpenCreditNoteWithFreeCustomerData";
-
-  const openCreditNoteWithFreeCustomerDataXMLString = `
-    <Command Name="${zfpCommandName}">
-      <Args>
-        <Arg Name="CompanyName" Value="${escapeForXML(companyName)}" />
-        <Arg Name="ClientPINnum" Value="${escapeForXML(clientPINNumber)}" />
-        <Arg Name="HeadQuarters" Value="${escapeForXML(headquarters)}" />
-        <Arg Name="Address" Value="${escapeForXML(address)}" />
-        <Arg Name="PostalCodeAndCity" Value="${escapeForXML(postalCodeAndCity)}" />
-        <Arg Name="ExemptionNum" Value="${escapeForXML(exemptionNumber)}" />
-        <Arg Name="RelatedInvoiceNum" Value="${escapeForXML(relatedInvoiceNumber)}" />
-        <Arg Name="TraderSystemInvNum" Value="${escapeForXML(traderSystemInvoiceNumber)}" />
-      </Args>
-    </Command>
-  `.trim();
-
-  const openCreditNoteWithFreeCustomerDataResponse = sendXHRRequest("POST", "", openCreditNoteWithFreeCustomerDataXMLString);
-
-  return analyzeZFPLabServerResponseData(openCreditNoteWithFreeCustomerDataResponse);
+export const readVersion = async () => {
+  const readVersionResponse = sendXHRRequest("GET", '/ReadVersion', null);
+  return analyzeZFPLabServerResponseData(readVersionResponse);
 };
 
 export const openCreditNoteWithFreeCustomerData = (
@@ -58,65 +24,32 @@ export const openCreditNoteWithFreeCustomerData = (
   postalCodeAndCity,
   exemptionNumber,
   relatedInvoiceNumber,
-  traderSystemInvoiceNumber
+  traderSystemInvoiceNumber,
 ) => {
   const zfpCommandName = "OpenCreditNoteWithFreeCustomerData";
 
-  const openCreditNoteWithFreeCustomerDataArgs = [
-    { name: "CompanyName", value: companyName },
-    { name: "ClientPINnum", value: clientPINNumber },
-    { name: "HeadQuarters", value: headquarters },
-    { name: "Address", value: address },
-    { name: "PostalCodeAndCity", value: postalCodeAndCity },
-    { name: "ExemptionNum", value: exemptionNumber },
-    { name: "RelatedInvoiceNum", value: relatedInvoiceNumber },
-    { name: "TraderSystemInvNum", value: traderSystemInvoiceNumber },
-  ];
+  const openCreditNoteWithFreeCustomerDataParams = {
+    CompanyName: companyName,
+    ClientPINnum: clientPINNumber,
+    HeadQuarters: headquarters,
+    Address: address,
+    PostalCodeAndCity: postalCodeAndCity,
+    ExemptionNum: exemptionNumber,
+    RelatedInvoiceNum: relatedInvoiceNumber,
+    TraderSystemInvNum: traderSystemInvoiceNumber,
+  };
 
-  const openCreditNoteWithFreeCustomerDataArgsXML = openCreditNoteWithFreeCustomerDataArgs
-    .filter((({ value }) => value !== null && value !== undefined))
-    .map(({ name, value}) => `<Arg Name="${name}" Value="${escapeForXML(value)}"/>`)
-    .join("\n");
+  const openCreditNoteWithFreeCustomerDataQueryString = Object.entries(openCreditNoteWithFreeCustomerDataParams)
+    .filter(([, value]) => value !== null && value !== undefined) 
+    .map(([key, value]) => `${key}=${value.trim()}`)
+    .join(",");
 
-  const openCreditNoteWithFreeCustomerDataXMLString = `
-    <Command Name="${zfpCommandName}">
-      <Args>
-        ${openCreditNoteWithFreeCustomerDataArgsXML}
-      </Args>
-    </Command>
-  `;
-  
-  const openCreditNoteWithFreeCustomerDataResponse = sendXHRRequest("POST", "", openCreditNoteWithFreeCustomerDataXMLString);
+  console.log("query string");
+  console.log(openCreditNoteWithFreeCustomerDataQueryString);
 
-  return analyzeZFPLabServerResponseData(openCreditNoteWithFreeCustomerDataResponse);
-}
+  const endpoint = `/${zfpCommandName}(${openCreditNoteWithFreeCustomerDataQueryString})`;
 
-export const openCreditNoteWithFreeCustomerDataWithArgsParsing = (
-  companyName,
-  clientPINNumber,
-  headquarters,
-  address,
-  postalCodeAndCity,
-  exemptionNumber,
-  relatedInvoiceNumber,
-  traderSystemInvoiceNumber
-) => {
-  const openCreditNoteWithFreeCustomerDataArgs = [
-    "CompanyName", companyName,
-    "ClientPINnum", clientPINNumber,
-    "HeadQuarters", headquarters,
-    "Address", address,
-    "PostalCodeAndCity", postalCodeAndCity,
-    "ExemptionNum", exemptionNumber,
-    "RelatedInvoiceNum", relatedInvoiceNumber,
-    "TraderSystemInvNum", traderSystemInvoiceNumber
-  ];
-
-  const openCreditNoteWithFreeCustomerDataXML = buildZFPCommandXMLFromArgs(
-    "OpenCreditNoteWithFreeCustomerData", ...openCreditNoteWithFreeCustomerDataArgs
-  );
-
-  const openCreditNoteWithFreeCustomerDataResponse = sendXHRRequest("POST", "", openCreditNoteWithFreeCustomerDataXML);
+  const openCreditNoteWithFreeCustomerDataResponse = sendXHRRequest("GET", endpoint, null);
 
   return analyzeZFPLabServerResponseData(openCreditNoteWithFreeCustomerDataResponse);
 };
@@ -275,59 +208,6 @@ const analyzeZFPLabServerResponseData = (zfpLabServerResponseXMLDocument) => {
   return resultObject;
 }
 
-const buildZFPCommandXMLFromArgs = (zfpCommandName, ...args) => {
-  try {
-    if (args.length < 1) {
-      throw new Error("Invalid number of arguments!");
-    }
-
-    if ((args.length % 2) !== 0) {
-      throw new Error("Invalid number of arguments!");
-    }
-
-    let zfpCommandXML = '<Command Name="' + zfpCommandName + '">';
-
-    if (args.length > 1) {
-      zfpCommandXML += "<Args>";
-
-      for (let a = 0; a < args.length; a += 2) {
-        const argName = args[a];
-        const argValue = args[a + 1];
-
-        if (typeof argName === "undefined" || typeof argValue === "undefined" || argName == null || argValue == null) {
-          continue;
-        }
-
-        if (typeof argValue === "string") {
-          zfpCommandXML += `<Arg Name="${argName}" Value="${escapeForXML(argValue)}" />`;
-        }
-        else if (argValue instanceof Date) {
-          zfpCommandXML += `<Arg Name="${argName}" Value="${toTremolFpString(argValue)}" />`;
-        }
-        else if (argValue instanceof Uint8Array) {
-          zfpCommandXML += `<Arg Name="${argName}" Value="${toBase64string(argValue)}" />`;
-        }
-        else {
-          zfpCommandXML += `<Arg Name="${argName}" Value="${escapeForXML(String(argValue))}" />`;
-        }
-      }
-
-      zfpCommandXML += "</Args>";
-    }
-
-    zfpCommandXML += "</Command>";
-
-    return zfpCommandXML;
-
-  } catch (error) {
-    if (error instanceof Tremol.ServerError) {
-      throw error;
-    } else {
-      throw new Tremol.ServerError(error.message, Tremol.ServerErrorType.ServerErr)
-    }
-  }
-}
-
 // Utility Functions
 
 export const parseDateWithCustomFormat = (stringParsedAsDate, customDateFormat) => {
@@ -388,45 +268,6 @@ const base64stringToArrayBuffer = (inputString) => {
   }
 
   return uint8BytesArray;
-};
-
-const toBase64string = (byteArray) => {
-  let binaryString = '';
-
-  for (let i = 0; i < byteArray.byteLength; i++) {
-    binaryString += String.fromCharCode(byteArray[i]);
-  }
-
-  return window.btoa(binaryString);
-};
-
-const toTremolFpString = (dateObject = new Date()) => {
-  const date = lpad(dateObject.getDate());
-  const month = lpad((dateObject.getMonth() + 1));
-  const year = lpad(dateObject.getFullYear(), 4);
-  const hours = lpad(dateObject.getHours());
-  const minutes = lpad(dateObject.getMinutes());
-  const seconds = lpad(dateObject.getSeconds());
-  return `${date}-${month}-${year} ${hours}:${minutes}:${seconds}`;
-};
-
-const lpad = (value, size = 2) => {
-  return String(value).padStart(size, "0");
-};
-
-const escapeForXML = (stringToEscapeForXML) => {
-  if (stringToEscapeForXML === null || stringToEscapeForXML === undefined) {
-    return '';
-  }
-
-  return stringToEscapeForXML.toString()
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&apos;")
-    .replaceAll("\n", "&#10;")
-    .replaceAll("\r", "&#13;");
 };
 
 export const generateExportFileName = (fileName, fileExtension) => {

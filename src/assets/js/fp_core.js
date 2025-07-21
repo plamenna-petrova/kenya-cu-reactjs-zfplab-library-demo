@@ -536,6 +536,22 @@ Tremol.FP = Tremol.FP ||
         w = false;
       }
     };
+
+    /**
+      * Get 
+      * @throws {Error}
+      * @param {boolean} enable enable the log
+    */
+    this.ServerGetLog = function () {
+      w = true;
+      try {
+        var response = this.sendReq("GET", "log()", null);
+        return response;
+      }
+      finally {
+        w = false;
+      }
+    }
   };
 
 

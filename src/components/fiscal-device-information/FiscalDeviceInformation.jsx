@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import { executeFPOperationWithLoading } from '../../utils/loadingUtils';
 import { handleZFPLabServerError } from '../../utils/tremolLibraryUtils';
 import { isNullOrWhitespace } from '../../utils/helperFunctions';
-import { openCreditNoteWithFreeCustomerData, openCreditNoteWithFreeCustomerDataManually } from '../../api/direct-api-requests-xhr';
+import { openCreditNoteWithFreeCustomerDataManually } from '../../api/direct-api-requests-xhr';
 import {
   READING_STATUS_ENTRIES_LOADING_MESSAGE,
   VERSION_INFO_ALERT_DIALOG_TITLE,
@@ -40,6 +40,7 @@ import DirectCommands from './direct-commands/DirectCommands';
 // eslint-disable-next-line no-unused-vars
 import Tremol from "../../assets/js/fp";
 import { saveLog, openCreditNoteWithFreeCustomerDataWithArgsParsing } from '../../api/direct-api-requests-xhr';
+import { openCreditNoteWithFreeCustomerData } from '../../api/direct-api-queries';
 
 const STATUS_ENTRY_NAME_LABEL = "Name";
 
@@ -308,6 +309,8 @@ const FiscalDeviceInformation = () => {
 
   const handleSaveLogToATXTFileClick = () => {
     try {
+      const log = fp.ServerGetLog();
+      console.log(log);
       saveLog();
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
@@ -318,7 +321,8 @@ const FiscalDeviceInformation = () => {
     try {
       // await openCreditNoteWithFreeCustomerDataWithArgsParsing("Tremol Ltd.", null, null, "Toledo Street", "5000, Veliko Tarnovo", null, "0080003220000045779", null);
       // await fp.OpenCreditNoteWithFreeCustomerData("Tremol Ltd.", null, null, "Toledo Street", "5000, Veliko Tarnovo", null, "0080003220000045779", null);
-      await openCreditNoteWithFreeCustomerDataManually("Tremol Ltd.", null, null, "Toledo Street", "5000, Veliko Tarnovo", null, "0080003220000045780", null);
+      // await openCreditNoteWithFreeCustomerDataManually("Tremol Ltd.", null, null, "Toledo Street", "5000, Veliko Tarnovo", null, "0080003220000045780", null);
+      await openCreditNoteWithFreeCustomerData("Tremol Ltd.", null, null, "Toledo Street", "5000, Veliko Tarnovo", null, "0080003220000045783", null);
     } catch (error) {
       toast.error(handleZFPLabServerError(error));
     }
