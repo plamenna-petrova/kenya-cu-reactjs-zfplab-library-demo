@@ -142,7 +142,7 @@ export const saveLog = () => {
 
 // Core Logic
 
-const sendXHRRequest = function (verb, endpoint, data, clientId) {
+const sendXHRRequest = (verb, endpoint, data, clientId) => {
   const xmlHttpRequest = new XMLHttpRequest();
   const domParser = new DOMParser();
   const url = `${DEFAULT_ZFP_LAB_SERVER_ADDRESS}${endpoint}${clientId ? `?client=${clientId}` : ''}`;
