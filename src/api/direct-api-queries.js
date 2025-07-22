@@ -6,14 +6,77 @@ const TREMOL_FP_DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
 
 // Requests
 
-export const readStatus = async () => {
+export const readStatus = () => {
   const readStatusResponse = sendXHRRequest("GET", '/ReadStatus', null);
   return analyzeZFPLabServerResponseData(readStatusResponse);
 };
 
-export const readVersion = async () => {
+export const readStatusZFPCommand = () => {
+  return sendZFPCommand("ReadStatus");
+}
+
+export const readVersion = () => {
   const readVersionResponse = sendXHRRequest("GET", '/ReadVersion', null);
   return analyzeZFPLabServerResponseData(readVersionResponse);
+};
+
+export const readVersionZFPCommand = () => { 
+  return sendZFPCommand("ReadVersion");
+}
+
+export const openCreditNoteWithFreeCustomerDataManually = (
+  companyName,
+  clientPINNumber,
+  headquarters,
+  address,
+  postalCodeAndCity,
+  exemptionNumber,
+  relatedInvoiceNumber,
+  traderSystemInvoiceNumber,
+) => {
+  const zfpCommandName = "OpenCreditNoteWithFreeCustomerData";
+
+  const openCreditNoteWithFreeCustomerDataParams = [];
+  
+  if (companyName) {
+    openCreditNoteWithFreeCustomerDataParams.push(`CompanyName=${companyName}`);
+  }
+
+  if (clientPINNumber) {
+    openCreditNoteWithFreeCustomerDataParams.push(`ClientPINnum=${clientPINNumber}`);
+  }
+
+  if (headquarters) {
+    openCreditNoteWithFreeCustomerDataParams.push(`HeadQuarters=${headquarters}`);
+  }
+
+  if (address) {
+    openCreditNoteWithFreeCustomerDataParams.push(`Address=${address}`);
+  }
+
+  if (postalCodeAndCity) {
+    openCreditNoteWithFreeCustomerDataParams.push(`PostalCodeAndCity=${postalCodeAndCity}`);
+  }
+
+  if (exemptionNumber) {
+    openCreditNoteWithFreeCustomerDataParams.push(`ExemptionNum=${exemptionNumber}`);
+  }
+
+  if (relatedInvoiceNumber) {
+    openCreditNoteWithFreeCustomerDataParams.push(`RelatedInvoiceNum=${relatedInvoiceNumber}`);
+  }
+
+  if (traderSystemInvoiceNumber) {
+    openCreditNoteWithFreeCustomerDataParams.push(`TraderSystemInvNum=${traderSystemInvoiceNumber}`);
+  }
+
+  const openCreditNoteWithFreeCustomerDataQuery = `/${zfpCommandName}(${openCreditNoteWithFreeCustomerDataParams.join(",")})`;
+
+  const openCreditNoteWithFreeCustomerDataResponse = sendXHRRequest(
+    "GET", openCreditNoteWithFreeCustomerDataQuery, null
+  );
+
+  return analyzeZFPLabServerResponseData(openCreditNoteWithFreeCustomerDataResponse);
 };
 
 export const openCreditNoteWithFreeCustomerData = (
@@ -27,7 +90,7 @@ export const openCreditNoteWithFreeCustomerData = (
   traderSystemInvoiceNumber,
 ) => {
   const zfpCommandName = "OpenCreditNoteWithFreeCustomerData";
-
+  
   const openCreditNoteWithFreeCustomerDataParams = {
     CompanyName: companyName,
     ClientPINnum: clientPINNumber,
@@ -41,17 +104,40 @@ export const openCreditNoteWithFreeCustomerData = (
 
   const openCreditNoteWithFreeCustomerDataQueryString = Object.entries(openCreditNoteWithFreeCustomerDataParams)
     .filter(([, value]) => value !== null && value !== undefined) 
-    .map(([key, value]) => `${key}=${value.trim()}`)
+    .map(([key, value]) => `${key}=${value}`)
     .join(",");
 
-  console.log("query string");
-  console.log(openCreditNoteWithFreeCustomerDataQueryString);
-
-  const endpoint = `/${zfpCommandName}(${openCreditNoteWithFreeCustomerDataQueryString})`;
-
-  const openCreditNoteWithFreeCustomerDataResponse = sendXHRRequest("GET", endpoint, null);
+  const openCreditNoteWithFreeCustomerDataResponse = sendXHRRequest(
+    "GET", `/${zfpCommandName}(${openCreditNoteWithFreeCustomerDataQueryString})`, null
+  );
 
   return analyzeZFPLabServerResponseData(openCreditNoteWithFreeCustomerDataResponse);
+};
+
+export const openCreditNoteWithFreeCustomerDataZFPCommand = (
+  companyName,
+  clientPINNumber,
+  headquarters,
+  address,
+  postalCodeAndCity,
+  exemptionNumber,
+  relatedInvoiceNumber,
+  traderSystemInvoiceNumber,
+) => {
+  const zfpCommandName = "OpenCreditNoteWithFreeCustomerData";
+  
+  const openCreditNoteWithFreeCustomerDataParams = {
+    CompanyName: companyName,
+    ClientPINnum: clientPINNumber,
+    HeadQuarters: headquarters,
+    Address: address,
+    PostalCodeAndCity: postalCodeAndCity,
+    ExemptionNum: exemptionNumber,
+    RelatedInvoiceNum: relatedInvoiceNumber,
+    TraderSystemInvNum: traderSystemInvoiceNumber,
+  };
+
+  return sendZFPCommand(zfpCommandName, openCreditNoteWithFreeCustomerDataParams);
 };
 
 export const saveLog = () => {
@@ -208,6 +294,25 @@ const analyzeZFPLabServerResponseData = (zfpLabServerResponseXMLDocument) => {
   return resultObject;
 }
 
+export const sendZFPCommand = (commandName, commandParams = {}) => {
+  const commandQuery = Object.entries(commandParams)
+    .filter(([, value]) => value !== null && value !== undefined)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(",");
+
+  const endpoint = `/${commandName}${commandQuery ? `(${commandQuery})` : ""}`;
+
+  const zfpCommandResponse = sendXHRRequest("GET", endpoint, null);
+
+  return analyzeZFPLabServerResponseData(zfpCommandResponse);
+};
+
+const addParam = (params, key, value) => {
+  if (value) {
+    params.push(`${key}=${sanitizeString(value)}`);
+  }
+};
+
 // Utility Functions
 
 export const parseDateWithCustomFormat = (stringParsedAsDate, customDateFormat) => {
@@ -269,6 +374,8 @@ const base64stringToArrayBuffer = (inputString) => {
 
   return uint8BytesArray;
 };
+
+const sanitizeString = (value) => String(value).replace(/[,()]/g, " ");
 
 export const generateExportFileName = (fileName, fileExtension) => {
   const currentTimeForFileExport = new Date();

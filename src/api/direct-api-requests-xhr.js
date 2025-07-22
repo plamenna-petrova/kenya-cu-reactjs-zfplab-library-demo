@@ -275,6 +275,24 @@ const analyzeZFPLabServerResponseData = (zfpLabServerResponseXMLDocument) => {
   return resultObject;
 }
 
+export const sendZFPCommand = (commandName, commandParams = {}, usePost = false) => {
+  if (usePost) {
+    const argsArray = Object.entries(commandParams).flat();
+    const xml = buildZFPCommandXMLFromArgs(commandName, ...argsArray);
+    const postCommandResponse = sendXHRRequest("POST", "", xml);
+    return analyzeZFPLabServerResponseData(postCommandResponse);
+  }
+
+  const commandQuery = Object.entries(commandParams)
+    .filter(([, value]) => value !== null && value !== undefined)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(",");
+
+  const endpoint = `/${commandName}${commandQuery ? `(${commandQuery})` : ""}`;
+  const getCommandResponse = sendXHRRequest("GET", endpoint, null);
+  return analyzeZFPLabServerResponseData(getCommandResponse);
+};
+
 const buildZFPCommandXMLFromArgs = (zfpCommandName, ...args) => {
   try {
     if (args.length < 1) {
